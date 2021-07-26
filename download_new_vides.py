@@ -30,6 +30,7 @@ def download_thumbnails():
             mapping[url].append(img_name)
             thumbn = f"/home/home/thumbnail/{img_name}"
             if os.path.exists(thumbn):
+                to_skip = [url]
                 continue
             com = f"curl {thumbnail.strip()} > {thumbn}"
             os.system(com)
@@ -41,19 +42,13 @@ def download_videos(x):
     try:
         url, v = x
         file_name = v[3]
+        if (url in to_skip) or (file_name in iter_):
+            return None
         # file_name = f'Videos/{list(os.popen(f"youtube-dl --restrict-filenames --get-filename {url}"))[0].strip()}'
         subprocess.check_call(['youtube-dl', url, '-o', file_name])
         open("downloaded.txt", "a").write(url+"\n")
     except Exception as e:
         errors[url] = ["download_videos",e, str(datetime.now())]
-
-
-channels = [
-    ('robocar', "https://www.youtube.com/c/robocarpoli/videos"),
-    ('VladandNiki', "https://www.youtube.com/c/VladandNiki/videos"),
-    ('ChuchuTv', "https://www.youtube.com/c/ChuChuTVBedtimeStories/videos")
-]
-
 
 
 def main():
@@ -66,21 +61,44 @@ def main():
             x_2 = [i for i in urls if not i in downloaded]
             for u in x_2:
                 x = json.loads(list(os.popen(f"youtube-dl -j  {u}"))[0])
+                id_ = x['id']
+
                 if int(x['duration']) == 0:
+                    to_skip.append(u)
                     continue
                 duration = str(timedelta(seconds=int(x['duration'])))
                 if duration.split(":")[0] == "0":
                     duration = "0" + duration
+
+                video_name = "/home/home/Videos/" + list(os.popen(f"youtube-dl --restrict-filenames --get-filename {u}"))[0].strip()
+                video_name = video_name.replace(id_, "").replace(" ", "").replace("-.", ".")
+                if video_name in iter_:
+                    to_skip.append(u)
+                    continue
+
                 mapping[u] = [channel, 
                               x['upload_date'], 
                               duration, 
-                              "/home/home/Videos/" + list(os.popen(f"youtube-dl --restrict-filenames --get-filename {u}"))[0].strip()
+                              video_name
                               ]
     except Exception as e:
+        print(e)
         errors[url] = ["main",e, str(datetime.now())]
+
+to_skip = []
+
+channels = [
+    ('robocar', "https://www.youtube.com/c/robocarpoli/videos"),
+    ('VladandNiki', "https://www.youtube.com/c/VladandNiki/videos"),
+    ('ChuchuTv', "https://www.youtube.com/c/ChuChuTVBedtimeStories/videos")
+]
+
+import itertools
+iter_ = list(itertools.chain.from_iterable(list(mapping.values())))
 
 
 main()
+
 download_thumbnails()
 pickle.dump(errors, open("Error_file.pkl", 'wb'))
 
