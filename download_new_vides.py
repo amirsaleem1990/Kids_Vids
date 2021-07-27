@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+import re
 from datetime import timedelta
 import get_soup_object_using_selenium
 import multiprocessing.dummy
@@ -15,10 +16,10 @@ if not os.path.exists("/home/home/thumbnail/"):
     raise Exception("No directory /home/home/thumbnail/")
 
 
-if os.path.exists("mapping.pkl"):
-    mapping = pickle.load(open("mapping.pkl", 'rb'))
-else:
-    mapping = dict()
+# if os.path.exists("mapping.pkl"):
+#     mapping = pickle.load(open("mapping.pkl", 'rb'))
+# else:
+mapping = dict()
 
 if os.path.exists("Error_file.pkl"):
     errors = pickle.load(open("Error_file.pkl", 'rb'))
@@ -27,7 +28,6 @@ else:
 
 def download_thumbnails():
     global mapping
-    print("\n---- Starting download_thumbnails ........")
     try:
         for url, values in mapping.items():
             com = f"youtube-dl --no-playlist {url} --list-thumbnails"
@@ -45,6 +45,7 @@ def download_thumbnails():
         mapping[url].append("Error")
 
 def download_videos(x):
+    print("\n---- download_videos called ........")
     try:
         url, v = x
         file_name = v[3]
@@ -57,7 +58,8 @@ def download_videos(x):
         errors[url] = ["download_videos",e, str(datetime.now())]
 
 
-def main():
+def gather_meta_data():
+    print("\n---- gather_meta_data called ........")
     try:
         if os.path.exists("downloaded.txt"):
             downloaded = open("downloaded.txt", 'r').read().splitlines()
@@ -69,30 +71,37 @@ def main():
             urls = ['https://www.youtube.com'+i for i in x if i.startswith("/watch?")]
             x_2 = [i for i in urls if not i in downloaded]
             for u in x_2:
-                x = json.loads(list(os.popen(f"youtube-dl -j  {u}"))[0])
-                id_ = x['id']
+                try:
+                    print(f'Extracting information about <{u}>')
+                    x = json.loads(list(os.popen(f"youtube-dl -j  {u}"))[0])
+                    id_ = x['id']
 
-                if int(x['duration']) == 0:
-                    to_skip.append(u)
-                    continue
-                duration = str(timedelta(seconds=int(x['duration'])))
-                if duration.split(":")[0] == "0":
-                    duration = "0" + duration
+                    if int(x['duration']) == 0:
+                        to_skip.append(u)
+                        continue
+                    duration = str(timedelta(seconds=int(x['duration'])))
+                    if duration.split(":")[0] == "0":
+                        duration = "0" + duration
 
-                video_name = "/home/home/Videos/" + list(os.popen(f"youtube-dl --restrict-filenames --get-filename {u}"))[0].strip()
-                video_name = video_name.replace(id_, "").replace(" ", "").replace("-.", ".")
-                if video_name in iter_:
-                    to_skip.append(u)
-                    continue
+                    # video_name = "/home/home/Videos/" + list(os.popen(f"youtube-dl --restrict-filenames --get-filename {u}"))[0].strip()
+                    # video_name = video_name.replace(id_, "").replace(" ", "").replace("-.", ".")
+                    n_ = ''.join([i if i in "abcdefghijklmnopqrstuvwxyz" else "_" for i in x.get("title").lower()])
+                    video_name = f"{re.sub('_+', '_', n_).strip('_')}.{x['ext']}"
 
-                mapping[u] = [channel, 
-                              x['upload_date'], 
-                              duration, 
-                              video_name
-                              ]
+                    if video_name in iter_:
+                        to_skip.append(u)
+                        continue
+
+                    mapping[u] = [channel, 
+                                  x['upload_date'], 
+                                  duration, 
+                                  video_name
+                                  ]
+                except Exception as e:
+                    errors[url] = ["faild to extract data",e, str(datetime.now())]
     except Exception as e:
         print(e)
-        errors[url] = ["main",e, str(datetime.now())]
+        errors[url] = ["gather_meta_data",e, str(datetime.now())]
 
 to_skip = []
 
@@ -106,7 +115,7 @@ import itertools
 iter_ = list(itertools.chain.from_iterable(list(mapping.values())))
 
 
-main()
+gather_meta_data()
 
 download_thumbnails()
 pickle.dump(errors, open("Error_file.pkl", 'wb'))
@@ -133,5 +142,5 @@ pickle.dump(mapping, open("mapping.pkl", 'wb'))
 
 if len(mapping):
     p = multiprocessing.dummy.Pool()
-    print("\n---- Starting download_videos ........")
+    print("\n---- download_thumbnails called ........")
     p.map(download_videos, list(mapping.items()))

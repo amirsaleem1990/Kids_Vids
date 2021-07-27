@@ -1,6 +1,6 @@
 import pickle
 import os
-x = pickle.load(open("/home/home/github/Kids_Vids/mapping.pkl", 'rb'))
+x = pickle.load(open("mapping.pkl", 'rb'))
 s = """<!DOCTYPE html><html><body><div id="contents">"""
 def func_(vid, img):
     # if 'robo' in vid.lower(): 
