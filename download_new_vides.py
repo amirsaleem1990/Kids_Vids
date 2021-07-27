@@ -58,50 +58,37 @@ def download_videos(x):
         errors[url] = ["download_videos",e, str(datetime.now())]
 
 
-def gather_meta_data():
+def gather_meta_data(u):
     print("\n---- gather_meta_data called ........")
     try:
-        if os.path.exists("downloaded.txt"):
-            downloaded = open("downloaded.txt", 'r').read().splitlines()
-        else:
-            downloaded = []
-        for i in channels:
-            channel, url = i
-            x = get_soup_object_using_selenium.get_soup_object_using_selenium(url)[0]
-            urls = ['https://www.youtube.com'+i for i in x if i.startswith("/watch?")]
-            x_2 = [i for i in urls if not i in downloaded]
-            for u in x_2:
-                try:
-                    print(f'Extracting information about <{u}>')
-                    x = json.loads(list(os.popen(f"youtube-dl -j  {u}"))[0])
-                    id_ = x['id']
+        print(f'----------------------Extracting information about <{u}>')
+        
+        id_ = x['id']
 
-                    if int(x['duration']) == 0:
-                        to_skip.append(u)
-                        continue
-                    duration = str(timedelta(seconds=int(x['duration'])))
-                    if duration.split(":")[0] == "0":
-                        duration = "0" + duration
+        if int(x['duration']) == 0:
+            to_skip.append(u)
+            return None
+        duration = str(timedelta(seconds=int(x['duration'])))
+        if duration.split(":")[0] == "0":
+            duration = "0" + duration
 
-                    # video_name = "/home/home/Videos/" + list(os.popen(f"youtube-dl --restrict-filenames --get-filename {u}"))[0].strip()
-                    # video_name = video_name.replace(id_, "").replace(" ", "").replace("-.", ".")
-                    n_ = ''.join([i if i in "abcdefghijklmnopqrstuvwxyz" else "_" for i in x.get("title").lower()])
-                    video_name = f"{re.sub('_+', '_', n_).strip('_')}.{x['ext']}"
+        # video_name = "/home/home/Videos/" + list(os.popen(f"youtube-dl --restrict-filenames --get-filename {u}"))[0].strip()
+        # video_name = video_name.replace(id_, "").replace(" ", "").replace("-.", ".")
+        n_ = ''.join([i if i in "abcdefghijklmnopqrstuvwxyz" else "_" for i in x.get("title").lower()])
+        video_name = f"{re.sub('_+', '_', n_).strip('_')}.{x['ext']}"
 
-                    if video_name in iter_:
-                        to_skip.append(u)
-                        continue
+        if video_name in iter_:
+            to_skip.append(u)
+            return None
 
-                    mapping[u] = [channel, 
-                                  x['upload_date'], 
-                                  duration, 
-                                  video_name
-                                  ]
-                except Exception as e:
-                    errors[url] = ["faild to extract data",e, str(datetime.now())]
+        mapping[u] = [channel, 
+                      x['upload_date'], 
+                      duration, 
+                      video_name
+                      ]
     except Exception as e:
-        print(e)
-        errors[url] = ["gather_meta_data",e, str(datetime.now())]
+        print(f"\n\n\nUrl: {u}\nError: {e}\n\n\n")
+        errors[url] = ["faild to extract data",e, str(datetime.now())]
 
 to_skip = []
 
@@ -113,6 +100,55 @@ channels = [
 
 import itertools
 iter_ = list(itertools.chain.from_iterable(list(mapping.values())))
+
+if os.path.exists("downloaded.txt"):
+    downloaded = open("downloaded.txt", 'r').read().splitlines()
+else:
+    downloaded = []
+
+# to_download = []
+# for i in channels:
+#     channel, url = i
+#     x = get_soup_object_using_selenium.get_soup_object_using_selenium(url)[0]
+#     urls = ['https://www.youtube.com'+i for i in x if i.startswith("/watch?")]
+#     x_2 = [i for i in urls if not i in downloaded]
+#     to_download += x_2
+
+
+# pickle.dump(to_download, open("to_download.pkl", 'wb'))
+# print("\n\n ---------------------------- to_download saved as to_download.pkl\n\n")
+
+to_download = pickle.load(open("to_download.pkl", 'rb'))
+
+# def func(u): 
+#     subprocess.call(['youtube-dl', '-j', u], stdout=open(f'jsons/{u.replace("/", "_")}', "w"))
+#     print(f"{u}  .............................")
+# import multiprocessing.dummy
+# import subprocess
+# p = multiprocessing.dummy.Pool()
+# p.map(func, to_download)
+
+# import time
+for u in to_download:
+    print(f'.............................{u}')
+    com =  (f"youtube-dl -j '{u}' > jsons/\'{u.replace('/', '_')}\'")
+    os.system(com)
+    time.sleep(5)
+
+# d_ = {}
+# for u in to_download:
+#     try:
+#         d_[u] = json.loads(list(os.popen(f"youtube-dl -j  {u} 2>/dev/null"))[0])
+#     except Exception as e:
+#         print(f"Error\t\t\t{u}")
+
+
+# open("r_.sh", 'w').write(r_)
+# os.system('bash r_.sh')
+
+
+# pickle.dump(d_, open("d_.pkl", 'wb'))
+# print("\n\n ---------------------------- d_ saved as d_.pkl\n\n")
 
 
 gather_meta_data()
