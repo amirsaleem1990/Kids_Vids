@@ -8,6 +8,12 @@ import pickle
 import json
 from datetime import datetime
 
+if not os.path.exists("/home/home/Videos/"):
+    raise Exception("No directory /home/home/Videos/")
+
+if not os.path.exists("/home/home/thumbnail/"):
+    raise Exception("No directory /home/home/thumbnail/")
+
 
 if os.path.exists("mapping.pkl"):
     mapping = pickle.load(open("mapping.pkl", 'rb'))
@@ -53,7 +59,10 @@ def download_videos(x):
 
 def main():
     try:
-        downloaded = open("downloaded.txt", 'r').read().splitlines()
+        if os.path.exists("downloaded.txt"):
+            downloaded = open("downloaded.txt", 'r').read().splitlines()
+        else:
+            downloaded = []
         for i in channels:
             channel, url = i
             x = get_soup_object_using_selenium.get_soup_object_using_selenium(url)[0]
@@ -113,11 +122,12 @@ pickle.dump(errors, open("Error_file.pkl", 'wb'))
 #     ]
 # }
 
-
+to_del = []
 for url, values in mapping.items():
     if  'Error' in values:
-        mapping.pop(url)
-
+        to_del.append(url)
+for d in to_del:
+    mapping.pop(d)
 pickle.dump(mapping, open("mapping.pkl", 'wb'))
 # mapping = pickle.load(open("mapping.pkl", 'rb'))
 
