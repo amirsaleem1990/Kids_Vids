@@ -11,6 +11,21 @@ import pickle
 import json
 from datetime import datetime
 
+def get_urls_to_download(channels):
+    to_download = []
+    for i in channels:
+        try:
+            channel, url = i
+            x = get_soup_object_using_selenium.get_soup_object_using_selenium(url)[0]
+            urls = ['https://www.youtube.com'+i for i in x if i.startswith("/watch?")]
+            x_2 = [i for i in urls if not i in downloaded]
+            to_download += x_2
+        except:
+            pass
+    pickle.dump(to_download, open("to_download.pkl", 'wb'))
+    print("\n\n ---------------------------- to_download saved as to_download.pkl\n\n")
+    return to_download
+
 def download_jsons(to_download):
     print("\n---- download_jsons called ........")
     for u in to_download:
@@ -115,7 +130,7 @@ if not os.path.exists("/home/home/thumbnail/"):
 if os.path.exists("downloaded.txt"):
     downloaded = open("downloaded.txt", 'r').read().splitlines()
 else:
-    downloaded = []
+    downloaded = list()
 
 if os.path.exists("mapping.pkl"):
     mapping = pickle.load(open("mapping.pkl", 'rb'))
@@ -136,30 +151,18 @@ channels = [
     ('ChuchuTv', "https://www.youtube.com/c/ChuChuTVBedtimeStories/videos")
 ]
 
-
 iter_ = list(itertools.chain.from_iterable(list(mapping.values())))
 
-
-to_download = []
-for i in channels:
-    try:
-        channel, url = i
-        x = get_soup_object_using_selenium.get_soup_object_using_selenium(url)[0]
-        urls = ['https://www.youtube.com'+i for i in x if i.startswith("/watch?")]
-        x_2 = [i for i in urls if not i in downloaded]
-        to_download += x_2
-    except:
-        pass
-pickle.dump(to_download, open("to_download.pkl", 'wb'))
-print("\n\n ---------------------------- to_download saved as to_download.pkl\n\n")
+to_download = get_urls_to_download(channels)
 
 to_download = pickle.load(open("to_download.pkl", 'rb'))
 
-# download_jsons(to_download)
+download_jsons(to_download)
 
-# extrect_data_from_json(to_download)
+extrect_data_from_json(to_download)
 
-# pickle.dump(mapping, open("mapping.pkl", 'wb'))
+pickle.dump(mapping, open("mapping.pkl", 'wb'))
+
 # mapping = {
 #     'https://www.youtube.com/watch?v=ebXCEB6JOtw': 
 #         [
@@ -170,9 +173,6 @@ to_download = pickle.load(open("to_download.pkl", 'rb'))
 #             'https://i.ytimg.com/vi/ebXCEB6JOtw/maxresdefault.jpg'
 #         ]
 # }
-
-
-
 
 download_thumbnails(to_download) 
 
@@ -189,7 +189,7 @@ if to_del:
         mapping.pop(d)
 
 
-if len(to_download):
+if [i for i in to_download if not i in to_skip]:
     p = multiprocessing.dummy.Pool()
     print("\n---- download_videos called ........")
     p.map(download_videos, to_download)
