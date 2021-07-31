@@ -30,6 +30,7 @@ from datetime import datetime
 
 def get_urls_to_download(c):
     global to_download
+    start_time_ = time.time()
     try:
         channel, url = c
         x = get_soup_object_using_selenium.get_soup_object_using_selenium(url)[0]
@@ -38,6 +39,7 @@ def get_urls_to_download(c):
         to_download += x_2
     except:
         errors[c] = ["No video in the channel",e, str(datetime.now())]
+    print(f"................{url} consumed {time.time() - start_time_} seconds")
 
 
 
