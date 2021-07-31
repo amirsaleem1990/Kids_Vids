@@ -185,7 +185,7 @@ iter_ = list(itertools.chain.from_iterable(list(mapping.values())))
 
 #
 # to_download = get_urls_to_download(channels)
-
+"""
 to_download = []
 from multiprocessing import Pool
 pool = Pool()   # Create a multiprocessing Pool
@@ -193,6 +193,7 @@ pool.map(get_urls_to_download, channels)
 
 pickle.dump(to_download, open("to_download.pkl", 'wb'))
 print("\n\n ---------------------------- to_download saved as to_download.pkl\n\n")
+"""
 #
 
 to_download = pickle.load(open("to_download.pkl", 'rb'))
