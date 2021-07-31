@@ -37,7 +37,7 @@ def get_urls_to_download(c):
         urls = ['https://www.youtube.com'+i for i in x if i.startswith("/watch?")]
         x_2 = [i for i in urls if not i in downloaded]
         to_download += x_2
-    except:
+    except Exception as e:
         errors[c] = ["No video in the channel",e, str(datetime.now())]
     print(f"................{url} consumed {time.time() - start_time_} seconds")
 
@@ -58,7 +58,7 @@ def download_jsons(to_download):
             os.system(com)
             print(f'.............................{u}, Sec consumed: {time.time() - s}')
             time.sleep(5)
-        except:
+        except Exception as e:
             to_skip.append(u)
             errors[u] = ["download_jsons fail",e, str(datetime.now())]
 
