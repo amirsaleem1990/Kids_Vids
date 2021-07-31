@@ -86,9 +86,9 @@ def extrect_data_from_json(to_download):
             # video_name = video_name.replace(id_, "").replace(" ", "").replace("-.", ".")
             n_ = ''.join([i if i in "abcdefghijklmnopqrstuvwxyz" else "_" for i in x.get("fulltitle").lower()])
             video_name = f"{re.sub('_+', '_', n_).strip('_')}.{x['ext']}"
-            if video_name in iter_:
-                to_skip.append(u)
-                continue
+            # if video_name in iter_:
+            #     to_skip.append(u)
+            #     continue
             mapping[u] = [x.get("channel"), 
                           x.get('upload_date'), 
                           duration, 
