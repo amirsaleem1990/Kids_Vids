@@ -206,3 +206,8 @@ if [i for i in to_download if not i in to_skip]:
     p = multiprocessing.dummy.Pool()
     print("\n---- download_videos called ........")
     p.map(download_videos, to_download)
+
+
+if errors:
+	print(f"\n\n{'*'*15}ERRORS{'*'*15}")
+	print(errors, sep="\n")
