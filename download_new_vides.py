@@ -21,7 +21,7 @@ def get_urls_to_download(channels):
             x_2 = [i for i in urls if not i in downloaded]
             to_download += x_2
         except:
-            pass
+            errors[i] = ["No video in the channel",e, str(datetime.now())]
     pickle.dump(to_download, open("to_download.pkl", 'wb'))
     print("\n\n ---------------------------- to_download saved as to_download.pkl\n\n")
     return to_download
@@ -43,7 +43,7 @@ def download_jsons(to_download):
             time.sleep(5)
         except:
             to_skip.append(u)
-            pass
+            errors[u] = ["download_jsons fail",e, str(datetime.now())]
 
 def extrect_data_from_json(to_download):
     global mapping
@@ -80,7 +80,7 @@ def extrect_data_from_json(to_download):
                           ]
         except Exception as e:
             # print(f"\n\n\nUrl: {u}\nError: {e}\n\n\n")
-            # errors[url] = ["faild to extract data",e, str(datetime.now())]
+            errors[u] = ["extrect_data_from_json fail",e, str(datetime.now())]
             to_skip.append(u)
             pass
 
@@ -119,7 +119,7 @@ def download_videos(url):
         subprocess.check_call(['youtube-dl', url, '-o', f'/home/home/Videos/{file_name}'])
         open("downloaded.txt", "a").write(url+"\n")
     except Exception as e:
-        errors[url] = ["download_videos",e, str(datetime.now())]
+        errors[url] = ["download_videos fail",e, str(datetime.now())]
 
 if not os.path.exists("/home/home/Videos/"):
     raise Exception("No directory /home/home/Videos/")
