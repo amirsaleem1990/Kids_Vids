@@ -11,20 +11,35 @@ import pickle
 import json
 from datetime import datetime
 
-def get_urls_to_download(channels):
-    to_download = []
-    for i in channels:
-        try:
-            channel, url = i
-            x = get_soup_object_using_selenium.get_soup_object_using_selenium(url)[0]
-            urls = ['https://www.youtube.com'+i for i in x if i.startswith("/watch?")]
-            x_2 = [i for i in urls if not i in downloaded]
-            to_download += x_2
-        except:
-            errors[i] = ["No video in the channel",e, str(datetime.now())]
-    pickle.dump(to_download, open("to_download.pkl", 'wb'))
-    print("\n\n ---------------------------- to_download saved as to_download.pkl\n\n")
-    return to_download
+
+
+# def get_urls_to_download(channels):
+#     to_download = []
+#     for i in channels:
+#         try:
+#             channel, url = i
+#             x = get_soup_object_using_selenium.get_soup_object_using_selenium(url)[0]
+#             urls = ['https://www.youtube.com'+i for i in x if i.startswith("/watch?")]
+#             x_2 = [i for i in urls if not i in downloaded]
+#             to_download += x_2
+#         except:
+#             errors[i] = ["No video in the channel",e, str(datetime.now())]
+#     pickle.dump(to_download, open("to_download.pkl", 'wb'))
+#     print("\n\n ---------------------------- to_download saved as to_download.pkl\n\n")
+#     return to_download
+
+def get_urls_to_download(c):
+    global to_download
+    try:
+        channel, url = c
+        x = get_soup_object_using_selenium.get_soup_object_using_selenium(url)[0]
+        urls = ['https://www.youtube.com'+i for i in x if i.startswith("/watch?")]
+        x_2 = [i for i in urls if not i in downloaded]
+        to_download += x_2
+    except:
+        errors[c] = ["No video in the channel",e, str(datetime.now())]
+
+
 
 def download_jsons(to_download):
     print("\n---- download_jsons called ........")
@@ -166,7 +181,17 @@ channels = [
 
 iter_ = list(itertools.chain.from_iterable(list(mapping.values())))
 
-to_download = get_urls_to_download(channels)
+#
+# to_download = get_urls_to_download(channels)
+
+to_download = []
+from multiprocessing import Pool
+pool = Pool()   # Create a multiprocessing Pool
+pool.map(get_urls_to_download, channels)
+
+pickle.dump(to_download, open("to_download.pkl", 'wb'))
+print("\n\n ---------------------------- to_download saved as to_download.pkl\n\n")
+#
 
 to_download = pickle.load(open("to_download.pkl", 'rb'))
 
