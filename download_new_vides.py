@@ -146,9 +146,22 @@ to_skip = []
 json_name_mapping = {}
 
 channels = [
-    ('robocar', "https://www.youtube.com/c/robocarpoli/videos"),
-    ('VladandNiki', "https://www.youtube.com/c/VladandNiki/videos"),
-    ('ChuchuTv', "https://www.youtube.com/c/ChuChuTVBedtimeStories/videos")
+    ('robocar',           "https://www.youtube.com/c/robocarpoli/videos"),
+    ('VladandNiki',       "https://www.youtube.com/c/VladandNiki/videos"),
+    ('ChuchuTv',          "https://www.youtube.com/c/ChuChuTVBedtimeStories/videos"),
+    ('scishowkids',       'https://www.youtube.com/c/scishowkids/videos'),
+    ('PeekabooKids',      'https://www.youtube.com/c/PeekabooKids/videos'),
+    ('MorphleTV',         'https://www.youtube.com/c/MorphleTV/videos'),
+    ('Blippi',            'https://www.youtube.com/c/Blippi/videos'),
+    ('CraftsforKids',     'https://www.youtube.com/c/CraftsforKids/videos'),
+    ('ClarendonLearning', 'https://www.youtube.com/c/ClarendonLearning/videos'),
+    ('FreeSchool',        'https://www.youtube.com/c/FreeSchool/videos'),
+    ('KidsLearningTube',  'https://www.youtube.com/c/KidsLearningTube/videos'),
+    ('NUMBEROCKLLC',      'https://www.youtube.com/c/NUMBEROCKLLC/videos'),
+    ('natgeokids',        'https://www.youtube.com/natgeokidsplaylists/videos'),
+    ('TheDadLab',         'https://www.youtube.com/c/TheDadLab/videos'),
+    ('5MinuteCraftsPLAY', 'https://www.youtube.com/c/5MinuteCraftsPLAY/videos')
+
 ]
 
 iter_ = list(itertools.chain.from_iterable(list(mapping.values())))
