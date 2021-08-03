@@ -1,4 +1,4 @@
-#!/usr/bin/ipython3
+#!/usr/bin/python3
 def get_soup_object_using_selenium(url, visual=False, urls=True):
 	from selenium import webdriver
 	from bs4 import BeautifulSoup
