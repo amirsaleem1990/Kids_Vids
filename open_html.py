@@ -29,13 +29,13 @@ def func_(vid, img):
         Your browser does not support the video tag.</video>"""
 
 x = pickle.load(open("mapping.pkl", 'rb'))
-x = sorted(x.items(), key=lambda x: x[1][1], reverse=True) # sort by upload date 
+x = sorted(x.items(), key=lambda x: x[1]['upload_date'], reverse=True) # sort by upload date 
 x = {i[0] : i[1] for i in x}
 
 s = """<!DOCTYPE html><html><body><div id="contents">"""
 
 for k,v in x.items():
-    s += func_(*v[3:])
+    s += func_(v['video_name'], v['thumbnail_url'])
 
 s += "\n</div></body></html>"
 open("dashboard.html", 'w').write(s)

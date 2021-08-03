@@ -163,6 +163,8 @@ def get_info(to_download):
                 video_name = f"{re.sub('_+', '_', n_).strip('_')}.{x['ext']}"
 
                 thumbnail_url = x.get("thumbnail")
+                if ".jpg" in thumbnail_url:
+                    thumbnail_url = thumbnail_url.split(".jpg")[0] + ".jpg"
                 thumbnail_name = thumbnail_url.strip().replace('/', '_')
 
                 # if video_name in iter_:
