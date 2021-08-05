@@ -31,7 +31,7 @@ def extract_videos_from_channel_page(channel_url):
 #     pickle.dump(to_download, open("to_download.pkl", 'wb'))
 #     print("\n\n ---------------------------- to_download saved as to_download.pkl\n\n")
 #     return to_download
-get_urls_to_download_recursive_n = 0
+
 def get_urls_to_download(c):
 	global get_urls_to_download_recursive_n
 	start_time_ = time.time()
@@ -151,6 +151,9 @@ def get_urls_to_download(c):
 def get_info(to_download):
 	print("\n---- get_info called ........")
 	for u in to_download:
+		# agar url ka data pehly fetch kya hwa h to dubara fetch nahi karo
+		if u in mapping:
+			continue
 		try:
 			s = time.time()
 			ydl = youtube_dl.YoutubeDL({'outtmpl': '%(id)s.%(ext)s'})
@@ -198,10 +201,7 @@ def get_info(to_download):
 
 def download_videos(url):
 	try:
-		# if mapping.get(url) is None:
-		#     return None
 		file_name = mapping[url]['video_name']
-		# file_name = f'Videos/{list(os.popen(f"youtube-dl --restrict-filenames --get-filename {url}"))[0].strip()}'
 		subprocess.check_call(['youtube-dl', url, '-o', f'/home/home/Videos/{file_name}'])
 		# open("downloaded.txt", "a").write(url+"\n")
 		mapping[url]['downloaded'] = True
@@ -241,8 +241,6 @@ if not os.path.exists("/home/home/Videos/"):
 if not os.path.exists("/home/home/thumbnail/"):
 	raise Exception("No directory /home/home/thumbnail/")
 
-
-
 if os.path.exists("excluded_videos.txt"):
 	excluded_videos = open("excluded_videos.txt", 'r').read().splitlines()
 else:
@@ -263,6 +261,8 @@ else:
 # else:
 # 	downloaded = list()
 downloaded = [k for k,v in mapping.items() if v['downloaded']]
+
+get_urls_to_download_recursive_n = 0
 
 to_skip = []
 # json_name_mapping = {}
@@ -312,7 +312,11 @@ for i in pkls:
 
 
 # # download_jsons(to_download)
-get_info(to_download)
+try:
+	get_info(to_download)
+except:
+	pickle.dump(mapping, open("mapping.pkl", 'wb'))
+	raise Exception(str(traceback.format_exc()))
 pickle.dump(mapping, open("mapping.pkl", 'wb'))
 print("\n\n ---------------------------- mapping saved as mapping.pkl\n\n")
 # mapping = pickle.load(open("mapping.pkl", 'rb'))
@@ -333,10 +337,16 @@ if errors:
 # excluded_videos = open("excluded_videos.txt", 'r').read().splitlines()
 # to_download = [k for k,v in mapping.items() if not os.path.exists(f"/home/home/Videos/{v['video_name']}") and (not i in to_skip) and (not i in excluded_videos)]
 
-if to_download:
-	p = multiprocessing.dummy.Pool()
-	print("\n---- download_videos called ........")
-	p.map(download_videos, to_download)
+
+
+try:
+	if to_download:
+		p = multiprocessing.dummy.Pool()
+		print("\n---- download_videos called ........")
+		p.map(download_videos, to_download)
+except:
+	pickle.dump(mapping, open("mapping.pkl", 'wb'))
+	raise Exception(str(traceback.format_exc()))
 pickle.dump(mapping, open("mapping.pkl", 'wb'))
 
 if errors:
