@@ -343,6 +343,7 @@ try:
 	if to_download:
 		p = multiprocessing.dummy.Pool()
 		print("\n---- download_videos called ........")
+		print(f"\n{len(to_download)} videos to be downloaded ..........")
 		p.map(download_videos, to_download)
 except:
 	pickle.dump(mapping, open("mapping.pkl", 'wb'))
