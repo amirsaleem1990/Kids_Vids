@@ -268,23 +268,24 @@ to_skip = []
 # json_name_mapping = {}
 
 channels = [
-	('robocar',           "https://www.youtube.com/c/robocarpoli/videos"),
-	('VladandNiki',       "https://www.youtube.com/c/VladandNiki/videos"),
-	('ChuchuTv',          "https://www.youtube.com/c/ChuChuTVBedtimeStories/videos"),
-	('scishowkids',       'https://www.youtube.com/c/scishowkids/videos'),
-	('PeekabooKids',      'https://www.youtube.com/c/PeekabooKids/videos'),
-	('MorphleTV',         'https://www.youtube.com/c/MorphleTV/videos'),
+	('robocar',           "https://www.youtube.com/c/robocarpoli/videos"), # 'Robocar POLI TV'
+	('VladandNiki',       "https://www.youtube.com/c/VladandNiki/videos"), # 'Vlad and Niki'
+	('ChuchuTv',          "https://www.youtube.com/c/ChuChuTVBedtimeStories/videos"), #'ChuChuTV Bedtime Stories & Moral Stories for Kids'
+	('scishowkids',       'https://www.youtube.com/c/scishowkids/videos'), # 'SciShow Kids'
+	('PeekabooKids',      'https://www.youtube.com/c/PeekabooKids/videos'), #'Peekaboo Kidz'
+	('MorphleTV',         'https://www.youtube.com/c/MorphleTV/videos'), # 'Morphle TV'
 	('Blippi',            'https://www.youtube.com/c/Blippi/videos'),
-	('CraftsforKids',     'https://www.youtube.com/c/CraftsforKids/videos'),
-	('ClarendonLearning', 'https://www.youtube.com/c/ClarendonLearning/videos'),
-	('FreeSchool',        'https://www.youtube.com/c/FreeSchool/videos'),
-	('KidsLearningTube',  'https://www.youtube.com/c/KidsLearningTube/videos'),
-	('NUMBEROCKLLC',      'https://www.youtube.com/c/NUMBEROCKLLC/videos'),
-	('natgeokids',        'https://www.youtube.com/natgeokidsplaylists/videos'),
-	('TheDadLab',         'https://www.youtube.com/c/TheDadLab/videos'),
-	('5MinuteCraftsPLAY', 'https://www.youtube.com/c/5MinuteCraftsPLAY/videos')
+	('CraftsforKids',     'https://www.youtube.com/c/CraftsforKids/videos'), #'Crafts for Kids'
+	('ClarendonLearning', 'https://www.youtube.com/c/ClarendonLearning/videos'), # 'Clarendon Learning'
+	('FreeSchool',        'https://www.youtube.com/c/FreeSchool/videos'), # 'Free School'
+	('KidsLearningTube',  'https://www.youtube.com/c/KidsLearningTube/videos'), # 'Kids Learning Tube'
+	('NUMBEROCKLLC',      'https://www.youtube.com/c/NUMBEROCKLLC/videos'), # 'Math Songs by NUMBEROCK'
+	('natgeokids',        'https://www.youtube.com/natgeokidsplaylists/videos'), # 'National Geographic Kids'
+	('TheDadLab',         'https://www.youtube.com/c/TheDadLab/videos'), # 'TheDadLab'
+	('5MinuteCraftsPLAY', 'https://www.youtube.com/c/5MinuteCraftsPLAY/videos') # '5-Minute Crafts PLAY'
 
 ]
+
 
 # iter_ = list(itertools.chain.from_iterable(list(mapping.values())))
 
