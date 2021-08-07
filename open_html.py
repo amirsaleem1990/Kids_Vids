@@ -67,14 +67,21 @@ def func_(vid, img, channel):
 			"""
 
 
-# def spaces(n):
-# 	return '  '*n
+
+
 try:
-
-
 	x = pickle.load(open(f"/home/{getpass.getuser()}/github/Kids_Vids/mapping.pkl", 'rb'))
 	x = sorted(x.items(), key=lambda x: x[1]['upload_date'], reverse=True) # sort by upload date 
 	x = {i[0] : i[1] for i in x}
+
+	channels_to_exclude = ['Crafts for Kids', '5-Minute Crafts PLAY']
+	to_remove = []
+	for k,v in x.items():
+		if v['channel'] in channels_to_exclude:
+			to_remove.append(k)
+	if to_remove:
+		for i in to_remove:
+			x.pop(i)
 
 	s = """<!DOCTYPE html><html>
 	<head>
