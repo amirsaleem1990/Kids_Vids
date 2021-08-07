@@ -74,7 +74,11 @@ try:
 	x = sorted(x.items(), key=lambda x: x[1]['upload_date'], reverse=True) # sort by upload date 
 	x = {i[0] : i[1] for i in x}
 
-	channels_to_exclude = ['Crafts for Kids', '5-Minute Crafts PLAY']
+	channels_to_exclude = [
+	'Crafts for Kids', 
+	'5-Minute Crafts PLAY',
+	 'TheDadLab'
+	 ]
 	to_remove = []
 	for k,v in x.items():
 		if v['channel'] in channels_to_exclude:
