@@ -1,8 +1,0 @@
-[Desktop Entry]
-Name=kids_vids
-Exec=/home/home/github/Kids_Vids/open_html.py
-Comment=
-Icon=/home/home/github/Kids_Vids/logo.png
-Terminal=false
-Type=Application
-StartupNotify=true
