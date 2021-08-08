@@ -1,5 +1,5 @@
 [Desktop Entry]
 Name=Attendence
-Exec=/home/home/github/Kids_Vids/download_new_vides.py
+Exec=/usr/bin/ipython3 /home/home/github/Kids_Vids/download_new_vides.py
 Type=Application
 X-GNOME-Autostart-enabled=true
