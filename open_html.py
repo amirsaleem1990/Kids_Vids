@@ -121,7 +121,8 @@ try:
 		# 	break
 		s += func_(
 			vid = v['video_name'], 
-			img = v['thumbnail_url'],
+			# img = v['thumbnail_url'], # fatching from internet
+			img = f"/home/{getpass.getuser()}/github/Kids_Vids/thumbs/{v['thumbnail_name']}", 
 			channel = v['channel'],
 			upload_date = v['upload_date']
 			)
