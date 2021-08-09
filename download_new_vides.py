@@ -241,8 +241,8 @@ if not os.path.exists("/home/home/Videos/"):
 if not os.path.exists("/home/home/thumbnail/"):
 	raise Exception("No directory /home/home/thumbnail/")
 
-if os.path.exists("excluded_videos.txt"):
-	excluded_videos = open("excluded_videos.txt", 'r').read().splitlines()
+if os.path.exists("to_be_exclude.txt"):
+	excluded_videos = open("to_be_exclude.txt", 'r').read().splitlines()
 else:
 	excluded_videos = []
 
@@ -267,22 +267,40 @@ get_urls_to_download_recursive_n = 0
 to_skip = []
 # json_name_mapping = {}
 
+channels_mapping = {
+	'robocar'           : 'Robocar POLI TV',
+	'VladandNiki'       : 'Vlad and Niki',
+	'ChuchuTv'          : 'ChuChuTV Bedtime Stories & Moral Stories for Kids',
+	'scishowkids'       : 'SciShow Kids',
+	'PeekabooKids'      : 'Peekaboo Kidz',
+	'MorphleTV'         : 'Morphle TV',
+	'Blippi'            : 'Blippi - Educational Videos for Kids',
+	'CraftsforKids'     : 'Crafts for Kids',
+	'ClarendonLearning' : 'Clarendon Learning',
+	'FreeSchool'        : 'Free School',
+	'KidsLearningTube'  : 'Kids Learning Tube',
+	'NUMBEROCKLLC'      : 'Math Songs by NUMBEROCK',
+	'natgeokids'        : 'National Geographic Kids',
+	'TheDadLab'         : 'TheDadLab',
+	'5MinuteCraftsPLAY' : '5-Minute Crafts PLAY'
+}
+
 channels = [
-	('robocar',           "https://www.youtube.com/c/robocarpoli/videos"), # 'Robocar POLI TV'
-	('VladandNiki',       "https://www.youtube.com/c/VladandNiki/videos"), # 'Vlad and Niki'
-	('ChuchuTv',          "https://www.youtube.com/c/ChuChuTVBedtimeStories/videos"), #'ChuChuTV Bedtime Stories & Moral Stories for Kids'
-	('scishowkids',       'https://www.youtube.com/c/scishowkids/videos'), # 'SciShow Kids'
-	('PeekabooKids',      'https://www.youtube.com/c/PeekabooKids/videos'), #'Peekaboo Kidz'
-	('MorphleTV',         'https://www.youtube.com/c/MorphleTV/videos'), # 'Morphle TV'
+	('robocar',           "https://www.youtube.com/c/robocarpoli/videos"),
+	('VladandNiki',       "https://www.youtube.com/c/VladandNiki/videos"),
+	('ChuchuTv',          "https://www.youtube.com/c/ChuChuTVBedtimeStories/videos"),
+	('scishowkids',       'https://www.youtube.com/c/scishowkids/videos'), 
+	('PeekabooKids',      'https://www.youtube.com/c/PeekabooKids/videos'),
+	('MorphleTV',         'https://www.youtube.com/c/MorphleTV/videos'),
 	('Blippi',            'https://www.youtube.com/c/Blippi/videos'),
-	('CraftsforKids',     'https://www.youtube.com/c/CraftsforKids/videos'), #'Crafts for Kids'
-	('ClarendonLearning', 'https://www.youtube.com/c/ClarendonLearning/videos'), # 'Clarendon Learning'
-	('FreeSchool',        'https://www.youtube.com/c/FreeSchool/videos'), # 'Free School'
-	('KidsLearningTube',  'https://www.youtube.com/c/KidsLearningTube/videos'), # 'Kids Learning Tube'
-	('NUMBEROCKLLC',      'https://www.youtube.com/c/NUMBEROCKLLC/videos'), # 'Math Songs by NUMBEROCK'
-	('natgeokids',        'https://www.youtube.com/natgeokidsplaylists/videos'), # 'National Geographic Kids'
-	('TheDadLab',         'https://www.youtube.com/c/TheDadLab/videos'), # 'TheDadLab'
-	('5MinuteCraftsPLAY', 'https://www.youtube.com/c/5MinuteCraftsPLAY/videos') # '5-Minute Crafts PLAY'
+	('CraftsforKids',     'https://www.youtube.com/c/CraftsforKids/videos'),
+	('ClarendonLearning', 'https://www.youtube.com/c/ClarendonLearning/videos'),
+	('FreeSchool',        'https://www.youtube.com/c/FreeSchool/videos'),
+	('KidsLearningTube',  'https://www.youtube.com/c/KidsLearningTube/videos'),
+	('NUMBEROCKLLC',      'https://www.youtube.com/c/NUMBEROCKLLC/videos'),
+	('natgeokids',        'https://www.youtube.com/natgeokidsplaylists/videos'),
+	('TheDadLab',         'https://www.youtube.com/c/TheDadLab/videos'),
+	('5MinuteCraftsPLAY', 'https://www.youtube.com/c/5MinuteCraftsPLAY/videos')
 
 ]
 
@@ -335,7 +353,7 @@ if errors:
 
 # to_download = [i for i in to_download if not i in to_skip]
 # urls in mapping but video is not_downloaded
-# excluded_videos = open("excluded_videos.txt", 'r').read().splitlines()
+# excluded_videos = open("to_be_exclude.txt", 'r').read().splitlines()
 # to_download = [k for k,v in mapping.items() if not os.path.exists(f"/home/home/Videos/{v['video_name']}") and (not i in to_skip) and (not i in excluded_videos)]
 
 
