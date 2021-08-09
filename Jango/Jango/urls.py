@@ -15,12 +15,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.conf.urls import include, url
 
 urlpatterns = [
-    path('', admin.site.urls),
+    # path('', admin.site.urls),
+    url("", include("app.urls")),
 ]
-
-# from django.conf.urls import include, url
-# urlpatterns += [
-#     url("kids_vids", include("app.urls")),
-# ]
