@@ -86,7 +86,7 @@ try:
 	x = sorted(x.items(), key=lambda x: x[1]['upload_date'], reverse=True) # sort by upload date 
 	x = {i[0] : i[1] for i in x}
 	
-	to_be_exclude = json.load(open("to_be_exclude.txt", "r"))
+	to_be_exclude = json.load(open("to_be_exclude.json", "r"))
 	channels_to_exclude = to_be_exclude['channel']
 	videos_to_exclude = to_be_exclude['video']
 

@@ -241,8 +241,8 @@ if not os.path.exists("/home/home/Videos/"):
 if not os.path.exists("/home/home/thumbnail/"):
 	raise Exception("No directory /home/home/thumbnail/")
 
-if os.path.exists("to_be_exclude.txt"):
-	excluded_videos = open("to_be_exclude.txt", 'r').read().splitlines()
+if os.path.exists("to_be_exclude.json"):
+	excluded_videos = open("to_be_exclude.json", 'r').read().splitlines()
 else:
 	excluded_videos = []
 
@@ -267,23 +267,7 @@ get_urls_to_download_recursive_n = 0
 to_skip = []
 # json_name_mapping = {}
 
-channels_mapping = {
-	'robocar'           : 'Robocar POLI TV',
-	'VladandNiki'       : 'Vlad and Niki',
-	'ChuchuTv'          : 'ChuChuTV Bedtime Stories & Moral Stories for Kids',
-	'scishowkids'       : 'SciShow Kids',
-	'PeekabooKids'      : 'Peekaboo Kidz',
-	'MorphleTV'         : 'Morphle TV',
-	'Blippi'            : 'Blippi - Educational Videos for Kids',
-	'CraftsforKids'     : 'Crafts for Kids',
-	'ClarendonLearning' : 'Clarendon Learning',
-	'FreeSchool'        : 'Free School',
-	'KidsLearningTube'  : 'Kids Learning Tube',
-	'NUMBEROCKLLC'      : 'Math Songs by NUMBEROCK',
-	'natgeokids'        : 'National Geographic Kids',
-	'TheDadLab'         : 'TheDadLab',
-	'5MinuteCraftsPLAY' : '5-Minute Crafts PLAY'
-}
+
 
 channels = [
 	('robocar',           "https://www.youtube.com/c/robocarpoli/videos"),
@@ -353,7 +337,7 @@ if errors:
 
 # to_download = [i for i in to_download if not i in to_skip]
 # urls in mapping but video is not_downloaded
-# excluded_videos = open("to_be_exclude.txt", 'r').read().splitlines()
+# excluded_videos = open("to_be_exclude.json", 'r').read().splitlines()
 # to_download = [k for k,v in mapping.items() if not os.path.exists(f"/home/home/Videos/{v['video_name']}") and (not i in to_skip) and (not i in excluded_videos)]
 
 
