@@ -4,8 +4,18 @@ import pickle
 import os
 import getpass
 import os
+import json
+from datetime import datetime
 
-def func_(vid, img, channel):
+def func_(vid, img, channel, upload_date):
+	
+	upload_date = datetime.strptime(upload_date, "%Y%m%d")
+	uploaded_before_days = (datetime.now() - upload_date).days
+	if uploaded_before_days < 31 or (uploaded_before_days > 365):
+		msg = f"{uploaded_before_days} days ago"
+	else:
+		msg = f"{uploaded_before_days//31} months ago"
+
 	vid_name = vid.strip(".webm").strip(".mkv").strip(".mp4").replace("_", ' ').capitalize()
 	if vid.endswith(".part"):
 		return ""
@@ -18,6 +28,8 @@ def func_(vid, img, channel):
 			vid = vid_
 			break
 	else:
+		return ""
+	if vid in videos_to_exclude:
 		return ""
 	if int(list(os.popen(f"du -s -BM {vid} | cut -dM -f1"))[0].strip()) < 10:
 		return ""
@@ -32,7 +44,7 @@ def func_(vid, img, channel):
 		  return f"""<div class="column">
 				<figure class="D3Oi9">
 					<video width="320" height="240" controls poster="{img}" src="{vid}"></video>
-					<span class="QuG1o">{vid_name} {i}<br><b>{channel}</b></span>
+					<span class="QuG1o">{vid_name}<br><b>{channel}<br></b>{msg}</span>
 				</figure>
 			</div>
 			"""
@@ -43,7 +55,7 @@ def func_(vid, img, channel):
 					<source src="{vid}" type="video/mp4">
 					Your browser does not support the video tag.
 				</video>
-				<span class="QuG1o">{vid_name} {i}<br><b>{channel}</b></span>
+				<span class="QuG1o">{vid_name}<br><b>{channel}<br></b>{msg}</span>
 			</figure>
 		</div>
 		"""
@@ -61,7 +73,7 @@ def func_(vid, img, channel):
 						<source src="{vid}" type="video/webm">
 						Your browser does not support the video tag.
 					</video>
-					<span class="QuG1o">{vid_name} {i}<br><b>{channel}</b></span>
+					<span class="QuG1o">{vid_name}<br><b>{channel}<br></b>{msg}</span>
 				</figure>
 			</div>
 			"""
@@ -73,8 +85,13 @@ try:
 	x = pickle.load(open(f"/home/{getpass.getuser()}/github/Kids_Vids/mapping.pkl", 'rb'))
 	x = sorted(x.items(), key=lambda x: x[1]['upload_date'], reverse=True) # sort by upload date 
 	x = {i[0] : i[1] for i in x}
+	
+	to_be_exclude = json.load(open("to_be_exclude.txt", "r"))
+	channels_to_exclude = to_be_exclude['channel']
+	videos_to_exclude = to_be_exclude['video']
 
-	channels_to_exclude = ['Crafts for Kids', '5-Minute Crafts PLAY']
+	channels_mapping = json.load(open("channels_mapping.txt", "r"))
+
 	to_remove = []
 	for k,v in x.items():
 		if v['channel'] in channels_to_exclude:
@@ -97,13 +114,16 @@ try:
 			"""
 	# c = 0
 	for k,v in x.items():
+		if k in videos_to_exclude:
+			continue
 		# c += 1
 		# if c > 12:
 		# 	break
 		s += func_(
 			vid = v['video_name'], 
 			img = v['thumbnail_url'],
-			channel = v['channel']
+			channel = v['channel'],
+			upload_date = v['upload_date']
 			)
 		# s += f"<br><{v['video_name']}"
 
