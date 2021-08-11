@@ -13,5 +13,6 @@
 	"NUMBEROCKLLC"      : "Math Songs by NUMBEROCK",
 	"natgeokids"        : "National Geographic Kids",
 	"TheDadLab"         : "TheDadLab",
-	"5MinuteCraftsPLAY" : "5-Minute Crafts PLAY"
+	"5MinuteCraftsPLAY" : "5-Minute Crafts PLAY",
+	"KidsMadaniChannel" : "Kids Madani Channel"
 }
