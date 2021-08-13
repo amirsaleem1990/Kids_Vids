@@ -1,4 +1,10 @@
 {
-	"channel" : ["Crafts for Kids", "5-Minute Crafts PLAY"],
+	"channel" : [
+		"Crafts for Kids", 
+		"5-Minute Crafts PLAY", 
+		"Kids Madani Channel",
+		"Kids Learning Tube",
+		"TheDadLab"
+	],
 	"video" : []
 }

@@ -294,6 +294,20 @@ channels = [
 	('KidsMadaniChannel', 'https://www.youtube.com/c/KidsMadaniChannel/videos')
 ]
 
+to_be_exclude    = json.load(open(f"/home/{getpass.getuser()}/github/Kids_Vids/to_be_exclude.json", "r"))
+channels_mapping = json.load(open(f"/home/{getpass.getuser()}/github/Kids_Vids/channels_mapping.txt", "r"))
+
+channels_to_exclude = to_be_exclude['channel']
+l = []
+for k,v in channels_mapping.items():
+    if v in channels_to_exclude:
+        l.append(k)
+
+
+channels = [c for c in channels if not c[0] in l]
+
+
+
 
 # iter_ = list(itertools.chain.from_iterable(list(mapping.values())))
 
@@ -345,7 +359,6 @@ if errors:
 # urls in mapping but video is not_downloaded
 # excluded_videos = open("to_be_exclude.json", 'r').read().splitlines()
 # to_download = [k for k,v in mapping.items() if not os.path.exists(f"/home/home/Videos/{v['video_name']}") and (not i in to_skip) and (not i in excluded_videos)]
-
 
 
 try:

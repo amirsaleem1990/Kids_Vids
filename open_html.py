@@ -44,7 +44,7 @@ def func_(vid, img, channel, upload_date):
 		  return f"""<div class="column">
 				<figure class="D3Oi9">
 					<video width="320" height="240" controls poster="{img}" src="{vid}"></video>
-					<span class="QuG1o">{vid_name}<br><b>{channel}<br></b>{msg}</span>
+					<span class="QuG1o"><br>{vid_name}<br><b>{channel}<br></b>{msg}</span>
 				</figure>
 			</div>
 			"""
@@ -55,7 +55,7 @@ def func_(vid, img, channel, upload_date):
 					<source src="{vid}" type="video/mp4">
 					Your browser does not support the video tag.
 				</video>
-				<span class="QuG1o">{vid_name}<br><b>{channel}<br></b>{msg}</span>
+				<span class="QuG1o"><br>{vid_name}<br><b>{channel}<br></b>{msg}</span>
 			</figure>
 		</div>
 		"""
@@ -73,7 +73,7 @@ def func_(vid, img, channel, upload_date):
 						<source src="{vid}" type="video/webm">
 						Your browser does not support the video tag.
 					</video>
-					<span class="QuG1o">{vid_name}<br><b>{channel}<br></b>{msg}</span>
+					<span class="QuG1o"><br>{vid_name}<br><b>{channel}<br></b>{msg}</span>
 				</figure>
 			</div>
 			"""
@@ -82,15 +82,16 @@ def func_(vid, img, channel, upload_date):
 
 
 try:
+
 	x = pickle.load(open(f"/home/{getpass.getuser()}/github/Kids_Vids/mapping.pkl", 'rb'))
 	x = sorted(x.items(), key=lambda x: x[1]['upload_date'], reverse=True) # sort by upload date 
 	x = {i[0] : i[1] for i in x}
 	
-	to_be_exclude = json.load(open("to_be_exclude.json", "r"))
+	to_be_exclude = json.load(open(f"/home/{getpass.getuser()}/github/Kids_Vids/to_be_exclude.json", "r"))
 	channels_to_exclude = to_be_exclude['channel']
 	videos_to_exclude = to_be_exclude['video']
 
-	channels_mapping = json.load(open("channels_mapping.txt", "r"))
+	channels_mapping = json.load(open(f"/home/{getpass.getuser()}/github/Kids_Vids/channels_mapping.txt", "r"))
 
 	to_remove = []
 	for k,v in x.items():
