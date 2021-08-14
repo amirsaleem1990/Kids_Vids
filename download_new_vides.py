@@ -1,7 +1,10 @@
 #!/usr/bin/python3
 import getpass
 def extract_videos_from_channel_page(channel_url):
-	browser.get(channel_url)
+	try:
+		browser.get(channel_url)
+	except:
+		return []
 	s = BeautifulSoup(browser.page_source, "lxml")
 	extrected_urls = []
 	for i in s.select("a"):
@@ -364,8 +367,8 @@ if errors:
 try:
 	if to_download:
 		p = multiprocessing.dummy.Pool()
-		print("\n---- download_videos called ........")
-		print(f"\n{len(to_download)} videos to be downloaded ..........")
+		print( "\n---- download_videos called ........")
+		print(f"\n--------------------------------------------------- {len(to_download)} videos to be downloaded ..........\n\n")
 		p.map(download_videos, to_download)
 except:
 	pickle.dump(mapping, open(f"/home/{getpass.getuser()}/github/Kids_Vids/mapping.pkl", 'wb'))
