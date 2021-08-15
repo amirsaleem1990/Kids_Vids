@@ -203,19 +203,19 @@ def get_info(to_download):
 
 
 
-def download_videos(url):
-	try:
+# def download_videos(url):
+# 	try:
 
-		v = mapping[url]
-	    # com = f"curl {v['thumbnail_url']} -o thumbs/{v['thumbnail_name']}"
-	    # os.system(com)
-		subprocess.check_call(['curl', v['thumbnail_url'], '-o', f"/home/{getpass.getuser()}/github/Kids_Vids/thumbs/{v['thumbnail_name']}"])
-		subprocess.check_call(['youtube-dl', url, '-o', f"/home/home/Videos/{mapping[url]['video_name']}"])
-		# open(f"/home/{getpass.getuser()}/github/Kids_Vids/downloaded.txt", "a").write(url+"\n")
-		mapping[url]['downloaded'] = True
-	except Exception as e:
-		print(e)
-		errors[url] = ["download_videos fail",e, str(datetime.now())]
+# 		v = mapping[url]
+# 	    # com = f"curl {v['thumbnail_url']} -o thumbs/{v['thumbnail_name']}"
+# 	    # os.system(com)
+# 		subprocess.check_call(['curl', v['thumbnail_url'], '-o', f"/home/{getpass.getuser()}/github/Kids_Vids/thumbs/{v['thumbnail_name']}"])
+# 		subprocess.check_call(['youtube-dl', url, '-o', f"/home/home/Videos/{mapping[url]['video_name']}"])
+# 		# open(f"/home/{getpass.getuser()}/github/Kids_Vids/downloaded.txt", "a").write(url+"\n")
+# 		mapping[url]['downloaded'] = True
+# 	except Exception as e:
+# 		print(e)
+# 		errors[url] = ["download_videos fail",e, str(datetime.now())]
 
 
 
@@ -236,7 +236,6 @@ from bs4 import BeautifulSoup
 import youtube_dl
 import traceback
 
-size_before = int(list(os.popen("du -sh -BM  /home/home/Videos/"))[0].strip().split("\t")[0].strip("M"))
 
 pkls = [i for i in os.listdir(f"/home/{getpass.getuser()}/github/Kids_Vids/") if i.startswith("to_download_") and i.endswith(".pkl")]
 if pkls:
@@ -364,27 +363,23 @@ if errors:
 # to_download = [k for k,v in mapping.items() if not os.path.exists(f"/home/home/Videos/{v['video_name']}") and (not i in to_skip) and (not i in excluded_videos)]
 
 
-try:
-	if to_download:
-		p = multiprocessing.dummy.Pool()
-		print( "\n---- download_videos called ........")
-		print(f"\n--------------------------------------------------- {len(to_download)} videos to be downloaded ..........\n\n")
-		p.map(download_videos, to_download)
-except:
-	pickle.dump(mapping, open(f"/home/{getpass.getuser()}/github/Kids_Vids/mapping.pkl", 'wb'))
-	raise Exception(str(traceback.format_exc()))
-pickle.dump(mapping, open(f"/home/{getpass.getuser()}/github/Kids_Vids/mapping.pkl", 'wb'))
-
-if errors:
-	print(f"\n\n{'*'*15}ERRORS{'*'*15}")
-	print(errors, sep="\n")
+# moved to Download.py
+# try:
+# 	if to_download:
+# 		p = multiprocessing.dummy.Pool()
+# 		print( "\n---- download_videos called ........")
+# 		print(f"\n--------------------------------------------------- {len(to_download)} videos to be downloaded ..........\n\n")
+# 		p.map(download_videos, to_download)
+# except:
+# 	pickle.dump(mapping, open(f"/home/{getpass.getuser()}/github/Kids_Vids/mapping.pkl", 'wb'))
+# 	raise Exception(str(traceback.format_exc()))
+# pickle.dump(mapping, open(f"/home/{getpass.getuser()}/github/Kids_Vids/mapping.pkl", 'wb'))
+os.system(f"python3 /home/{getpass.getuser()}/github/Kids_Vids/Download.py")
 
 
-size_after = int(list(os.popen("du -sh -BM  /home/home/Videos/"))[0].strip().split("\t")[0].strip("M"))
-size_downloaded = size_after - size_before
-if size_downloaded > 1000:
-	size_ = f'{round(size_downloaded/1000, 3)}GB'
-else:
-	size_ = f'{size_downloaded}MB'
+if os.path.exists(f"/home/{getpass.getuser()}/github/Kids_Vids/Error.pkl"):
+	errors = pickle.load(open(f"/home/{getpass.getuser()}/github/Kids_Vids/Error.pkl", 'rb'))
+	if errors:
+		print(f"\n\n{'*'*15}ERRORS{'*'*15}")
+		print(errors, sep="\n")
 
-print(f"\n######################################\nDownloaded {size_}\n######################################\n")
