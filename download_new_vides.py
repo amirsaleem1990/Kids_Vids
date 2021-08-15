@@ -378,7 +378,10 @@ os.system(f"python3 /home/{getpass.getuser()}/github/Kids_Vids/Download.py")
 
 
 if os.path.exists(f"/home/{getpass.getuser()}/github/Kids_Vids/Error.pkl"):
-	errors = pickle.load(open(f"/home/{getpass.getuser()}/github/Kids_Vids/Error.pkl", 'rb'))
+	try:
+		errors = pickle.load(open(f"/home/{getpass.getuser()}/github/Kids_Vids/Error.pkl", 'rb'))
+	except:
+		break
 	if errors:
 		print(f"\n\n{'*'*15}ERRORS{'*'*15}")
 		print(errors, sep="\n")
