@@ -84,9 +84,9 @@ def func_(vid, img, channel, upload_date):
 try:
 
 	x = pickle.load(open(f"/home/{getpass.getuser()}/github/Kids_Vids/mapping.pkl", 'rb'))
-	x = sorted(x.items(), key=lambda x: x[1]['upload_date'], reverse=True) # sort by upload date 
-	x = {i[0] : i[1] for i in x}
-	
+	# x = sorted(x.items(), key=lambda x: x[1]['upload_date'], reverse=True) # sort by upload date 
+	x = sorted(x.items(), key=lambda x: (datetime.now() - datetime.strptime(x[1]['upload_date'], "%Y%m%d")).days)
+	x = {i[0] : i[1] for i in x[:150]} # only last 150 videos
 	to_be_exclude = json.load(open(f"/home/{getpass.getuser()}/github/Kids_Vids/to_be_exclude.json", "r"))
 	channels_to_exclude = to_be_exclude['channel']
 	videos_to_exclude = to_be_exclude['video']
