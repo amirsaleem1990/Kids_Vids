@@ -95,7 +95,7 @@ try:
 
 	to_remove = []
 	for k,v in x.items():
-		if v['channel'] in channels_to_exclude:
+		if v['channel'] in channels_to_exclude or (k in videos_to_exclude):
 			to_remove.append(k)
 	if to_remove:
 		for i in to_remove:
@@ -114,9 +114,8 @@ try:
 		<div class="row">
 			"""
 	# c = 0
+	x = dict(zip(list(x.keys())[:150], list(x.values())[:150])) # get last 150 videos only
 	for k,v in x.items():
-		if k in videos_to_exclude:
-			continue
 		# c += 1
 		# if c > 12:
 		# 	break
