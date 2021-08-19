@@ -50,9 +50,14 @@ def get_urls_to_download(c):
 				if '&' in i:
 					urls[e] = i.split("&")[0]
 
+			pickle.dump(urls, open(f"/home/{getpass.getuser()}/github/Kids_Vids/to_download_{channels.index(c)}.pkl", 'wb'))
+		else:
+			if get_urls_to_download_recursive_n < 5:
+				get_urls_to_download_recursive_n += 1
+				print(f">>>>> No usl, another attempt for {channel}")
+				get_urls_to_download(c)
 		# x_2 = [i for i in urls if not i in downloaded]
 		# print(f"\nThere are  {len(x_2)} urls from <{channel}> that are missing in /home/{getpass.getuser()}/github/Kids_Vids/downloaded.txt file")
-		pickle.dump(urls, open(f"/home/{getpass.getuser()}/github/Kids_Vids/to_download_{channels.index(c)}.pkl", 'wb'))
 	except:
 		e = traceback.format_exc()
 		if get_urls_to_download_recursive_n < 5:
