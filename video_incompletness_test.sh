@@ -1,8 +1,8 @@
 #!/usr/bin/bash
 file_name=/home/home/Videos/incompleted_vdieos_names.txt
-counter=0
+rm -f $file_name 2>/dev/null
 
-echo -e "#################################\nFollowing files are incomplete\n#################################\n" > $file_name
+counter=0
 
 cd /home/home/Videos/
 
@@ -18,6 +18,7 @@ done
 if [[ $counter -eq 0 ]]; then
 	echo -e "\n-------- Tested `ls *.mp4 *.mkv *.webm 2>/dev/null | wc -l` videos, but no incomplete video found ----------\n"
 else
+	echo -e "#################################\nFollowing files are incomplete\n#################################\n" > $file_name
 	cat $file_name
 	echo
 fi
