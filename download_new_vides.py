@@ -59,11 +59,12 @@ def get_urls_to_download(c):
 			get_urls_to_download_recursive_n += 1
 			print(f"An error occured, in channel <{channel}> try #{get_urls_to_download_recursive_n} out of 5 ..........")
 			get_urls_to_download(c)
-		print(f"Error, No url extracted from channel <{channel}\n{e}\n\n")
-		# print(e)
-		# print()
-		errors[c] = ["No video in the channel <{channel} for the url: <{url}>>",e, str(datetime.now())]
-		return False
+		else:
+			print(f"Error, No url extracted from channel <{channel}\n{e}\n\n")
+			# print(e)
+			# print()
+			errors[c] = ["No video in the channel <{channel} for the url: <{url}>>",e, str(datetime.now())]
+			return False
 	print(f"................{url} consumed {time.time() - start_time_} seconds")
 
 
