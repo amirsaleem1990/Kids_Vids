@@ -108,7 +108,7 @@ try:
 	<head>
 		<style>
 			* {box-sizing: border-box;}
-			.column {float: right;width: 20.00%; padding: 0px;}
+			.column {float: left;width: 20.00%; padding: 0px;}
 			/* Clearfix (clear floats) */
 			.row::after {content: "";clear: both;display: table;}
 		</style>
@@ -117,7 +117,7 @@ try:
 		<div class="row">
 			"""
 	# c = 0
-	x = dict(zip(list(x.keys())[:150], list(x.values())[:150])) # get last 150 videos only
+	x = dict(zip(list(x.keys())[:100], list(x.values())[:100])) # get latest 100 videos only
 	for k,v in x.items():
 		# c += 1
 		# if c > 12:
