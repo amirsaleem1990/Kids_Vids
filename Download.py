@@ -12,12 +12,27 @@ import getpass
 
 def download_videos(url):
 	try:
-
 		v = mapping[url]
+
+		full_video_name = f"/home/home/Videos/{mapping[url]['video_name']}"
+		n_ = 1
+		if full_video_name.endswith(".mp4"):
+			extention = ".mp4"
+		elif full_video_name.endswith(".mkv"):
+			extention = ".mkv"
+		elif full_video_name.endswith(".webm"):
+			extention = ".webm"
+		else:
+			extention.split(".")[-1]
+
+		while os.path.exists(full_video_name):
+			full_video_name = f"{full_video_name.rstrip(extention)}_{n_}_{extention}"
+			n_ += 1
+
 	    # com = f"curl {v['thumbnail_url']} -o thumbs/{v['thumbnail_name']}"
 	    # os.system(com)
 		subprocess.check_call(['curl', v['thumbnail_url'], '-o', f"/home/{getpass.getuser()}/github/Kids_Vids/thumbs/{v['thumbnail_name']}"])
-		subprocess.check_call(['youtube-dl', url, '-o', f"/home/home/Videos/{mapping[url]['video_name']}"])
+		subprocess.check_call(['youtube-dl', url, '-o', full_video_name])
 		# open(f"/home/{getpass.getuser()}/github/Kids_Vids/downloaded.txt", "a").write(url+"\n")
 		mapping[url]['downloaded'] = True
 	except Exception as e:
