@@ -284,22 +284,23 @@ to_skip = []
 
 
 channels = [
-	('robocar',           "https://www.youtube.com/c/robocarpoli/videos"),
-	('VladandNiki',       "https://www.youtube.com/c/VladandNiki/videos"),
-	('ChuchuTv',          "https://www.youtube.com/c/ChuChuTVBedtimeStories/videos"),
-	('scishowkids',       'https://www.youtube.com/c/scishowkids/videos'), 
-	('PeekabooKids',      'https://www.youtube.com/c/PeekabooKids/videos'),
-	('MorphleTV',         'https://www.youtube.com/c/MorphleTV/videos'),
-	('Blippi',            'https://www.youtube.com/c/Blippi/videos'),
-	('CraftsforKids',     'https://www.youtube.com/c/CraftsforKids/videos'),
-	('ClarendonLearning', 'https://www.youtube.com/c/ClarendonLearning/videos'),
-	('FreeSchool',        'https://www.youtube.com/c/FreeSchool/videos'),
-	('KidsLearningTube',  'https://www.youtube.com/c/KidsLearningTube/videos'),
-	('NUMBEROCKLLC',      'https://www.youtube.com/c/NUMBEROCKLLC/videos'),
-	('natgeokids',        'https://www.youtube.com/natgeokidsplaylists/videos'),
-	('TheDadLab',         'https://www.youtube.com/c/TheDadLab/videos'),
-	('5MinuteCraftsPLAY', 'https://www.youtube.com/c/5MinuteCraftsPLAY/videos'),
-	('KidsMadaniChannel', 'https://www.youtube.com/c/KidsMadaniChannel/videos')
+	('robocar',                     "https://www.youtube.com/c/robocarpoli/videos"),
+	('VladandNiki',                 "https://www.youtube.com/c/VladandNiki/videos"),
+	('ChuchuTv',                    "https://www.youtube.com/c/ChuChuTVBedtimeStories/videos"),
+	('scishowkids',                 'https://www.youtube.com/c/scishowkids/videos'), 
+	('PeekabooKids',                'https://www.youtube.com/c/PeekabooKids/videos'),
+	('MorphleTV',                   'https://www.youtube.com/c/MorphleTV/videos'),
+	('Blippi',                      'https://www.youtube.com/c/Blippi/videos'),
+	('CraftsforKids',               'https://www.youtube.com/c/CraftsforKids/videos'),
+	('ClarendonLearning',           'https://www.youtube.com/c/ClarendonLearning/videos'),
+	('FreeSchool',                  'https://www.youtube.com/c/FreeSchool/videos'),
+	('KidsLearningTube',            'https://www.youtube.com/c/KidsLearningTube/videos'),
+	('NUMBEROCKLLC',                'https://www.youtube.com/c/NUMBEROCKLLC/videos'),
+	('natgeokids',                  'https://www.youtube.com/natgeokidsplaylists/videos'),
+	('TheDadLab',                   'https://www.youtube.com/c/TheDadLab/videos'),
+	('5MinuteCraftsPLAY',           'https://www.youtube.com/c/5MinuteCraftsPLAY/videos'),
+	('KidsMadaniChannel',           'https://www.youtube.com/c/KidsMadaniChannel/videos'),
+	('OmarHanaIslamicSongsforKids', 'https://www.youtube.com/c/OmarHanaIslamicSongsforKids/videos')
 ]
 
 to_be_exclude    = json.load(open(f"/home/{getpass.getuser()}/github/Kids_Vids/to_be_exclude.json", "r"))
