@@ -103,6 +103,12 @@ try:
 	if to_remove:
 		for i in to_remove:
 			x.pop(i)
+
+	df = pd.DataFrame.from_dict(x, orient='index')
+	df.upload_date = pd.to_datetime(df.upload_date)
+	x = df.reset_index().rename(columns={"index" : "url"}).groupby("channel").apply(lambda x:x.sort_values("upload_date", ascending=False).iloc[:15]).reset_index(drop=True).set_index('url')
+	x.upload_date = x.upload_date.astype(str).str.replace("-", "")
+	x = x.to_dict(orient="index")
 	
 	s = """<!DOCTYPE html><html>
 	<head>
