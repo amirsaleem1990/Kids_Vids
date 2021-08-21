@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 
-# pehly ye kar raha tha k jo video incomplete h un sari files k names 1 file me append kar raha tha, or phir ksi or time un files ko dubara download kar raha tha
-
+vids_removed=0
+size_removed=0
 echo -e "\nMake sure that /home/amir/github/Kids_Vids/mapping.pkl is not used by ANY process\npress ANY key when you ready: "
 read _
 
@@ -19,11 +19,7 @@ Choose your action:
     2-Keep
     '
 	read action_
-
-# file_name=/home/home/Videos/incompleted_vdieos_names.txt
-# rm -f $file_name 2>/dev/null
-
-# counter=0
+fi
 
 cd /home/home/Videos/
 
@@ -45,23 +41,22 @@ Are you need to DELETE following incomplete Video:
 			[[ $ans_3 == "y" ]] && rm -f $vid
 		elif [[ $ans_2 -eq 2 ]]; then
 			if [[ $action_ -eq 1 ]] ; then
-				rm -f $vid 2>/dev/null
-				if [[ $? -ne 0 ]]; then
+				rm -f $vid 2>/dev/null 
+				if [[ $? -eq 0 ]]; then
+					vid_size=$(du -sh -BM $vid | cut -dM -f1)
+					let "size_removed+=vid_size"
+					let "vids_removed+=1"
+					echo -e ">>>>> incomplete file, change its status to download=False in mapping.pkl, AND deleted: $vid"
+				else
 					echo -e ">>>>> incomplete file, change its status to download=False in mapping.pkl, but not deleted: $vid"
+				fi
 			else
 				echo -e ">>>>> incomplete file, change its status to download=False in mapping.pkl, but not deleted: $vid"
+			fi
 		fi
 	fi
 done
 
-# if [[ $counter -eq 0 ]]; then
-# 	echo -e "\n-------- Tested `ls *.mp4 *.mkv *.webm 2>/dev/null | wc -l` videos, but no incomplete video found ----------\n"
-# else
-# 	echo -e "#################################\nFollowing files are incomplete\n#################################\n" > $file_name
-# 	cat $file_name
-# 	echo
-# fi
 
 
-
-
+echo -e "\n\nFreed size: $size_removed\nRemoved videos counts: $vids_removed"

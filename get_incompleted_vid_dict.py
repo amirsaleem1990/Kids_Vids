@@ -1,3 +1,4 @@
+#!/usr/bin/ipython3
 import sys
 import pickle
 import getpass
