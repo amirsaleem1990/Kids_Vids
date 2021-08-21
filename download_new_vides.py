@@ -300,7 +300,22 @@ channels = [
 	('TheDadLab',                   'https://www.youtube.com/c/TheDadLab/videos'),
 	('5MinuteCraftsPLAY',           'https://www.youtube.com/c/5MinuteCraftsPLAY/videos'),
 	('KidsMadaniChannel',           'https://www.youtube.com/c/KidsMadaniChannel/videos'),
-	('OmarHanaIslamicSongsforKids', 'https://www.youtube.com/c/OmarHanaIslamicSongsforKids/videos')
+	('OmarHanaIslamicSongsforKids', 'https://www.youtube.com/c/OmarHanaIslamicSongsforKids/videos'),
+	('officialalphablocks',         'https://www.youtube.com/c/officialalphablocks/videos'),
+	('Numberblocks',                'https://www.youtube.com/c/Numberblocks/videos'),
+	('PreschoolPrepCompany',        'https://www.youtube.com/c/PreschoolPrepCompany/videos'),
+	('UCbxK6jzYms1iMkU9Kwvl0sA',    'https://www.youtube.com/channel/UCbxK6jzYms1iMkU9Kwvl0sA/videos'),
+	('MissMollyLearning',           'https://www.youtube.com/c/MissMollyLearning/videos'),
+	('allthingsanimaltv',           'https://www.youtube.com/c/allthingsanimaltv/videos'),
+	('LearnWithZakaria',            'https://www.youtube.com/c/LearnWithZakaria/videos'),
+	('EarthToLuna',                 'https://www.youtube.com/c/EarthToLuna/videos'),
+	('MysteryDoug',                 'https://www.youtube.com/c/MysteryDoug/videos'),
+	('FreeSchool',                  'https://www.youtube.com/c/FreeSchool/videos'),
+	('HappyLearningTVKids',         'https://www.youtube.com/c/HappyLearningTVKids/videos'),
+	('PeepWGBH',                    'https://www.youtube.com/user/PeepWGBH/videos'),
+	('ComeOutsideTV',               'https://www.youtube.com/user/ComeOutsideTV/videos'),
+	('UCPttFyZAvTlWAQzgRU4duJA',    'https://www.youtube.com/channel/UCPttFyZAvTlWAQzgRU4duJA/videos'),
+	('OfficialBerenstainBears',     'https://www.youtube.com/c/OfficialBerenstainBears/videos')
 ]
 
 to_be_exclude    = json.load(open(f"/home/{getpass.getuser()}/github/Kids_Vids/to_be_exclude.json", "r"))

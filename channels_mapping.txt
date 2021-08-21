@@ -15,5 +15,23 @@
 	"TheDadLab"                   : "TheDadLab",
 	"5MinuteCraftsPLAY"           : "5-Minute Crafts PLAY",
 	"KidsMadaniChannel"           : "Kids Madani Channel",
-	"OmarHanaIslamicSongsforKids" : "Omar & Hana - Islamic Cartoons for Kids"
+	"OmarHanaIslamicSongsforKids" : "Omar & Hana - Islamic Cartoons for Kids",
+	"officialalphablocks"         : "Alphablocks",
+	"Numberblocks"                : "Numberblocks",
+	"PreschoolPrepCompany"        : "Preschool Prep Company",
+	"UCbxK6jzYms1iMkU9Kwvl0sA"    : "Super Why - WildBrain",
+	"MissMollyLearning"           : "Miss Molly",
+	"allthingsanimaltv"           : "All Things Animal TV",
+	"LearnWithZakaria"            : "Learn with Zakaria - تعلم مع زكريا",
+	"EarthToLuna"                 : "Mystery Doug",
+	"PeepWGBH"                    : "Peep and the Big Wide World",
+	"ComeOutsideTV"               : "ComeOutsideTV",
+	"OfficialBerenstainBears"     : "The Berenstain Bears - Official",
+	"MysteryDoug"                 : "Mystery Doug",
+	"HappyLearningTVKids"         : "Happy Learning English",
+	"UCPttFyZAvTlWAQzgRU4duJA"    : "How It Is Made"
 }
+
+
+
+
