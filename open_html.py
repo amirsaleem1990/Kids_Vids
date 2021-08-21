@@ -1,9 +1,8 @@
 #!/usr/bin/python3
-
+import pandas as pd
 import pickle
 import os
 import getpass
-import os
 import json
 from datetime import datetime
 
