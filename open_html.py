@@ -103,7 +103,7 @@ try:
 	if to_remove:
 		for i in to_remove:
 			x.pop(i)
-
+	
 	s = """<!DOCTYPE html><html>
 	<head>
 		<style>
@@ -117,7 +117,21 @@ try:
 		<div class="row">
 			"""
 	# c = 0
-	x = dict(zip(list(x.keys())[:100], list(x.values())[:100])) # get latest 100 videos only
+
+	# x = dict(zip(list(x.keys())[:100], list(x.values())[:100])) # get latest 100 videos only
+	final_vids_list = {}
+	for k,v in x.items():
+		channel = v['channel']
+		if not channel  in final_vids_list:
+		    final_vids_list[channel] = []
+		else:
+		    if len(final_vids_list[channel]) < 16:
+		        final_vids_list[channel].append(k)
+	lst = []
+	for k,v in final_vids_list.items():
+		lst += v
+	x = {k:v for k,v in x.items() if k in lst}
+
 	for k,v in x.items():
 		# c += 1
 		# if c > 12:
