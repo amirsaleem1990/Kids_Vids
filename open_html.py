@@ -103,12 +103,6 @@ try:
 		for i in to_remove:
 			x.pop(i)
 
-	df = pd.DataFrame.from_dict(x, orient='index')
-	df.upload_date = pd.to_datetime(df.upload_date)
-	x = df.reset_index().rename(columns={"index" : "url"}).groupby("channel").apply(lambda x:x.sort_values("upload_date", ascending=False).iloc[:15]).reset_index(drop=True).set_index('url')
-	x.upload_date = x.upload_date.astype(str).str.replace("-", "")
-	x = x.to_dict(orient="index")
-	
 	s = """<!DOCTYPE html><html>
 	<head>
 		<style>
@@ -124,18 +118,26 @@ try:
 	# c = 0
 
 	# x = dict(zip(list(x.keys())[:100], list(x.values())[:100])) # get latest 100 videos only
-	final_vids_list = {}
-	for k,v in x.items():
-		channel = v['channel']
-		if not channel  in final_vids_list:
-		    final_vids_list[channel] = []
-		else:
-		    if len(final_vids_list[channel]) < 16:
-		        final_vids_list[channel].append(k)
-	lst = []
-	for k,v in final_vids_list.items():
-		lst += v
-	x = {k:v for k,v in x.items() if k in lst}
+
+	# final_vids_list = {}
+	# for k,v in x.items():
+	# 	channel = v['channel']
+	# 	if not channel  in final_vids_list:
+	# 	    final_vids_list[channel] = []
+	# 	else:
+	# 	    if len(final_vids_list[channel]) < 16:
+	# 	        final_vids_list[channel].append(k)
+	# lst = []
+	# for k,v in final_vids_list.items():
+	# 	lst += v
+	# x = {k:v for k,v in x.items() if k in lst}
+
+	df = pd.DataFrame.from_dict(x, orient='index')
+	df = df[df.downloaded]
+	df.upload_date = pd.to_datetime(df.upload_date)
+	x = df.reset_index().rename(columns={"index" : "url"}).groupby("channel").apply(lambda x:x.sort_values("upload_date", ascending=False).iloc[:15]).reset_index(drop=True).set_index('url').sort_values("upload_date", ascending=False)
+	x.upload_date = x.upload_date.astype(str).str.replace("-", "")
+	x = x.to_dict(orient="index")
 
 	for k,v in x.items():
 		# c += 1
