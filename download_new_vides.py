@@ -310,7 +310,6 @@ channels = [
 	('LearnWithZakaria',            'https://www.youtube.com/c/LearnWithZakaria/videos'),
 	('EarthToLuna',                 'https://www.youtube.com/c/EarthToLuna/videos'),
 	('MysteryDoug',                 'https://www.youtube.com/c/MysteryDoug/videos'),
-	('FreeSchool',                  'https://www.youtube.com/c/FreeSchool/videos'),
 	('HappyLearningTVKids',         'https://www.youtube.com/c/HappyLearningTVKids/videos'),
 	('PeepWGBH',                    'https://www.youtube.com/user/PeepWGBH/videos'),
 	('ComeOutsideTV',               'https://www.youtube.com/user/ComeOutsideTV/videos'),
