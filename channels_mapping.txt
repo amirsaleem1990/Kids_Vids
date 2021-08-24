@@ -23,7 +23,7 @@
 	"MissMollyLearning"           : "Miss Molly",
 	"allthingsanimaltv"           : "All Things Animal TV",
 	"LearnWithZakaria"            : "Learn with Zakaria - تعلم مع زكريا",
-	"EarthToLuna"                 : "Mystery Doug",
+	"EarthToLuna"                 : "Earth To Luna",
 	"PeepWGBH"                    : "Peep and the Big Wide World",
 	"ComeOutsideTV"               : "ComeOutsideTV",
 	"OfficialBerenstainBears"     : "The Berenstain Bears - Official",
