@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %} 
+    <form action="auth_check" method='post'>
+
+        {% csrf_token %}
+        <br><br><br><br><br>
+
+        <center><h3>Enter password<br><br><input type="password" name="user_password" value=""></h3></center>
+        <center><input type="submit" value="Submit"></center>
+    </form>
+
+{% endblock %}
+
