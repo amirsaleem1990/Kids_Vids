@@ -21,4 +21,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     url("", include("auth_app.urls")),
     url("select_channels/", include("select_channels.urls")),
+    url("open_seleted_channels/", include("open_seleted_channels.urls")),
 ]
