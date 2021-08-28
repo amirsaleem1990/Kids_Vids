@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'open_seleted_channels',
     'auth_app',
     'select_channels',
     'django.contrib.admin',
