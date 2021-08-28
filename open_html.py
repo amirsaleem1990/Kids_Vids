@@ -113,6 +113,7 @@ try:
 		</style>
 	</head>
 	<body>
+		<center>Kids_Vids</center><br>
 		<div class="row">
 			"""
 	# c = 0
@@ -156,8 +157,8 @@ try:
 	s += "\n</div></body></html>"
 
 	open(f"/home/{getpass.getuser()}/github/Kids_Vids/dashboard.html", 'w').write(s)
-	import webbrowser
-	webbrowser.get("chromium").open(f"/home/{getpass.getuser()}/github/Kids_Vids/dashboard.html")
+	#import webbrowser
+	#webbrowser.get("chromium").open(f"/home/{getpass.getuser()}/github/Kids_Vids/dashboard.html")
 	# os.system(f"chromium /home/{getpass.getuser()}/github/Kids_Vids/dashboard.html")
 except Exception as e:
 	print(e)
