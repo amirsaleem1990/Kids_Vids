@@ -9,7 +9,7 @@ import pandas as pd
 import os
 from datetime import datetime
 
-def func_(vid, img, channel, upload_date):
+def func_(vid, img, channel, upload_date, videos_to_exclude):
 	upload_date = datetime.strptime(upload_date, "%Y%m%d")
 	uploaded_before_days = (datetime.now() - upload_date).days
 	msg = f"{uploaded_before_days} days ago"
@@ -127,7 +127,8 @@ def select_channels(request):
 				# img = v['thumbnail_url'], # fatching from internet
 				img = f"/home/{getpass.getuser()}/github/Kids_Vids/thumbs/{v['thumbnail_name']}", 
 				channel = v['channel'],
-				upload_date = v['upload_date']
+				upload_date = v['upload_date'],
+				videos_to_exclude
 				)
 		s += "\n</div></body></html>"
 
