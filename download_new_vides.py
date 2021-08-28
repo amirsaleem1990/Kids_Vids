@@ -322,7 +322,7 @@ channels_mapping = json.load(open(f"/home/{getpass.getuser()}/github/Kids_Vids/c
 
 channels_to_exclude = to_be_exclude['channel']
 if channels_to_exclude:
-	l =	[k if v in channels_to_exclude for k,v in channels_mapping.items()]
+	l =	[k  for k,v in channels_mapping.items() if v in channels_to_exclude]
 	channels = [c for c in channels if not c[0] in l]
 
 
