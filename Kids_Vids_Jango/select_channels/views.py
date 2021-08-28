@@ -138,7 +138,7 @@ def select_channels(request):
 		# os.system(f"chromium /home/{getpass.getuser()}/github/Kids_Vids/dashboard.html")
 	except Exception as e:
 		open(f"/home/{getpass.getuser()}/github/Kids_Vids/EX.txt", 'w').write(str(e))
-		return render(request, 'Error.html', {"error" : "e"})
+		return render(request, 'Error.html', {"error" : e})
 
 	##############################################################################################################
 
