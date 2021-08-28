@@ -128,7 +128,7 @@ def select_channels(request):
 				img = f"/home/{getpass.getuser()}/github/Kids_Vids/thumbs/{v['thumbnail_name']}", 
 				channel = v['channel'],
 				upload_date = v['upload_date'],
-				videos_to_exclude
+				videos_to_exclude=videos_to_exclude
 				)
 		s += "\n</div></body></html>"
 
