@@ -19,7 +19,7 @@ def func_(vid, img, channel, upload_date):
 	msg = f"{uploaded_before_days} days ago"
 	vid_name = vid.strip(".webm").strip(".mkv").strip(".mp4").replace("_", ' ').capitalize()
 	if vid.endswith(".part"):
-		return ""
+		return {}
 	vid = f'/home/home/Videos/{vid}'
 	vid = vid[::-1].split('.', 1)[-1][::-1]
 	for i in ('mkv', 'mp4', 'webm'):
@@ -28,40 +28,64 @@ def func_(vid, img, channel, upload_date):
 			vid = vid_
 			break
 	else:
-		return ""
+		return {}
 	if vid in videos_to_exclude:
-		return ""
+		return {}
 	# if int(list(os.popen(f"du -s -BM {vid} | cut -dM -f1"))[0].strip()) < 10:
 		# return ""
 	if vid.endswith(".mkv"):
-		  return f"""<div class="column">
-				<figure class="D3Oi9">
-					<video width="320" height="240" controls poster="{img}" src="{vid}"></video>
-					<span class="QuG1o"><br>{vid_name}<br><b>{channel}<br></b>{msg}</span>
-				</figure>
-			</div>
-			"""
+		return {
+				"img" : img,
+				"vid" : vid,
+				"vid_name" : vid_name,
+				"channel" : channel,
+				"msg" : msg,
+				"extention" : '.mkv'
+				}
+		 #  return f"""<div class="column">
+			# 	<figure class="D3Oi9">
+			# 		<video width="320" height="240" controls poster="{img}" src="{vid}"></video>
+			# 		<span class="QuG1o"><br>{vid_name}<br><b>{channel}<br></b>{msg}</span>
+			# 	</figure>
+			# </div>
+			# """
 	elif vid.endswith(".mp4"):
-		return f"""<div class="column">
-			<figure class="D3Oi9">
-				<video width="320" height="240" controls  poster="{img}">
-					<source src="{vid}" type="video/mp4">
-					Your browser does not support the video tag.
-				</video>
-				<span class="QuG1o"><br>{vid_name}<br><b>{channel}<br></b>{msg}</span>
-			</figure>
-		</div>
-		"""
-	return f"""<div class="column">
-				<figure class="D3Oi9">
-					<video width="320" height="240" controls  poster="{img}">
-						<source src="{vid}" type="video/webm">
-						Your browser does not support the video tag.
-					</video>
-					<span class="QuG1o"><br>{vid_name}<br><b>{channel}<br></b>{msg}</span>
-				</figure>
-			</div>
-			"""
+		return {
+				"img" : img,
+				"vid" : vid,
+				"vid_name" : vid_name,
+				"channel" : channel,
+				"msg" : msg,
+				"extention" : '.mp4'
+				}
+		# return f"""<div class="column">
+		# 	<figure class="D3Oi9">
+		# 		<video width="320" height="240" controls  poster="{img}">
+		# 			<source src="{vid}" type="video/mp4">
+		# 			Your browser does not support the video tag.
+		# 		</video>
+		# 		<span class="QuG1o"><br>{vid_name}<br><b>{channel}<br></b>{msg}</span>
+		# 	</figure>
+		# </div>
+		# """
+	return {
+			"img" : img,
+			"vid" : vid,
+			"vid_name" : vid_name,
+			"channel" : channel,
+			"msg" : msg,
+			"extention" : '.mp4'
+			}
+	# return f"""<div class="column">
+	# 			<figure class="D3Oi9">
+	# 				<video width="320" height="240" controls  poster="{img}">
+	# 					<source src="{vid}" type="video/webm">
+	# 					Your browser does not support the video tag.
+	# 				</video>
+	# 				<span class="QuG1o"><br>{vid_name}<br><b>{channel}<br></b>{msg}</span>
+	# 			</figure>
+	# 		</div>
+	# 		"""
 
 def select_channels(request):
 	print("................. select_channels.select_channels called")
@@ -87,33 +111,36 @@ def select_channels(request):
 		x = x.to_dict(orient="index")
 
 
-		s = """<!DOCTYPE html><html>
-		<head>
-			<style>
-				* {box-sizing: border-box;}
-				.column {float: left;width: 20.00%; padding: 0px;}
-				/* Clearfix (clear floats) */
-				.row::after {content: "";clear: both;display: table;}
-			</style>
-		</head>
-		<body>
-			<center>Kids_Vids</center><br>
-			<div class="row">
-				"""
+		# s = """<!DOCTYPE html><html lang="en">
+		# <head>
+		# 	<style>
+		# 		* {box-sizing: border-box;}
+		# 		.column {float: left;width: 20.00%; padding: 0px;}
+		# 		/* Clearfix (clear floats) */
+		# 		.row::after {content: "";clear: both;display: table;}
+		# 	</style>
+		# </head>
+		# <body>
+		# 	<center>Kids_Vids</center><br>
+		# 	<div class="row">
+		# 		"""
+		data = []
 		for k,v in x.items():
-			s += func_(
-				vid = v['video_name'], 
-				# img = v['thumbnail_url'], # fatching from internet
-				img = f"/home/{getpass.getuser()}/github/Kids_Vids/thumbs/{v['thumbnail_name']}", 
-				channel = v['channel'],
-				upload_date = v['upload_date']
-				)
-		s += "\n</div></body></html>"
+			 data.append(
+			 	func_(
+					vid = v['video_name'], 
+					# img = v['thumbnail_url'], # fatching from internet
+					img = f"/home/{getpass.getuser()}/github/Kids_Vids/thumbs/{v['thumbnail_name']}", 
+					channel = v['channel'],
+					upload_date = v['upload_date']
+					)
+			 	)
+		# s += "\n</div></body></html>"
 
-		open(f"/home/{getpass.getuser()}/github/Kids_Vids/Kids_Vids_Jango/open_seleted_channels/templates/dashboard.html", 'w').write(s)
+		# open(f"/home/{getpass.getuser()}/github/Kids_Vids/Kids_Vids_Jango/open_seleted_channels/templates/dashboard.html", 'w').write(s)
 
 	except Exception as e:
 		open(f"/home/{getpass.getuser()}/github/Kids_Vids/EX.txt", 'w').write(str(e))
 		return render(request, 'Error.html', {"error" : e})
 
-	return render(request, 'dashboard.html')
+	return render(request, 'dashboard.html', {'data' : data})
