@@ -138,8 +138,9 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')
 ]
 
+import getpass
 STATICFILES_DIRS = (
-    '/media/sdb2/github/Kids_Vids/Kids_Vids_Jango/static/',
+    f'/home/{getpass.getuser()}/github/Kids_Vids/Kids_Vids_Jango/static/',
     )
 
 STATIC_ROOT = os.path.join(BASE_DIR, "assets")
