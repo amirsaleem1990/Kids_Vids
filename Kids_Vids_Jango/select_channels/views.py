@@ -13,6 +13,8 @@ to_be_exclude = json.load(open(f"/home/{getpass.getuser()}/github/Kids_Vids/to_b
 channels_to_exclude = to_be_exclude['channel']
 videos_to_exclude = to_be_exclude['video']
 
+existing_files = os.listdir(f"/home/{getpass.getuser()}/github/Kids_Vids/Kids_Vids_Jango/assets/Videos")
+
 def func_(vid, img, channel, upload_date):
 	upload_date = datetime.strptime(upload_date, "%Y%m%d")
 	uploaded_before_days = (datetime.now() - upload_date).days
@@ -20,11 +22,12 @@ def func_(vid, img, channel, upload_date):
 	vid_name = vid.strip(".webm").strip(".mkv").strip(".mp4").replace("_", ' ').capitalize()
 	if vid.endswith(".part"):
 		return {}
-	vid = f'/home/home/Videos/{vid}'
+	# vid = f'/home/home/Videos/{vid}'
 	vid = vid[::-1].split('.', 1)[-1][::-1]
 	for i in ('mkv', 'mp4', 'webm'):
 		vid_ = vid  + "." + i
-		if os.path.exists(vid_):
+		# if os.path.exists(vid_):
+		if vid_ in existing_files:
 			vid = vid_
 			break
 	else:
@@ -35,8 +38,8 @@ def func_(vid, img, channel, upload_date):
 		# return ""
 	if vid.endswith(".mkv"):
 		return {
-				"img" : img,
-				"vid" : vid,
+				"img" : 'thumbs/' + img,
+				"vid" : 'Videos/' + vid,
 				"vid_name" : vid_name,
 				"channel" : channel,
 				"msg" : msg,
@@ -51,8 +54,8 @@ def func_(vid, img, channel, upload_date):
 			# """
 	elif vid.endswith(".mp4"):
 		return {
-				"img" : img,
-				"vid" : vid,
+				"img" : 'thumbs/' + img,
+				"vid" : 'Videos/' + vid,
 				"vid_name" : vid_name,
 				"channel" : channel,
 				"msg" : msg,
@@ -69,8 +72,8 @@ def func_(vid, img, channel, upload_date):
 		# </div>
 		# """
 	return {
-			"img" : img,
-			"vid" : vid,
+			"img" : 'thumbs/' + img,
+			"vid" : 'Videos/' + vid,
 			"vid_name" : vid_name,
 			"channel" : channel,
 			"msg" : msg,
@@ -130,7 +133,8 @@ def select_channels(request):
 			 	func_(
 					vid = v['video_name'], 
 					# img = v['thumbnail_url'], # fatching from internet
-					img = f"/home/{getpass.getuser()}/github/Kids_Vids/thumbs/{v['thumbnail_name']}", 
+					# img = f"/home/{getpass.getuser()}/github/Kids_Vids/thumbs/{v['thumbnail_name']}", 
+					img = v['thumbnail_name'], 
 					channel = v['channel'],
 					upload_date = v['upload_date']
 					)

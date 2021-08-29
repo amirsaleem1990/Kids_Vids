@@ -9,6 +9,8 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
+import os
+PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
 
 from pathlib import Path
 
@@ -126,3 +128,14 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static')
+]
+
+STATICFILES_DIRS = (
+    '/media/sdb2/github/Kids_Vids/Kids_Vids_Jango/static/',
+    )
+
+STATIC_ROOT = os.path.join(BASE_DIR, "assets")
