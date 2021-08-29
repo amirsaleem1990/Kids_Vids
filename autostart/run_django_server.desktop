@@ -1,0 +1,5 @@
+[Desktop Entry]
+Name=Attendence
+Exec=$HOME/github/Kids_Vids/autostart/run_django_server.sh
+Type=Application
+X-GNOME-Autostart-enabled=true
