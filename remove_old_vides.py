@@ -68,7 +68,7 @@ elif True:
 	for i in to_remove:
 		if x[i]['channel'] in final_to_delete_channels:
 			print(f">> Deleting <{x[i]['video_name']}> from channel <{x[i]['channel']}>")
-			# os.remove(f"/home/home/Videos/{x[i]['video_name']}")
+			os.remove(f"/home/home/Videos/{x[i]['video_name']}")
 	after=int(list(os.popen("du -sh -BM  /home/home/Videos/ | cut -dM -f1"))[0].strip())
 	print(f"\n\nFreed {after-before} MB | {(after-before)/1024} GB")
 
