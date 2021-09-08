@@ -47,8 +47,11 @@ for url in to_remove:
 		size /= 1024*1024*1024# in GB
 		Size_dict[channel] = Size_dict.get(channel, 0) + size
 		vids_to_delete.append((vid, channel, size))
-print(f"\n\n\n{'*'*10}Videos for delete count by channel{'*'*10}")
 x = sorted(Count_dict.items(), key=lambda x:x[1], reverse=True)
+if not x:
+	print("\n\nNo videos to remove\nAborting ........\n")
+	sys.exit()
+print(f"\n\n\n{'*'*10} Videos (for delete) count by channel {'*'*10}")
 print("Index\tCount\tSize\tChannel")
 for e, i in enumerate(x):
     print(f"{e}\t{i[1]}\t{round(Size_dict[i[0]])}\t{i[0]}")
