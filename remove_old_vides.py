@@ -31,17 +31,17 @@ q = []
 for i in to_remove:
 	s = get_actual_video_name(x[i]['video_name'])
 	if not s is None:
-		q.append(x[i]['video_name'])
+		q.append(i)
 to_remove = q
 
 vids_to_delete = []
 Count_dict = {}
 Size_dict = {}
-for video in to_remove:
-	vid = f"/home/home/Videos/{x[video]['video_name']}"
-	channel = x[video]['channel']
+for url in to_remove:
+	vid = f"/home/home/Videos/{x[url]['video_name']}"
+	channel = x[url]['channel']
 	if os.path.exists(vid):
-		Count_dict[ x[video]['channel'] ] = Count_dict.get(channel, -1) + 1
+		Count_dict[ x[url]['channel'] ] = Count_dict.get(channel, -1) + 1
 		# os.remove(vid)
 		size = os.stat(vid).st_size # in bytes
 		size /= 1024*1024*1024# in GB
