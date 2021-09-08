@@ -31,7 +31,7 @@ q = []
 for i in to_remove:
 	s = get_actual_video_name(x[i]['video_name'])
 	if not s is None:
-		q.append(s)
+		q.append(x[i]['video_name'])
 to_remove = q
 
 vids_to_delete = []
