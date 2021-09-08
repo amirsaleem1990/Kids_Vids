@@ -60,7 +60,7 @@ elif True:
 	if ',' in input_:
 		to_exlude_index = [int(i.strip()) for i in input_.split(",")]
 	else:
-		to_exlude_index  = [int(input_.strip)]
+		to_exlude_index  = [int(input_.strip())]
 	final_to_delete_channels = [i[0] for e, i in enumerate(x) if not e in to_exlude_index]
 
 	before=int(list(os.popen("du -sh -BM  /home/home/Videos/ | cut -dM -f1"))[0].strip())
