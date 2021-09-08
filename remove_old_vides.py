@@ -27,8 +27,12 @@ to_remove = df[
 		df.reset_index().rename(columns={"index" : "url"}).groupby("channel").apply(lambda x:x.sort_values("upload_date", ascending=False).iloc[:15]).reset_index(drop=True).set_index('url').sort_values("upload_date", ascending=False).index.to_list()
 		)
 	].index.to_list()
-
-
+q = []
+for i in to_remove:
+	s = get_actual_video_name(x[i]['video_name'])
+	if not s is None:
+		q.append(s)
+to_remove = q
 
 vids_to_delete = []
 Count_dict = {}
@@ -81,5 +85,5 @@ elif True:
 			print(f">> Deleting <{vid_actual_name}> from channel <{x[i]['channel']}>")
 			os.remove(f"/home/home/Videos/{vid_actual_name}")
 	after=int(list(os.popen("du -sh -BM  /home/home/Videos/ | cut -dM -f1"))[0].strip())
-	print(f"\n\nFreed {after-before} MB | {(after-before)/1024} GB")
+	print(f"\n\nFreed {before-after} MB | {(before-after)/1024} GB")
 
