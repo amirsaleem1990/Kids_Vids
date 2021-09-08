@@ -7,6 +7,14 @@ import pandas as pd
 import getpass
 import os
 
+def get_actual_video_name(vid_name):
+	v = vid_name.strip(".mp4").strip("webm").strip(".mkv")
+	for extention in ['.mkv', '.mp4', 'webm']:
+		if os.path.exists(f"/home/home/Videos/{v}{extention}"):
+			return  v + extention
+	else:
+		return None
+
 x = pickle.load(open(f"/home/{getpass.getuser()}/github/Kids_Vids/mapping.pkl", 'rb'))
 df = pd.DataFrame.from_dict(x, orient='index')
 df = df[df.downloaded]
@@ -67,8 +75,11 @@ elif True:
 	x = pickle.load(open(f"/home/{getpass.getuser()}/github/Kids_Vids/mapping.pkl", 'rb'))
 	for i in to_remove:
 		if x[i]['channel'] in final_to_delete_channels:
-			print(f">> Deleting <{x[i]['video_name']}> from channel <{x[i]['channel']}>")
-			os.remove(f"/home/home/Videos/{x[i]['video_name']}")
+			vid_actual_name = get_actual_video_name(x[i]['video_name'])
+			if vid_actual_name is None:
+				continue
+			print(f">> Deleting <{vid_actual_name}> from channel <{x[i]['channel']}>")
+			os.remove(f"/home/home/Videos/{vid_actual_name}")
 	after=int(list(os.popen("du -sh -BM  /home/home/Videos/ | cut -dM -f1"))[0].strip())
 	print(f"\n\nFreed {after-before} MB | {(after-before)/1024} GB")
 
