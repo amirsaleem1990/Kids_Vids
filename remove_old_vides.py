@@ -43,17 +43,17 @@ for e, i in enumerate(x):
 
 input_ = input('''
 Are you sure to DELETE ALL of these channels: 
-	1- yes 
-	2- no 
-	Enter index[es] to exclude, (delimated by comma <,>) 
+	- yes 
+	- no 
+	- Enter index[es] to exclude, (delimated by comma <,>) 
 
 	''').replace(" ", "")
-if input_ == "1":
+if input_ == "yes":
 	for e, i in enumerate(x):
 		channel = i[0]
 		print(f"Deleting {i[1]} videos from <{channel}> channel")
 		...
-elif input_ == "2":
+elif input_ == "no":
 	import sys
 	sys.exit()
 elif True:
