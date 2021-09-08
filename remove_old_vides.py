@@ -2,6 +2,7 @@
 #   This script will keep latest 15 videos for each channel, and remove all others.  #
 ######################################################################################
 
+import sys
 import pickle
 import pandas as pd
 import getpass
@@ -69,7 +70,6 @@ if input_ == "yes":
 		print(f"Deleting {i[1]} videos from <{channel}> channel")
 		...
 elif input_ == "no":
-	import sys
 	sys.exit()
 elif True:
 	if ',' in input_:
