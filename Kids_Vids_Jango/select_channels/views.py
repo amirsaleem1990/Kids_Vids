@@ -14,6 +14,7 @@ channels_to_exclude = to_be_exclude['channel']
 videos_to_exclude = to_be_exclude['video']
 
 existing_files = os.listdir(f"/home/{getpass.getuser()}/github/Kids_Vids/Kids_Vids_Jango/assets/Videos")
+existing_files = [i for i in existing_files if i.split(".")[-1] in ['mp4', 'mkv', 'webm']]
 
 def func_(vid, img, channel, upload_date):
 	upload_date = datetime.strptime(upload_date, "%Y%m%d")
@@ -22,11 +23,9 @@ def func_(vid, img, channel, upload_date):
 	vid_name = vid.strip(".webm").strip(".mkv").strip(".mp4").replace("_", ' ').capitalize()
 	if vid.endswith(".part"):
 		return {}
-	# vid = f'/home/home/Videos/{vid}'
 	vid = vid[::-1].split('.', 1)[-1][::-1]
 	for i in ('mkv', 'mp4', 'webm'):
 		vid_ = vid  + "." + i
-		# if os.path.exists(vid_):
 		if vid_ in existing_files:
 			vid = vid_
 			break
@@ -34,8 +33,6 @@ def func_(vid, img, channel, upload_date):
 		return {}
 	if vid in videos_to_exclude:
 		return {}
-	# if int(list(os.popen(f"du -s -BM {vid} | cut -dM -f1"))[0].strip()) < 10:
-		# return ""
 	if vid.endswith(".mkv"):
 		return {
 				"img" : 'thumbs/' + img,
@@ -45,13 +42,6 @@ def func_(vid, img, channel, upload_date):
 				"msg" : msg,
 				"extention" : '.mkv'
 				}
-		 #  return f"""<div class="column">
-			# 	<figure class="D3Oi9">
-			# 		<video width="320" height="240" controls poster="{img}" src="{vid}"></video>
-			# 		<span class="QuG1o"><br>{vid_name}<br><b>{channel}<br></b>{msg}</span>
-			# 	</figure>
-			# </div>
-			# """
 	elif vid.endswith(".mp4"):
 		return {
 				"img" : 'thumbs/' + img,
@@ -61,16 +51,6 @@ def func_(vid, img, channel, upload_date):
 				"msg" : msg,
 				"extention" : '.mp4'
 				}
-		# return f"""<div class="column">
-		# 	<figure class="D3Oi9">
-		# 		<video width="320" height="240" controls  poster="{img}">
-		# 			<source src="{vid}" type="video/mp4">
-		# 			Your browser does not support the video tag.
-		# 		</video>
-		# 		<span class="QuG1o"><br>{vid_name}<br><b>{channel}<br></b>{msg}</span>
-		# 	</figure>
-		# </div>
-		# """
 	return {
 			"img" : 'thumbs/' + img,
 			"vid" : 'Videos/' + vid,
@@ -79,16 +59,6 @@ def func_(vid, img, channel, upload_date):
 			"msg" : msg,
 			"extention" : '.mp4'
 			}
-	# return f"""<div class="column">
-	# 			<figure class="D3Oi9">
-	# 				<video width="320" height="240" controls  poster="{img}">
-	# 					<source src="{vid}" type="video/webm">
-	# 					Your browser does not support the video tag.
-	# 				</video>
-	# 				<span class="QuG1o"><br>{vid_name}<br><b>{channel}<br></b>{msg}</span>
-	# 			</figure>
-	# 		</div>
-	# 		"""
 
 def select_channels(request):
 	print("................. select_channels.select_channels called")

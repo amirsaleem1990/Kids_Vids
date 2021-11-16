@@ -23,39 +23,39 @@ for k,v in x1.items():
 	x1[k]['size_MB'] = os.stat(f"/home/home/Videos/{v['video_name']}").st_size/1024/1024
 
 print("\n")
-# d = {}
-# for k,v in x1.items():
-# 	d[v['channel']] = d.get(v['channel'], 0) + v['size_MB']
+d = {}
+for k,v in x1.items():
+	d[v['channel']] = d.get(v['channel'], 0) + v['size_MB']
 
 # pickle.dump(d, open("d", 'wb'))
-d = pickle.load(open("d", 'rb'))
+#d = pickle.load(open("d", 'rb'))
 
-# def get_durations(tup):
-# 	k,v = tup
-# 	try:
-# 		a = VideoFileClip(f"/home/home/Videos/{v['video_name']}").duration
-# 	except:
-# 		a = 0
-# 	x1[k]['duration'] = a
-# pool = Pool()   # Create a multiprocessing Pool
-# pool.map(get_durations, list(x1.items()))
+def get_durations(tup):
+	k,v = tup
+	try:
+		a = VideoFileClip(f"/home/home/Videos/{v['video_name']}").duration
+	except:
+		a = 0
+	x1[k]['duration'] = a
+pool = Pool()   # Create a multiprocessing Pool
+pool.map(get_durations, list(x1.items()))
 
 # pickle.dump(x1, open("x1", 'wb'))
-x1 = pickle.load(open("x1", 'rb'))
+# x1 = pickle.load(open("x1", 'rb'))
 
-# duration = {}
-# for k,v in x1.items():
-# 	qm = reduce(lambda x, y: x*60+y, [int(i) for i in (v['duration'].replace(':',',')).split(',')])
-# 	duration[v['channel']] = duration.get(v['channel'], 0) + qm
-# for k,v in duration.items():
-# 	duration[k] = str(timedelta(seconds=v))
-# pickle.dump(duration, open("duration", 'wb'))
+duration = {}
+for k,v in x1.items():
+	qm = reduce(lambda x, y: x*60+y, [int(i) for i in (v['duration'].replace(':',',')).split(',')])
+	duration[v['channel']] = duration.get(v['channel'], 0) + qm
+for k,v in duration.items():
+	duration[k] = str(timedelta(seconds=v))
 
-duration = pickle.load(open("duration", 'rb'))
+#pickle.dump(duration, open("duration", 'wb'))
+#duration = pickle.load(open("duration", 'rb'))
 
-# d = dict(sorted(d.items(), key=lambda x: x[1]))
-# for k,v in d.items():
-	# print(f"{int(v)}\t{k}")
+d = dict(sorted(d.items(), key=lambda x: x[1]))
+for k,v in d.items():
+	print(f"{int(v)}\t{k}")
 
 
 x2 = [v['channel'] for k,v in x1.items()]

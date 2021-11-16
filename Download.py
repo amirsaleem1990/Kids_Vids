@@ -53,8 +53,17 @@ to_be_exclude = json.load(open(f"/home/{getpass.getuser()}/github/Kids_Vids/to_b
 channels_to_exclude = to_be_exclude['channel']
 mapping = pickle.load(open("mapping.pkl", 'rb'))
 to_download = [k for k,v in mapping.items() if (not v['downloaded']) and (not v['channel'] in channels_to_exclude)]
-
-
+#################3
+#x = {k:v for k,v in mapping.items() if (not v['downloaded']) and (not v['channel'] in channels_to_exclude) and (v['channel'] in ['Vlad and Niki', 'Robocar POLI TV'])}
+#r = []
+#V = []
+#for k,v in x.items():
+#    if v['channel'] == 'Robocar POLI TV' and (len(r) < 3):
+#        r.append(k)
+#    if v['channel'] == 'Vlad and Niki' and (len(V) < 3):
+#        V.append(k)
+#to_download = r + V
+#################
 is_error = False
 try:
 	if to_download:
