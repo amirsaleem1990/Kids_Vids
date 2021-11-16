@@ -34,7 +34,17 @@ def auth_check(request):
 		channels_mapping = json.load(open(f"/home/{getpass.getuser()}/github/Kids_Vids/channels_mapping.txt", "r"))
 		list_of_channels = [channels_mapping[i[0]] for i in channels]
 
-		return render(request, 'select_channels/choose_channels.html', {"channels" : list_of_channels})
+		x = pickle.load(open(f"/home/{getpass.getuser()}/github/Kids_Vids/mapping.pkl", 'rb'))
+		channels = {}
+		for url, data in x.items():
+			if not data['channel'] in list_of_channels:
+				continue
+			if data['downloaded']:
+				if os.path.exists(f"/home/{getpass.getuser()}/Videos/{data['video_name']}"):
+					channels[data['channel']] = channels.get(data['channel'], 0) + 1
+		channels = [(k,v) for k,v in channels.items()]
+		# return render(request, 'select_channels/choose_channels.html', {"channels" : list_of_channels})
+		return render(request, 'select_channels/choose_channels.html', {"channels" : channels})
  
 	else:
 		return render(request, 'Error.html', {"error" : "Wrong password"})
