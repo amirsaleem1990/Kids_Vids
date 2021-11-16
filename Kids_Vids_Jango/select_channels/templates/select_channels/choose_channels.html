@@ -5,8 +5,8 @@
         {% for channel in channels %}
         
         <div>
-            <input type="checkbox" id="{{channel}}" name="{{channel}}">
-            <label for="{{channel}}">{{channel}}</label>
+            <input type="checkbox" id="{{channel.0}}" name="{{channel.0}}">
+            <label for="{{channel.0}}">{{channel.0 | channel.1}}</label>
         </div>
         {% endfor %}
         
