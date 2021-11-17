@@ -33,39 +33,23 @@ def func_(vid, img, channel, upload_date):
 		return {}
 	if vid in videos_to_exclude:
 		return {}
-	if vid.endswith(".mkv"):
-		return {
-				"img" : 'thumbs/' + img,
-				"vid" : 'Videos/' + vid,
-				"vid_name" : vid_name,
-				"channel" : channel,
-				"msg" : msg,
-				"extention" : '.mkv'
-				}
-	elif vid.endswith(".mp4"):
-		return {
-				"img" : 'thumbs/' + img,
-				"vid" : 'Videos/' + vid,
-				"vid_name" : vid_name,
-				"channel" : channel,
-				"msg" : msg,
-				"extention" : '.mp4'
-				}
 	return {
-			"img" : 'thumbs/' + img,
-			"vid" : 'Videos/' + vid,
-			"vid_name" : vid_name,
-			"channel" : channel,
-			"msg" : msg,
-			"extention" : '.mp4'
-			}
+		"img" : 'thumbs/' + img,
+		"vid" : 'Videos/' + vid,
+		"vid_name" : vid_name,
+		"channel" : channel,
+		"msg" : msg,
+		"extention" :  '.mp4' if vid.endswith(".mp4") else '.mkv' if vid.endswith(".mkv") else '.webm'
+		}
 
 def select_channels(request):
+
 	print("................. select_channels.select_channels called")
 
 	x = dict(request.POST)
 
 	selected_channels = [k.strip() for k,v in x.items() if v == ['on']]
+
 	if not selected_channels:
 		return render(request, 'Error.html', {"error" : "No channel is selected!!!!!!"})
 	try:
@@ -76,43 +60,29 @@ def select_channels(request):
 		df = pd.DataFrame.from_dict(x, orient='index')
 		df = df[(df.channel.isin(selected_channels)) & df.downloaded]
 		df.upload_date = pd.to_datetime(df.upload_date)
+		to_ = None
 		if len(df) < 200:
-			x = df.reset_index().rename(columns={"index" : "url"}).groupby("channel").apply(lambda x:x.sort_values("upload_date", ascending=False)).reset_index(drop=True).set_index('url').sort_values("upload_date", ascending=False)
-		else:
-			x = df.reset_index().rename(columns={"index" : "url"}).groupby("channel").apply(lambda x:x.sort_values("upload_date", ascending=False).iloc[:15]).reset_index(drop=True).set_index('url').sort_values("upload_date", ascending=False)
-		x.upload_date = x.upload_date.astype(str).str.replace("-", "")
-		x = x.to_dict(orient="index")
+			to_ = 15
+		x = (df.assign(upload_date=df.upload_date.astype(str).str.replace("-", ""))
+			   .reset_index()
+			   .rename(columns={"index" : "url"})
+			   .groupby("channel")
+			   .apply(lambda x:x.sort_values("upload_date", ascending=False).iloc[:to_])
+			   .reset_index(drop=True)
+			   .set_index('url')
+			   .sort_values("upload_date", ascending=False)
+			).to_dict(orient="index")
 
-
-		# s = """<!DOCTYPE html><html lang="en">
-		# <head>
-		# 	<style>
-		# 		* {box-sizing: border-box;}
-		# 		.column {float: left;width: 20.00%; padding: 0px;}
-		# 		/* Clearfix (clear floats) */
-		# 		.row::after {content: "";clear: both;display: table;}
-		# 	</style>
-		# </head>
-		# <body>
-		# 	<center>Kids_Vids</center><br>
-		# 	<div class="row">
-		# 		"""
 		data = []
 		for k,v in x.items():
 			 data.append(
 			 	func_(
 					vid = v['video_name'], 
-					# img = v['thumbnail_url'], # fatching from internet
-					# img = f"/home/{getpass.getuser()}/github/Kids_Vids/thumbs/{v['thumbnail_name']}", 
 					img = v['thumbnail_name'], 
 					channel = v['channel'],
 					upload_date = v['upload_date']
 					)
 			 	)
-		# s += "\n</div></body></html>"
-
-		# open(f"/home/{getpass.getuser()}/github/Kids_Vids/Kids_Vids_Jango/open_seleted_channels/templates/dashboard.html", 'w').write(s)
-
 	except Exception as e:
 		open(f"/home/{getpass.getuser()}/github/Kids_Vids/EX.txt", 'w').write(str(e))
 		return render(request, 'Error.html', {"error" : e})
