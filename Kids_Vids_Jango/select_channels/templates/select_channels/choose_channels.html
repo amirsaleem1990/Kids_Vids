@@ -1,13 +1,11 @@
 {% block content %} 
     <form action="select_channels/" method='post' id="my_form">
         {% csrf_token %}
-
         {% for channel in channels %}
-        
-        <div>
-            <input type="checkbox" id="{{channel.0}}" name="{{channel.0}}">
-            <label for="{{channel.0}}">{{channel.0 | channel.1}}</label>
-        </div>
+            <div>
+                <input type="checkbox" id="{{channel.0}}" name="{{channel.0}}">
+                <label for="{{channel.0}}">{{channel.0}} | {{channel.1}}</label>
+            </div>
         {% endfor %}
         
         <input type="submit" value="Submit">
