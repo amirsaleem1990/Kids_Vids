@@ -8,13 +8,15 @@ import sys
 import pandas as pd
 import os
 from datetime import datetime
+from auth_app.views import replace_wrong_videos_names_with_correct_one
 
 to_be_exclude = json.load(open(f"/home/{getpass.getuser()}/github/Kids_Vids/to_be_exclude.json", "r"))
 channels_to_exclude = to_be_exclude['channel']
 videos_to_exclude = to_be_exclude['video']
 
-existing_files = os.listdir(f"/home/{getpass.getuser()}/github/Kids_Vids/Kids_Vids_Jango/assets/Videos")
+existing_files = os.listdir(f"/home/home/Videos")
 existing_files = [i for i in existing_files if i.split(".")[-1] in ['mp4', 'mkv', 'webm']]
+
 
 def func_(vid, img, channel, upload_date):
 	upload_date = datetime.strptime(upload_date, "%Y%m%d")
@@ -49,19 +51,20 @@ def select_channels(request):
 	x = dict(request.POST)
 
 	selected_channels = [k.strip() for k,v in x.items() if v == ['on']]
+	print("selected channels:")
 
 	if not selected_channels:
 		return render(request, 'Error.html', {"error" : "No channel is selected!!!!!!"})
 	try:
 		x = pickle.load(open(f"/home/{getpass.getuser()}/github/Kids_Vids/mapping.pkl", 'rb'))
-		x = sorted(x.items(), key=lambda x: (datetime.now() - datetime.strptime(x[1]['upload_date'], "%Y%m%d")).days)
-		x = {i[0] : i[1] for i in x}
+		x = replace_wrong_videos_names_with_correct_one(x)
+		x = dict(sorted(x.items(), key=lambda x: (datetime.now() - datetime.strptime(x[1]['upload_date'], "%Y%m%d")).days))
 
 		df = pd.DataFrame.from_dict(x, orient='index')
-		df = df[(df.channel.isin(selected_channels)) & df.downloaded]
+		df = df[(df.channel.isin(selected_channels))]
 		df.upload_date = pd.to_datetime(df.upload_date)
 		to_ = None
-		if len(df) < 200:
+		if len(df) > 200:
 			to_ = 15
 		x = (df.assign(upload_date=df.upload_date.astype(str).str.replace("-", ""))
 			   .reset_index()
@@ -83,6 +86,7 @@ def select_channels(request):
 					upload_date = v['upload_date']
 					)
 			 	)
+		data = [i for i in data if i]
 	except Exception as e:
 		open(f"/home/{getpass.getuser()}/github/Kids_Vids/EX.txt", 'w').write(str(e))
 		return render(request, 'Error.html', {"error" : e})
