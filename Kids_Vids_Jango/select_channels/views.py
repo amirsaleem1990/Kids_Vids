@@ -44,6 +44,14 @@ def func_(vid, img, channel, upload_date):
 		"extention" :  '.mp4' if vid.endswith(".mp4") else '.mkv' if vid.endswith(".mkv") else '.webm'
 		}
 
+def duration_sec(x):
+    h,m,s = x.split(":")
+    h = int(h) if not h.startswith("0") else int(h[1])
+    m = int(m) if not m.startswith("0") else int(m[1])
+    s = int(s) if not s.startswith("0") else int(s[1])
+    return s + m*60 + h*60*60
+
+
 def select_channels(request):
 
 	print("................. select_channels.select_channels called")
@@ -63,6 +71,10 @@ def select_channels(request):
 		df = pd.DataFrame.from_dict(x, orient='index')
 		df = df[(df.channel.isin(selected_channels))]
 		df.upload_date = pd.to_datetime(df.upload_date)
+
+		df = df.drop_duplicates(subset=["video_name"], keep='last')
+		df = df[df.duration.apply(duration_sec) > 180] # videos with less then 3minutes duration are excluded
+		
 		to_ = None
 		if len(df) > 200:
 			to_ = 15
