@@ -39,6 +39,13 @@ def download_videos(url):
 		print(e)
 		errors[url] = ["download_videos fail",e, str(datetime.now())]
 
+def duration_sec(x):
+    h,m,s = x.split(":")
+    h = int(h) if not h.startswith("0") else int(h[1])
+    m = int(m) if not m.startswith("0") else int(m[1])
+    s = int(s) if not s.startswith("0") else int(s[1])
+    return s + m*60 + h*60*60
+
 size_before = int(list(os.popen("du -sh -BM  /home/home/Videos/"))[0].strip().split("\t")[0].strip("M"))
 
 if os.path.exists(f"/home/{getpass.getuser()}/github/Kids_Vids/Error.pkl"):
@@ -52,7 +59,7 @@ else:
 to_be_exclude = json.load(open(f"/home/{getpass.getuser()}/github/Kids_Vids/to_be_exclude.json", "r"))
 channels_to_exclude = to_be_exclude['channel']
 mapping = pickle.load(open("mapping.pkl", 'rb'))
-to_download = [k for k,v in mapping.items() if (not v['downloaded']) and (not v['channel'] in channels_to_exclude)]
+to_download = [k for k,v in mapping.items() if (not v['downloaded']) and (not v['channel'] in channels_to_exclude) and (duration_sec(v['duration']) > 180)]
 #################3
 #x = {k:v for k,v in mapping.items() if (not v['downloaded']) and (not v['channel'] in channels_to_exclude) and (v['channel'] in ['Vlad and Niki', 'Robocar POLI TV'])}
 #r = []
