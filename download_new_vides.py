@@ -348,7 +348,7 @@ if __name__ == "__main__":
 	# 	pickle.dump(mapping, open(f"/home/{getpass.getuser()}/github/Kids_Vids/mapping.pkl", 'wb'))
 	# 	raise Exception(str(traceback.format_exc()))
 	# pickle.dump(mapping, open(f"/home/{getpass.getuser()}/github/Kids_Vids/mapping.pkl", 'wb'))
-	os.system(f"python3 /home/{getpass.getuser()}/github/Kids_Vids/Download.py")
+	os.system(f"yes 'yes' | python3 /home/{getpass.getuser()}/github/Kids_Vids/Download.py")
 
 
 	if os.path.exists(f"/home/{getpass.getuser()}/github/Kids_Vids/Error.pkl"):
