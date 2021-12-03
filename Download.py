@@ -17,7 +17,12 @@ def download_videos(url):
 		v = mapping[url]
 
 		full_video_name = f"/home/home/Videos/{mapping[url]['video_name']}"
-
+		if os.path.exists(full_video_name):
+			return 
+		# some videos name are: .mp4..mp4, .mkv.webm ...
+		if full_video_name.count(".") == 2:
+			print(f"\n\nSkipping this video\t{url}\n\n")
+			return
 		if os.path.exists(full_video_name):
 			return 
 
