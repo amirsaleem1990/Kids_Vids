@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+import shutil
 import getpass
 from selenium.webdriver.firefox.options import Options
 from multiprocessing import Pool
@@ -17,6 +18,7 @@ from bs4 import BeautifulSoup
 import youtube_dl
 import traceback
 
+base_dir = f"/home/{getpass.getuser()}/github/Kids_Vids"
 
 def extract_videos_from_channel_page(channel_url):
 	try:
@@ -50,8 +52,8 @@ def extract_videos_from_channel_page(channel_url):
 #             to_download += x_2
 #         except:
 #             errors[i] = ["No video in the channel",e, str(datetime.now())]
-#     pickle.dump(to_download, open(f"/home/{getpass.getuser()}/github/Kids_Vids/to_download.pkl", 'wb'))
-#     print(f"\n\n ---------------------------- to_download saved as /home/{getpass.getuser()}/github/Kids_Vids/to_download.pkl\n\n")
+#     pickle.dump(to_download, open(f"{base_dir}/to_download.pkl", 'wb'))
+#     print(f"\n\n ---------------------------- to_download saved as {base_dir}/to_download.pkl\n\n")
 #     return to_download
 
 def get_urls_to_download(c):
@@ -68,14 +70,14 @@ def get_urls_to_download(c):
 				if '&' in i:
 					urls[e] = i.split("&")[0]
 
-			pickle.dump(urls, open(f"/home/{getpass.getuser()}/github/Kids_Vids/to_download_{channels.index(c)}.pkl", 'wb'))
+			pickle.dump(urls, open(f"{base_dir}/to_download_{channels.index(c)}.pkl", 'wb'))
 		else:
 			if get_urls_to_download_recursive_n < 5:
 				get_urls_to_download_recursive_n += 1
 				print(f">>>>> No usl, another attempt for {channel}")
 				get_urls_to_download(c)
 		# x_2 = [i for i in urls if not i in downloaded]
-		# print(f"\nThere are  {len(x_2)} urls from <{channel}> that are missing in /home/{getpass.getuser()}/github/Kids_Vids/downloaded.txt file")
+		# print(f"\nThere are  {len(x_2)} urls from <{channel}> that are missing in {base_dir}/downloaded.txt file")
 	except:
 		e = traceback.format_exc()
 		if get_urls_to_download_recursive_n < 5:
@@ -231,23 +233,35 @@ def get_info(to_download):
 # 		v = mapping[url]
 # 	    # com = f"curl {v['thumbnail_url']} -o thumbs/{v['thumbnail_name']}"
 # 	    # os.system(com)
-# 		subprocess.check_call(['curl', v['thumbnail_url'], '-o', f"/home/{getpass.getuser()}/github/Kids_Vids/thumbs/{v['thumbnail_name']}"])
+# 		subprocess.check_call(['curl', v['thumbnail_url'], '-o', f"{base_dir}/thumbs/{v['thumbnail_name']}"])
 # 		subprocess.check_call(['youtube-dl', url, '-o', f"/home/home/Videos/{mapping[url]['video_name']}"])
-# 		# open(f"/home/{getpass.getuser()}/github/Kids_Vids/downloaded.txt", "a").write(url+"\n")
+# 		# open(f"{base_dir}/downloaded.txt", "a").write(url+"\n")
 # 		mapping[url]['downloaded'] = True
 # 	except Exception as e:
 # 		print(e)
 # 		errors[url] = ["download_videos fail",e, str(datetime.now())]
 
 
-if os.path.exists(f"/home/{getpass.getuser()}/github/Kids_Vids/mapping.pkl"):
-	mapping = pickle.load(open(f"/home/{getpass.getuser()}/github/Kids_Vids/mapping.pkl", 'rb'))
+if os.path.exists(f"{base_dir}/mapping.pkl"):
+	try:
+		mapping = pickle.load(open(f"{base_dir}/mapping.pkl", 'rb'))
+		if len(mapping):
+		# if input(f"We need to backup the '{base_dir}/mapping.pkl' file as '{base_dir}/mapping_BACKUP.pkl'. The '{base_dir}/mapping.pkl' file currently has {len(mapping)} items, Are you need to backup this file? [yes|no] ") == "yes":
+			shutil.copyfile(f"{base_dir}/mapping.pkl", f"{base_dir}/mapping_BACKUP.pkl")
+			print(f"\nThe file '{base_dir}/mapping.pkl' is succussflly saved as '{base_dir}/mapping_BACKUP.pkl'")
+		else:
+			raise Exception(f"\nThe file '{base_dir}/mapping.pkl' has no items\n")
+			exit()
+	except Exception as e:
+		print(e)
+		pass
 else:
 	mapping = dict()
 
+
 if __name__ == "__main__":
 
-	pkls = [i for i in os.listdir(f"/home/{getpass.getuser()}/github/Kids_Vids/") if i.startswith("to_download_") and i.endswith(".pkl")]
+	pkls = [i for i in os.listdir(base_dir+"/") if i.startswith("to_download_") and i.endswith(".pkl")]
 	if pkls:
 		for i in pkls:
 			os.remove(i)
@@ -256,21 +270,21 @@ if __name__ == "__main__":
 		raise Exception("No directory /home/home/Videos/")
 
 	# if not os.path.exists("/home/home/thumbnail/"):
-	if not os.path.exists(f"/home/{getpass.getuser()}/github/Kids_Vids/thumbs/"):
-		raise Exception(f"No directory /home/{getpass.getuser()}/github/Kids_Vids/thumbs/")
+	if not os.path.exists(f"{base_dir}/thumbs/"):
+		raise Exception(f"No directory {base_dir}/thumbs/")
 
 	if os.path.exists("to_be_exclude.json"):
-		excluded_videos = open(f"/home/{getpass.getuser()}/github/Kids_Vids/to_be_exclude.json", 'r').read().splitlines()
+		excluded_videos = open(f"{base_dir}/to_be_exclude.json", 'r').read().splitlines()
 	else:
 		excluded_videos = []
 
-	if os.path.exists(f"/home/{getpass.getuser()}/github/Kids_Vids/Error_file.pkl"):
-		errors = pickle.load(open(f"/home/{getpass.getuser()}/github/Kids_Vids/Error_file.pkl", 'rb'))
+	if os.path.exists(f"{base_dir}/Error_file.pkl"):
+		errors = pickle.load(open(f"{base_dir}/Error_file.pkl", 'rb'))
 	else:
 		errors = dict()
 
-	# if os.path.exists(f"/home/{getpass.getuser()}/github/Kids_Vids/downloaded.txt"):
-	# 	downloaded = open(f"/home/{getpass.getuser()}/github/Kids_Vids/downloaded.txt", 'r').read().splitlines()
+	# if os.path.exists(f"{base_dir}/downloaded.txt"):
+	# 	downloaded = open(f"{base_dir}/downloaded.txt", 'r').read().splitlines()
 	# else:
 	# 	downloaded = list()
 	downloaded = [k for k,v in mapping.items() if v['downloaded']]
@@ -296,17 +310,17 @@ if __name__ == "__main__":
 
 	browser.close()
 
-	pkls = [i for i in os.listdir(f"/home/{getpass.getuser()}/github/Kids_Vids/") if i.startswith("to_download_") and i.endswith(".pkl")]
+	pkls = [i for i in os.listdir(base_dir + "/") if i.startswith("to_download_") and i.endswith(".pkl")]
 	to_download = []
 	for i in pkls:
-		to_download += pickle.load(open(f"/home/{getpass.getuser()}/github/Kids_Vids/{i}", 'rb'))
+		to_download += pickle.load(open(f"{base_dir}/{i}", 'rb'))
 	to_download = [i for i in set(to_download) if not i in downloaded]
-	pickle.dump(to_download, open(f"/home/{getpass.getuser()}/github/Kids_Vids/to_download.pkl", 'wb'))
-	print(f"\n\n ---------------------------- to_download saved as /home/{getpass.getuser()}/github/Kids_Vids/to_download.pkl\n\n")
-	# to_download = pickle.load(open(f"/home/{getpass.getuser()}/github/Kids_Vids/to_download.pkl", 'rb'))
+	pickle.dump(to_download, open(f"{base_dir}/to_download.pkl", 'wb'))
+	print(f"\n\n ---------------------------- to_download saved as {base_dir}/to_download.pkl\n\n")
+	# to_download = pickle.load(open(f"{base_dir}/to_download.pkl", 'rb'))
 
 	for i in pkls:
-		os.remove(f"/home/{getpass.getuser()}/github/Kids_Vids/{i}")
+		os.remove(f"{base_dir}/{i}")
 
 
 	# # download_jsons(to_download)
@@ -314,22 +328,22 @@ if __name__ == "__main__":
 		print("Out function", id(mapping))
 		get_info(to_download)
 	except:
-		pickle.dump(mapping, open(f"/home/{getpass.getuser()}/github/Kids_Vids/mapping.pkl", 'wb'))
+		pickle.dump(mapping, open(f"{base_dir}/mapping.pkl", 'wb'))
 		raise Exception(str(traceback.format_exc()))
-	pickle.dump(mapping, open(f"/home/{getpass.getuser()}/github/Kids_Vids/mapping.pkl", 'wb'))
-	print(f"\n\n ---------------------------- mapping saved as /home/{getpass.getuser()}/github/Kids_Vids/mapping.pkl\n\n")
-	# mapping = pickle.load(open(f"/home/{getpass.getuser()}/github/Kids_Vids/mapping.pkl", 'rb'))
+	pickle.dump(mapping, open(f"{base_dir}/mapping.pkl", 'wb'))
+	print(f"\n\n ---------------------------- mapping saved as {base_dir}/mapping.pkl\n\n")
+	# mapping = pickle.load(open(f"{base_dir}/mapping.pkl", 'rb'))
 
 	# extrect_data_from_json(to_download)
-	# pickle.dump(mapping, open(f"/home/{getpass.getuser()}/github/Kids_Vids/mapping.pkl", 'wb'))
-	# mapping = pickle.load(open(f"/home/{getpass.getuser()}/github/Kids_Vids/mapping.pkl", 'rb'))
+	# pickle.dump(mapping, open(f"{base_dir}/mapping.pkl", 'wb'))
+	# mapping = pickle.load(open(f"{base_dir}/mapping.pkl", 'rb'))
 
 	# download_thumbnails(to_download) 
-	# pickle.dump(mapping, open(f"/home/{getpass.getuser()}/github/Kids_Vids/mapping.pkl", 'wb'))
-	# mapping = pickle.load(open(f"/home/{getpass.getuser()}/github/Kids_Vids/mapping.pkl", 'rb'))
+	# pickle.dump(mapping, open(f"{base_dir}/mapping.pkl", 'wb'))
+	# mapping = pickle.load(open(f"{base_dir}/mapping.pkl", 'rb'))
 
 	if errors:
-		pickle.dump(errors, open(f"/home/{getpass.getuser()}/github/Kids_Vids/Error.pkl", 'wb'))
+		pickle.dump(errors, open(f"{base_dir}/Error.pkl", 'wb'))
 
 	# to_download = [i for i in to_download if not i in to_skip]
 	# urls in mapping but video is not_downloaded
@@ -345,15 +359,15 @@ if __name__ == "__main__":
 	# 		print(f"\n--------------------------------------------------- {len(to_download)} videos to be downloaded ..........\n\n")
 	# 		p.map(download_videos, to_download)
 	# except:
-	# 	pickle.dump(mapping, open(f"/home/{getpass.getuser()}/github/Kids_Vids/mapping.pkl", 'wb'))
+	# 	pickle.dump(mapping, open(f"{base_dir}/mapping.pkl", 'wb'))
 	# 	raise Exception(str(traceback.format_exc()))
-	# pickle.dump(mapping, open(f"/home/{getpass.getuser()}/github/Kids_Vids/mapping.pkl", 'wb'))
-	os.system(f"yes 'yes' | python3 /home/{getpass.getuser()}/github/Kids_Vids/Download.py")
+	# pickle.dump(mapping, open(f"{base_dir}/mapping.pkl", 'wb'))
+	os.system(f"yes 'yes' | python3 {base_dir}/Download.py")
 
 
-	if os.path.exists(f"/home/{getpass.getuser()}/github/Kids_Vids/Error.pkl"):
+	if os.path.exists(f"{base_dir}/Error.pkl"):
 		try:
-			errors = pickle.load(open(f"/home/{getpass.getuser()}/github/Kids_Vids/Error.pkl", 'rb'))
+			errors = pickle.load(open(f"{base_dir}/Error.pkl", 'rb'))
 			if errors:
 				print(f"\n\n{'*'*15}ERRORS{'*'*15}")
 				print(errors, sep="\n")
