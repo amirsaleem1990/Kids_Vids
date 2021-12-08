@@ -29,7 +29,11 @@
 	"OfficialBerenstainBears"     : "The Berenstain Bears - Official",
 	"MysteryDoug"                 : "Mystery Doug",
 	"HappyLearningTVKids"         : "Happy Learning English",
-	"UCPttFyZAvTlWAQzgRU4duJA"    : "How It Is Made"
+	"UCPttFyZAvTlWAQzgRU4duJA"    : "How It Is Made",
+	"SmileandLearnEnglish1"       : "Smile and Learn - English",
+	"UC4p_YSvJlJpEhAh5PMyhkiQ"    : "Highlights Kids",
+	"LearningTimeFun"             : "Learning Time Fun",
+	"Toddlerfunlearning"          : "Toddler Fun Learning"
 }
 
 
