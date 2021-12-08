@@ -37,7 +37,11 @@ def get_channels():
 		('PeepWGBH',                    'https://www.youtube.com/user/PeepWGBH/videos'),
 		('ComeOutsideTV',               'https://www.youtube.com/user/ComeOutsideTV/videos'),
 		('UCPttFyZAvTlWAQzgRU4duJA',    'https://www.youtube.com/channel/UCPttFyZAvTlWAQzgRU4duJA/videos'),
-		('OfficialBerenstainBears',     'https://www.youtube.com/c/OfficialBerenstainBears/videos')
+		('OfficialBerenstainBears',     'https://www.youtube.com/c/OfficialBerenstainBears/videos'),
+		('SmileandLearnEnglish1',       'https://www.youtube.com/c/SmileandLearnEnglish1/videos'),
+		('UC4p_YSvJlJpEhAh5PMyhkiQ',    'https://www.youtube.com/channel/UC4p_YSvJlJpEhAh5PMyhkiQ/videos'),
+		('LearningTimeFun',             'https://www.youtube.com/c/LearningTimeFun/videos'),
+		('Toddlerfunlearning',          'https://www.youtube.com/c/Toddlerfunlearning/videos')
 	]
 
 	to_be_exclude    = json.load(open(f"/home/{getpass.getuser()}/github/Kids_Vids/to_be_exclude.json", "r"))
