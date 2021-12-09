@@ -1,4 +1,5 @@
 #!/usr/bin/ipython3
+import time
 from multiprocessing import Pool  
 import multiprocessing.dummy 
 import subprocess 
@@ -121,5 +122,6 @@ while [i for i in os.listdir("/home/home/Videos/") if i.endswith(".part")]:
 	print("There are some .part files left, retrying again......")
 	try:
 		main()
+		time.sleep(60)
 	except KeyboardInterrupt:
 		sys.exit()
