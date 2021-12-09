@@ -6,8 +6,9 @@ before=$(ls | wc -l)
 func(){
 	test -e $2
 	if [[ $? -ne 0 ]]; then
-		echo -e "\nSorry, The folder <$2> is not found"
-		return
+		#echo -e "\nSorry, The folder <$2> is not found"
+		#return
+		mkdir "$2"
 	fi
 	if [[ $(ls | grep $1 | wc -l) -gt 0 ]]; then
 		mv -v $(ls | grep $1) $2
@@ -28,6 +29,11 @@ func earth_to_luna  Earth_to_luna/
 func alphablocks  Alphablocks/
 func miss_molly  Miss_molly/
 func preschool  Preschool/
+func for_toddlers For_toddlers/
+func _hana_ Omar_and_Hana/
+func story_time Story_time/
+func math_for_kids Math_for_kids/
+
 after=$(ls | wc -l)
 echo -e "\nMoved $(bc <<< $before-$after) videos to their folders"
 
