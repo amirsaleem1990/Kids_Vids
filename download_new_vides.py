@@ -196,7 +196,7 @@ def get_info(to_download):
 				if duration.split(":")[0] == "0":
 					duration = "0" + duration
 
-				n_ = ''.join([i if i in "abcdefghijklmnopqrstuvwxyz" else "_" for i in x.get("title").lower()])
+				n_ = ''.join([i if i in "abcdefghijklmnopqrstuvwxyzاأبتثجحخدذرزسشصضطظعغفقكلمنوهيى" else "_" for i in x.get("title").lower()])
 				video_name = f"{re.sub('_+', '_', n_).strip('_')}.{x['ext']}"
 
 				thumbnail_url = x.get("thumbnail")
