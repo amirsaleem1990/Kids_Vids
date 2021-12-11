@@ -33,6 +33,7 @@ func for_toddlers For_toddlers/
 func _hana_ Omar_and_Hana/
 func story_time Story_time/
 func math_for_kids Math_for_kids/
+func '_مع_زكريا' Omar_and_Hana
 
 after=$(ls | wc -l)
 echo -e "\nMoved $(bc <<< $before-$after) videos to their folders"
