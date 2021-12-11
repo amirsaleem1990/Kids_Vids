@@ -25,13 +25,12 @@ def get_info(to_download):
 			if x:
 				duration = x['duration']
 				if int(duration) == 0:
-					to_skip.append(u)
 					continue
 				duration = str(timedelta(seconds=int(duration)))
 				if duration.split(":")[0] == "0":
 					duration = "0" + duration
 
-				n_ = ''.join([i if i in "abcdefghijklmnopqrstuvwxyz" else "_" for i in x.get("title").lower()])
+				n_ = ''.join([i if i in "abcdefghijklmnopqrstuvwxyzاأبتثجحخدذرزسشصضطظعغفقكلمنوهيى" else "_" for i in x.get("title").lower()])
 				video_name = f"{re.sub('_+', '_', n_).strip('_')}.{x['ext']}"
 
 				thumbnail_url = x.get("thumbnail")
@@ -39,9 +38,6 @@ def get_info(to_download):
 					thumbnail_url = thumbnail_url.split(".jpg")[0] + ".jpg"
 				thumbnail_name = thumbnail_url.strip().replace('/', '_')
 
-				# if video_name in iter_:
-				#     to_skip.append(u)
-				#     continue
 				mapping_2[u] = {"channel" : x.get("channel"), 
 							  "upload_date" : x.get('upload_date'), 
 							  "duration" : duration, 
@@ -54,7 +50,6 @@ def get_info(to_download):
 			print(f'.............................{u}, Sec consumed: {time.time() - s}')
 			time.sleep(2)
 		except Exception as e:
-			to_skip.append(u)
 			print('---------------------------')
 			print(e)
 			print()
@@ -62,18 +57,20 @@ def get_info(to_download):
 
 
 mapping = pickle.load(open("mapping.pkl", 'rb'))
-to_download = [i for i in open ("ursl_to_add_to_mapping.txt", 'r').read().splitlines() if i and (not i.startswith("#"))]
+urls_file_name = input("Please type Urls file name: ")
+if not os.path.exists(f"/home/{getpass.getuser()}/github/Kids_Vids/{urls_file_name}"):
+	raise Exception(f"The file /home/{getpass.getuser()}/github/Kids_Vids/{urls_file_name} is not exists")
+	exit()
+
+to_download = [i for i in open (urls_file_name, 'r').read().splitlines() if i and (not i.startswith("#"))]
+
 if not to_download:
 	raise Exception("There is no url in 'to_download' variable")
 
-if os.path.exists(f"/home/{getpass.getuser()}/github/Kids_Vids/Error_file.pkl"):
-	errors = pickle.load(open(f"/home/{getpass.getuser()}/github/Kids_Vids/Error_file.pkl", 'rb'))
-else:
-	errors = dict()
-
-to_skip = []
+errors = dict()
 
 new_mapping_name = "mapping2.pkl"
+
 try:
 	get_info(to_download)
 except:
@@ -84,16 +81,14 @@ pickle.dump(mapping_2, open(f"/home/{getpass.getuser()}/github/Kids_Vids/{new_ma
 print(f"\n\n ---------------------------- mapping saved as /home/{getpass.getuser()}/github/Kids_Vids/{new_mapping_name}\n\n")
 
 if errors:
-	pickle.dump(errors, open(f"/home/{getpass.getuser()}/github/Kids_Vids/Error.pkl", 'wb'))
+	pickle.dump(errors, open(f"/home/{getpass.getuser()}/github/Kids_Vids/Error_TEMP.pkl", 'wb'))
+	print(f"""Errors saved as:
+/home/{getpass.getuser()}/github/Kids_Vids/Error_TEMP.pkl
+""")
 
-os.system(f"yes | python3 /home/{getpass.getuser()}/github/Kids_Vids/Download.py {new_mapping_name}")
+os.system(f"yes 'yes' | python3 /home/{getpass.getuser()}/github/Kids_Vids/Download.py {new_mapping_name}")
 
 
-if os.path.exists(f"/home/{getpass.getuser()}/github/Kids_Vids/Error.pkl"):
-	try:
-		errors = pickle.load(open(f"/home/{getpass.getuser()}/github/Kids_Vids/Error.pkl", 'rb'))
-		if errors:
-			print(f"\n\n{'*'*15}ERRORS{'*'*15}")
-			print(errors, sep="\n")
-	except:
-		pass
+if errors:
+	print(f"\n\n{'*'*15}ERRORS{'*'*15}")
+	print(errors, sep="\n")

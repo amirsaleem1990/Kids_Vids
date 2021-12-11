@@ -96,7 +96,7 @@ except:
 	if inp != "yes":
 		sys.exit()
 	file_name = 'mapping.pkl'
-	mapping = pickle.load(open(f"/home/{getpass.getuser()}/github/Kids_Vids/mapping.pkl", 'rb'))
+	mapping = pickle.load(open(f"/home/{getpass.getuser()}/github/Kids_Vids/{file_name}", 'rb'))
 try:
 	if os.path.exists(file_name):
 		mapping = pickle.load(open(file_name, 'rb'))
