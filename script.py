@@ -360,7 +360,7 @@ Select you option:
 		except KeyboardInterrupt:
 			sys.exit()
 			
-		while [i for i in os.listdir(self.videos_dir_path) if i.endswith(".part")]:
+		while [i for i in os.listdir(kids_vids_obj.videos_dir_path) if i.endswith(".part")]:
 			print("\n\n\n\n=======================================================\n")
 			print("There are some .part files left, retrying again......")
 			try:
