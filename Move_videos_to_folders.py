@@ -25,6 +25,9 @@ def func(row):
         os.mkdir(directory_name)
         print(f"\n>>>> Directory <{directory_name}> created.\n")
     try:
+        if os.path.exists(row.video_name):
+            print(f"\n! The Videos '{row.video_name}' already exisits in '{directory_name}'")
+            return
         shutil.move(row.video_name, directory_name)
         d[directory_name.strip(f'{video_path}/')] = d.get(directory_name.strip(f'{video_path}/'), 0) + 1
         files_moved += 1
