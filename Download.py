@@ -19,16 +19,19 @@ def download_videos(url):
 
 		full_video_name = f"/home/home/Videos/{mapping[url]['video_name']}"
 		if os.path.exists(full_video_name):
+			print(f"\n>>. The file {full_video_name} is already exists.\n")
+			mapping[url]['downloaded'] = True
 			return 
 		# some videos name are: .mp4..mp4, .mkv.webm ...
 		if full_video_name.count(".") == 2:
 			print(f"\n\nSkipping this video\t{url}\n\n")
 			return
-		if os.path.exists(full_video_name):
-			return 
 
-		subprocess.check_call(['curl', v['thumbnail_url'], '-o', f"/home/{getpass.getuser()}/github/Kids_Vids/thumbs/{v['thumbnail_name']}"])
+		thumbnail_full_name = f"/home/{getpass.getuser()}/github/Kids_Vids/thumbs/{v['thumbnail_name']}"
+		if not os.path.exists(thumbnail_full_name):
+			subprocess.check_call(['curl', v['thumbnail_url'], '-o', thumbnail_full_name])
 		subprocess.check_call(['youtube-dl', '--no-playlist', url, '-o', full_video_name])
+		print(f"\nThe video {full_video_name} is downloaded\n")
 		mapping[url]['downloaded'] = True
 	except Exception as e:
 		print(e)
@@ -71,6 +74,7 @@ def main():
 	if errors:
 		pickle.dump(errors, open(f"/home/{getpass.getuser()}/github/Kids_Vids/Error.pkl", 'wb'))
 	original_mapping.update(mapping)
+	print("\n\nSaving mapping.pkl ........")
 	pickle.dump(original_mapping, open(f"/home/{getpass.getuser()}/github/Kids_Vids/mapping.pkl", 'wb'))
 
 
