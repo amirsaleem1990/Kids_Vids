@@ -2,6 +2,10 @@
 
 # This script will loop over videos in /home/home/Videos; move videos to their folders by keywords specified blow, and then print frequecy of words in videos not moved to any folder
 
+echo DEPRECIATED. USE Move_videos_to_folders.py instead
+
+exit
+
 before=$(ls | wc -l)
 func(){
 	test -e $2
