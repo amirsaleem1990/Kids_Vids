@@ -364,18 +364,28 @@ class Kids_Vids:
 	        return None
 
 	def move_a_video_to_its_folder(self,row):
+	    # row.video_name = /home/home/Videos/echo_echo_echo_full_episode_l_earth_to_luna.mkv
+	    # directory_name = /home/home/Videos/Earth To Luna/
 	    directory_name = f"{self.videos_dir_path}{row.channel}/"
+	    actual_video_name = row.video_name.split('/')[-1]
 	    if not os.path.exists(directory_name):
 	        os.mkdir(directory_name)
 	        print(f"\n>>>> Directory <{directory_name}> created.\n")
 	    try:
-	        if os.path.exists(row.video_name):
-	            print(colored(f"\n! The Videos '{row.video_name}' already exisits in '{directory_name}'", 'red'))
-	            return
+	        if os.path.exists(f"{directory_name}{actual_video_name}"):
+	            #print(colored(f"\n! The Video '{row.video_name}' already exisits in '{directory_name}'", 'red'))
+	            not_in_its_folder_size = list(os.popen(f"du -s '{row.video_name}'"))[0].strip().split("\t")[0]
+	            in_its_folder_size = list(os.popen(f"du -s '{directory_name}{actual_video_name}'"))[0].strip().split("\t")[0]
+	            if not_in_its_folder_size <= in_its_folder_size:
+	                os.remove(row.video_name)
+	                return
+	            else:
+	                os.remove(f"{directory_name}{actual_video_name}")
 	        shutil.move(row.video_name, directory_name)
 	        self.d[directory_name.strip(self.videos_dir_path)] = self.d.get(directory_name.strip(self.videos_dir_path), 0) + 1
 	        self.files_moved += 1
-	    except:
+	    except Exception as e:
+	        print(e)
 	        self.files_error += 1
 
 	# END of the class 'Kids_Vids'
