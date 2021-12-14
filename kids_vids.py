@@ -41,7 +41,10 @@ class Kids_Vids:
 
 		if error_file_name == "Error.pkl":
 			print(colored(f"\n\nYou haven't passed an error file name, so the defaul '{error_file_name}' is used\n", 'green'))
-		self.errors = pickle.load(open(f"{self.base_path}{error_file_name}", 'rb'))
+		try:
+			self.errors = pickle.load(open(f"{self.base_path}{error_file_name}", 'rb'))
+		except:
+			self.errors = {}
 		print("\n\n==== Variables ====")
 		print(f"mapping:, {mapping_file_name}")
 		print(f"Errors :, {error_file_name}")
