@@ -11,6 +11,7 @@ import traceback
 import itertools
 import youtube_dl
 import subprocess 
+import pandas as pd
 import multiprocessing.dummy 
 from datetime import datetime  
 from bs4 import BeautifulSoup
@@ -359,7 +360,7 @@ class Kids_Vids:
 	        # print(f"!! The video '{vid_name}' is not found.")
 	        return None
 
-	def move_a_video_to_its_folder(row):
+	def move_a_video_to_its_folder(self,row):
 	    directory_name = f"{self.videos_dir_path}{row.channel}/"
 	    if not os.path.exists(directory_name):
 	        os.mkdir(directory_name)
@@ -406,13 +407,14 @@ def move_videos_to_their_folders(kids_vids_obj):
 	)
 
 	df.video_name = df.video_name.apply(kids_vids_obj.get_actual_video_name)
-	files_not_moved = df.video_name.isna().sum()
+	kids_vids_obj.files_not_moved = df.video_name.isna().sum()
 	df = df.dropna()
 
 	if not len(df):
 		print(colored("\n\nNo file to be moved.\n", 'red'))
 		exit()
 
+	df = df
 	df.apply(kids_vids_obj.move_a_video_to_its_folder, axis=1)
 
 	print("\n\n")
