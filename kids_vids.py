@@ -14,6 +14,7 @@ import subprocess
 import multiprocessing.dummy 
 from datetime import datetime  
 from bs4 import BeautifulSoup
+from termcolor import colored
 from selenium import webdriver
 from datetime import timedelta
 from multiprocessing import Pool  
@@ -24,25 +25,33 @@ class Kids_Vids:
 	def __init__(self, mapping_file_name, error_file_name="Error.pkl"):
 		self.to_skip = []
 		self.get_urls_to_download_recursive_n = 0
+		self.mapping_n = 0
 		self.base_path = f"/home/{getpass.getuser()}/github/Kids_Vids/"
 		self.videos_dir_path = "/home/home/Videos/"
 
 		self.to_be_exclude = json.load(open(f"{self.base_path}to_be_exclude.json", "r"))
-
 		self.mapping = pickle.load(open(f"{self.base_path}{mapping_file_name}", 'rb'))
+	
 		if mapping_file_name == 'mapping.pkl':
+			shutil.copy(f"{self.base_path}{mapping_file_name}", f"{self.base_path}mapping_BACKUP.pkl")
 			self.original_mapping = self.mapping
 		else:
 			self.original_mapping = pickle.load(open(f"{self.base_path}mapping.pkl", 'rb'))
 
 		if error_file_name == "Error.pkl":
-			print(f"\n\nYou are not passed error file name, so the defaul '{error_file_name}' is used\n")
+			print(colored(f"\n\nYou haven't passed an error file name, so the defaul '{error_file_name}' is used\n", 'green'))
 		self.errors = pickle.load(open(f"{self.base_path}{error_file_name}", 'rb'))
 		print("\n\n==== Variables ====")
 		print(f"mapping:, {mapping_file_name}")
 		print(f"Errors :, {error_file_name}")
 		print()
 
+	def mapping_save(self, fee_kulli_haal=False):
+		self.mapping_n += 1
+		if fee_kulli_haal or (self.mapping_n % 20 == 0):
+			pickle.dump( self.mapping, open(f"{self.base_path}mapping.pkl", 'wb') )
+			print(colored(f"\n\nmapping is saved as {self.base_path}mapping.pkl", 'green'))
+	
 	def download_a_video(self, url):
 
 		try:
@@ -54,6 +63,7 @@ class Kids_Vids:
 			subprocess.check_call(['youtube-dl', '--no-playlist', url, '-o', full_video_name])
 			self.mapping[url]['downloaded'] = True
 			print(f"\n>>> The value 'True' is assigned to 'downloaded' for the {url} ")
+			self.mapping_save()
 		except Exception as e:
 			print(e)
 			self.errors[url] = ["download_videos fail",e, str(datetime.now())]
@@ -73,7 +83,7 @@ class Kids_Vids:
 			size_ = f'{round(size_downloaded/1000, 3)}GB'
 		else:
 			size_ = f'{size_downloaded}MB'
-		print(f"\n######################################\nDownloaded {size_}\n######################################\n")
+		print(colored(f"\n######################################\nDownloaded {size_}\n######################################\n", 'green'))
 		time.sleep(2)
 
 	def filter_videos_to_download(self):
@@ -104,22 +114,23 @@ class Kids_Vids:
 		try:
 			if to_download:
 				p = multiprocessing.dummy.Pool()
-				print(f"\n--------------------------------------------------- {len(to_download)} videos to be downloaded ..........\n\n")
+				print(colored(f"\n--------------------------------------------------- {len(to_download)} videos to be downloaded ..........\n\n", 'green'))
 				p.map(self.download_a_video, to_download)
 			else:
-				print("\n\nNo videos to be download\n")
+				print(colored("\n\nNo videos to be download\n", 'red'))
 				exit()
 		except:
 			error__ = str(traceback.format_exc())
 			print("\n"*6)
-			print("An error occured")
+			print(colored("An error occured", 'red'))
 			is_error = True
 
 		# if self.errors:
 			# pickle.dump(self.errors, open(f"{self.base_path}Error.pkl", 'wb'))
 		self.original_mapping.update(self.mapping)
-		print("\n\nSaving mapping.pkl ........")
-		pickle.dump(self.original_mapping, open(f"{self.base_path}mapping.pkl", 'wb'))
+		# print("\n\nSaving mapping.pkl ........")
+		# pickle.dump(self.original_mapping, open(f"{self.base_path}mapping.pkl", 'wb'))
+		self.mapping_save(fee_kulli_haal=True)
 
 		self.download_summary(size_before)
 
@@ -147,7 +158,7 @@ class Kids_Vids:
 		return list({'https://www.youtube.com'+i for i in extrected_urls if i.startswith("/watch?")})
 
 	def get_urls_to_download(self, c):
-		print("\n\n>> get_urls_to_download method is called.")
+		# print("\n\n>> get_urls_to_download method is called.")
 		start_time_ = time.time()
 		try:
 			channel, url = c
@@ -162,7 +173,7 @@ class Kids_Vids:
 			else:
 				if self.get_urls_to_download_recursive_n < 5:
 					self.get_urls_to_download_recursive_n += 1
-					print(f">>>>> No url found, another attempt for {channel}")
+					print(colored(f">>>>> No url found, another attempt for {channel}", 'red'))
 					self.get_urls_to_download(c)
 		except:
 			e = traceback.format_exc()
@@ -211,13 +222,14 @@ class Kids_Vids:
 								  "thumbnail_name" : thumbnail_name,
 								  'downloaded' : False
 								  }
+					self.mapping_save()
 								  
 				print(f'.............................{u}, Sec consumed: {time.time() - s}')
 				time.sleep(2)
 			except Exception as e:
 				self.to_skip.append(u)
 				print('---------------------------')
-				print(e)
+				print(colored(e, 'red'))
 				print()
 				self.errors[u] = ["download_jsons fail",e, str(datetime.now())]
 
@@ -309,7 +321,7 @@ class Kids_Vids:
 		to_download = [i for i in set(to_download) if not i in downloaded]
 		if to_download:
 			pickle.dump(to_download, open(f"{self.base_path}to_download.pkl", 'wb'))
-			print(f"\n\n ---------------------------- to_download ({len(to_download)} entries) saved as {self.base_path}to_download.pkl\n\n")
+			print(colored(f"\n\n ---------------------------- to_download ({len(to_download)} entries) saved as {self.base_path}to_download.pkl\n\n", 'green'))
 
 		for i in pkls:
 			os.remove(f"{self.base_path}{i}")
@@ -326,10 +338,11 @@ class Kids_Vids:
 			error__ = traceback.format_exc()
 			is_error = True
 
-		pickle.dump(self.mapping, open(f"{self.base_path}mapping.pkl", 'wb'))
+		# pickle.dump(self.mapping, open(f"{self.base_path}mapping.pkl", 'wb'))
+		self.mapping_save(fee_kulli_haal=True)
 		if is_error:
 			raise Exception(str(error__))
-		print(f"\n\n ---------------------------- mapping saved as {self.base_path}mapping.pkl\n\n")
+		# print(f"\n\n ---------------------------- mapping saved as {self.base_path}mapping.pkl\n\n")
 
 		if self.errors:
 			pickle.dump(self.errors, open(f"{self.base_path}Error.pkl", 'wb'))
@@ -353,7 +366,7 @@ class Kids_Vids:
 	        print(f"\n>>>> Directory <{directory_name}> created.\n")
 	    try:
 	        if os.path.exists(row.video_name):
-	            print(f"\n! The Videos '{row.video_name}' already exisits in '{directory_name}'")
+	            print(colored(f"\n! The Videos '{row.video_name}' already exisits in '{directory_name}'", 'red'))
 	            return
 	        shutil.move(row.video_name, directory_name)
 	        self.d[directory_name.strip(self.videos_dir_path)] = self.d.get(directory_name.strip(self.videos_dir_path), 0) + 1
@@ -397,7 +410,7 @@ def move_videos_to_their_folders(kids_vids_obj):
 	df = df.dropna()
 
 	if not len(df):
-		print("\n\nNo file to be moved.\n")
+		print(colored("\n\nNo file to be moved.\n", 'red'))
 		exit()
 
 	df.apply(kids_vids_obj.move_a_video_to_its_folder, axis=1)
