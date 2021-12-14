@@ -353,40 +353,75 @@ class Kids_Vids:
 
 
 	def get_actual_video_name(self, vid_name):
-	    if not vid_name.split(".")[-1] in ['mp4', 'mkv', 'webm']:
-	        return None
-	    video_name_without_extention = vid_name.replace(".mp4", '').replace(".webm", '').replace(".mkv", '')
-	    for extention in ['.mkv', '.mp4', '.webm']:
-	        if f"{video_name_without_extention}{extention}" in self.saved_vids_names:
-	                return  f"{self.videos_dir_path}{video_name_without_extention}{extention}"
-	    else:
-	        # print(f"!! The video '{vid_name}' is not found.")
-	        return None
+		if not vid_name.split(".")[-1] in ['mp4', 'mkv', 'webm']:
+			return None
+		video_name_without_extention = vid_name.replace(".mp4", '').replace(".webm", '').replace(".mkv", '')
+		for extention in ['.mkv', '.mp4', '.webm']:
+			if f"{video_name_without_extention}{extention}" in self.saved_vids_names:
+					return  f"{self.videos_dir_path}{video_name_without_extention}{extention}"
+		else:
+			# print(f"!! The video '{vid_name}' is not found.")
+			return None
 
 	def move_a_video_to_its_folder(self,row):
-	    # row.video_name = /home/home/Videos/echo_echo_echo_full_episode_l_earth_to_luna.mkv
-	    # directory_name = /home/home/Videos/Earth To Luna/
-	    directory_name = f"{self.videos_dir_path}{row.channel}/"
-	    actual_video_name = row.video_name.split('/')[-1]
-	    if not os.path.exists(directory_name):
-	        os.mkdir(directory_name)
-	        print(f"\n>>>> Directory <{directory_name}> created.\n")
-	    try:
-	        if os.path.exists(f"{directory_name}{actual_video_name}"):
-	            #print(colored(f"\n! The Video '{row.video_name}' already exisits in '{directory_name}'", 'red'))
-	            not_in_its_folder_size = list(os.popen(f"du -s '{row.video_name}'"))[0].strip().split("\t")[0]
-	            in_its_folder_size = list(os.popen(f"du -s '{directory_name}{actual_video_name}'"))[0].strip().split("\t")[0]
-	            if not_in_its_folder_size <= in_its_folder_size:
-	                os.remove(row.video_name)
-	                return
-	            else:
-	                os.remove(f"{directory_name}{actual_video_name}")
-	        shutil.move(row.video_name, directory_name)
-	        self.d[directory_name.strip(self.videos_dir_path)] = self.d.get(directory_name.strip(self.videos_dir_path), 0) + 1
-	        self.files_moved += 1
-	    except Exception as e:
-	        print(e)
-	        self.files_error += 1
+		# row.video_name = /home/home/Videos/echo_echo_echo_full_episode_l_earth_to_luna.mkv
+		# directory_name = /home/home/Videos/Earth To Luna/
+		directory_name = f"{self.videos_dir_path}{row.channel}/"
+		actual_video_name = row.video_name.split('/')[-1]
+		if not os.path.exists(directory_name):
+			os.mkdir(directory_name)
+			print(f"\n>>>> Directory <{directory_name}> created.\n")
+		try:
+			if os.path.exists(f"{directory_name}{actual_video_name}"):
+				#print(colored(f"\n! The Video '{row.video_name}' already exisits in '{directory_name}'", 'red'))
+				not_in_its_folder_size = list(os.popen(f"du -s '{row.video_name}'"))[0].strip().split("\t")[0]
+				in_its_folder_size = list(os.popen(f"du -s '{directory_name}{actual_video_name}'"))[0].strip().split("\t")[0]
+				if not_in_its_folder_size <= in_its_folder_size:
+					os.remove(row.video_name)
+					return
+				else:
+					os.remove(f"{directory_name}{actual_video_name}")
+			shutil.move(row.video_name, directory_name)
+			self.d[directory_name.strip(self.videos_dir_path)] = self.d.get(directory_name.strip(self.videos_dir_path), 0) + 1
+			self.files_moved += 1
+		except Exception as e:
+			print(e)
+			self.files_error += 1
+
+	def distribution_of_the_videos_in_the_disk(self):
+
+		def to_mb(size):
+			if size.endswith("G"):
+				return float(size.rstrip("G"))*1024
+			elif size.endswith("M"):
+				return float(size.rstrip("M"))
+			elif size.endswith("K"):
+				return float(size.rstrip("K"))/1024
+			else:
+				return None
+		def bash_func(folder):
+			x = f"/home/home/Videos/{folder}"
+			size = list(os.popen(f"du -sh '{x}'"))[0].split("\t")[0].strip()
+			count = list(os.popen(f"ls '{x}'/ | wc -l"))[0].strip()
+			return(folder, size, count)
+		folders = [i for i in os.listdir(self.videos_dir_path) if not "." in i]
+		lst = []
+		for folder in folders:
+			lst.append(bash_func(folder))
+		df = (pd
+			  .DataFrame(lst)
+			  .rename(columns={0:"Name", 1:"Size", 2:"Count"}
+			  	)
+			  )
+		df['MB']=df.Size.apply(to_mb)
+		print(
+			df
+			.sort_values("MB")
+			.drop("MB", axis=1)
+			.reset_index(drop=True)
+			.to_string()
+			)
+
 
 	# END of the class 'Kids_Vids'
 
@@ -412,11 +447,11 @@ def move_videos_to_their_folders(kids_vids_obj):
 	kids_vids_obj.saved_vids_names = os.listdir(kids_vids_obj.videos_dir_path)
 
 	df = (pd
-	      .DataFrame
-	      .from_dict(kids_vids_obj.mapping, orient="index")
-	      .reset_index()
-	      .rename(columns={"index" : "url"})
-	      .loc[:, ['channel', 'video_name']]
+		  .DataFrame
+		  .from_dict(kids_vids_obj.mapping, orient="index")
+		  .reset_index()
+		  .rename(columns={"index" : "url"})
+		  .loc[:, ['channel', 'video_name']]
 	)
 
 	df.video_name = df.video_name.apply(kids_vids_obj.get_actual_video_name)
@@ -450,7 +485,8 @@ Select you option:
 	1- ONLY download new videos
 	2- ONLY download new info
 	3- Download new videos AND new info
-	4- Move videos to their folders""")
+	4- Move videos to their folders
+	5- Show distribution of present videos in the disk""")
 
 	user_inp = input().strip()
 	if not  user_inp.isnumeric():
@@ -467,3 +503,8 @@ Select you option:
 
 	if user_inp == '4':
 		move_videos_to_their_folders(kids_vids_obj)
+
+	if user_inp == '5':
+		kids_vids_obj.distribution_of_the_videos_in_the_disk()
+
+	
