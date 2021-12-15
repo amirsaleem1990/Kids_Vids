@@ -122,7 +122,7 @@ class Kids_Vids:
 				p.map(self.download_a_video, to_download)
 			else:
 				print(colored("\n\nNo videos to be download\n", 'red'))
-				exit()
+				raise Exception("No_video_to_be_downloaded")
 		except:
 			error__ = str(traceback.format_exc())
 			print("\n"*6)
