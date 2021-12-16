@@ -52,7 +52,7 @@ class Kids_Vids:
 
 	def mapping_save(self, fee_kulli_haal=False):
 		self.mapping_n += 1
-		if fee_kulli_haal or (self.mapping_n % 20 == 0):
+		if fee_kulli_haal or (self.mapping_n % 10 == 0):
 			pickle.dump( self.mapping, open(f"{self.base_path}mapping.pkl", 'wb') )
 			print(colored(f"\n\nmapping is saved as {self.base_path}mapping.pkl", 'green'))
 	
@@ -66,7 +66,7 @@ class Kids_Vids:
 				subprocess.check_call(['curl', v['thumbnail_url'], '-o', thumbnail_full_name])
 			subprocess.check_call(['youtube-dl', '--no-playlist', url, '-o', full_video_name])
 			self.mapping[url]['downloaded'] = True
-			print(f"\n>>> The value 'True' is assigned to 'downloaded' for the {url} ")
+			print(colored(f"\n>>> The value 'True' is assigned to 'downloaded' for the {url}\n", 'green'))
 			self.mapping_save()
 		except Exception as e:
 			print(e)
@@ -159,13 +159,19 @@ class Kids_Vids:
 				extrected_urls.append(i['src'])
 			except:
 				pass
-		return list({'https://www.youtube.com'+i for i in extrected_urls if i.startswith("/watch?")})
+		urls = ['https://www.youtube.com'+i for i in extrected_urls if i.startswith("/watch?")]
+		urls_2 = [i for i in urls if not i in self.mapping]
+		urls_3 = list({urls_2})
+		if urls and (not urls_2):
+			self.all_extracted_urls_exists_in_mapping_dict = True
+		return urls_3
 
 	def get_urls_to_download(self, c):
 		# print("\n\n>> get_urls_to_download method is called.")
 		start_time_ = time.time()
 		try:
 			channel, url = c
+			self.all_extracted_urls_exists_in_mapping_dict = False
 			urls = self.extract_videos_from_channel_page(channel_url=url)
 			print(f"\nThere are {len(urls)} videos in <{channel}>")
 			if urls:
@@ -175,10 +181,11 @@ class Kids_Vids:
 
 				pickle.dump(urls, open(f"{self.base_path}to_download_{self.channels.index(c)}.pkl", 'wb'))
 			else:
-				if self.get_urls_to_download_recursive_n < 5:
-					self.get_urls_to_download_recursive_n += 1
-					print(colored(f">>>>> No url found, another attempt for {channel}", 'red'))
-					self.get_urls_to_download(c)
+				if not self.all_extracted_urls_exists_in_mapping_dict:
+					if self.get_urls_to_download_recursive_n < 5:
+						self.get_urls_to_download_recursive_n += 1
+						print(colored(f">>>>> No url found, another attempt for {channel}", 'red'))
+						self.get_urls_to_download(c)
 		except:
 			e = traceback.format_exc()
 			if self.get_urls_to_download_recursive_n < 5:
@@ -349,7 +356,13 @@ class Kids_Vids:
 		# print(f"\n\n ---------------------------- mapping saved as {self.base_path}mapping.pkl\n\n")
 
 		if self.errors:
-			pickle.dump(self.errors, open(f"{self.base_path}Error.pkl", 'wb'))
+			try:
+				pickle.dump(self.errors, open(f"{self.base_path}Error.pkl", 'wb'))
+			except:
+				try:
+					pickle.dump(str(self.errors), open(f"{self.base_path}Error.pkl", 'wb'))
+				except:
+					pass
 
 
 	def get_actual_video_name(self, vid_name):
