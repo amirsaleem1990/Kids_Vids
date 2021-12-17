@@ -54,7 +54,7 @@ class Kids_Vids:
 		self.mapping_n += 1
 		if fee_kulli_haal or (self.mapping_n % 10 == 0):
 			pickle.dump( self.mapping, open(f"{self.base_path}mapping.pkl", 'wb') )
-			print(colored(f"\n\nmapping is saved as {self.base_path}mapping.pkl", 'green'))
+			print(colored(f"\n\n{str(datetime.now()).split()[1].split('.')[0]}: mapping is saved as {self.base_path}mapping.pkl\n", 'green'))
 	
 	def download_a_video(self, url):
 
@@ -161,7 +161,7 @@ class Kids_Vids:
 				pass
 		urls = ['https://www.youtube.com'+i for i in extrected_urls if i.startswith("/watch?")]
 		urls_2 = [i for i in urls if not i in self.mapping]
-		urls_3 = list({urls_2})
+		urls_3 = list(set(urls_2))
 		if urls and (not urls_2):
 			self.all_extracted_urls_exists_in_mapping_dict = True
 		return urls_3
@@ -239,10 +239,10 @@ class Kids_Vids:
 				time.sleep(2)
 			except Exception as e:
 				self.to_skip.append(u)
-				print('---------------------------')
+				print('\n---------------------------')
 				print(colored(e, 'red'))
 				print()
-				self.errors[u] = ["download_jsons fail",e, str(datetime.now())]
+				# self.errors[u] = ["download_jsons fail",str(e), str(datetime.now())]
 
 
 	def preparetion_for_downloading_new_videos_info(self):
@@ -343,6 +343,7 @@ class Kids_Vids:
 		print("\n\n>> main_function_of_getting_new_videos_info method is called.")
 		is_error = False
 		to_download = self.prepare_to_download_list()
+		# to_download = pickle.load(open("/home/amir/github/Kids_Vids/to_download.pkl", 'rb'))
 		try:
 			self.get_info(to_download)
 		except:
@@ -389,11 +390,12 @@ class Kids_Vids:
 				#print(colored(f"\n! The Video '{row.video_name}' already exisits in '{directory_name}'", 'red'))
 				not_in_its_folder_size = list(os.popen(f"du -s '{row.video_name}'"))[0].strip().split("\t")[0]
 				in_its_folder_size = list(os.popen(f"du -s '{directory_name}{actual_video_name}'"))[0].strip().split("\t")[0]
-				if not_in_its_folder_size <= in_its_folder_size:
-					os.remove(row.video_name)
-					return
-				else:
-					os.remove(f"{directory_name}{actual_video_name}")
+				self.to_remove.append([f"{directory_name}{actual_video_name}", row.video_name, not_in_its_folder_size, in_its_folder_size])
+				# if not_in_its_folder_size <= in_its_folder_size:
+					# os.remove(row.video_name)
+				return
+				# else:
+					# os.remove(f"{directory_name}{actual_video_name}")
 			shutil.move(row.video_name, directory_name)
 			self.d[directory_name.strip(self.videos_dir_path)] = self.d.get(directory_name.strip(self.videos_dir_path), 0) + 1
 			self.files_moved += 1
@@ -476,6 +478,7 @@ def move_videos_to_their_folders(kids_vids_obj):
 		exit()
 
 	df = df
+	kids_vids_obj.to_remove = []
 	df.apply(kids_vids_obj.move_a_video_to_its_folder, axis=1)
 
 	print("\n\n")
@@ -486,6 +489,9 @@ def move_videos_to_their_folders(kids_vids_obj):
 	print()
 
 	print(json.dumps(kids_vids_obj.d, indent=4))
+
+	if kids_vids_obj.to_remove:
+		print(kids_vids_obj.to_remove)
 
 	print()
 
