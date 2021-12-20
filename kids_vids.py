@@ -70,7 +70,7 @@ class Kids_Vids:
 			self.mapping_save()
 		except Exception as e:
 			print(e)
-			self.errors[url] = ["download_videos fail",e, str(datetime.now())]
+			# self.errors[url] = ["download_videos fail",e, str(datetime.now())]
 
 	def duration_sec(self, x):
 		h,m,s = x.split(":")
@@ -194,7 +194,7 @@ class Kids_Vids:
 				self.get_urls_to_download(c)
 			else:
 				print(f"Error, No url extracted from channel <{channel}\n{e}\n\n")
-				self.errors[c] = ["No video in the channel <{channel} for the url: <{url}>>",e, str(datetime.now())]
+				# self.errors[c] = ["No video in the channel <{channel} for the url: <{url}>>",e, str(datetime.now())]
 				return False
 		print(f"................{url} consumed {time.time() - start_time_} seconds")
 
