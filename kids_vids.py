@@ -501,8 +501,8 @@ if __name__ == "__main__":
 	
 	print("""
 Select you option:
-	1- ONLY download new videos
-	2- ONLY download new info
+	1- Download new videos
+	2- Download new info
 	3- Download new videos AND new info
 	4- Move videos to their folders
 	5- Show distribution of present videos in the disk""")
