@@ -1,4 +1,7 @@
 #!/usr/bin/bash
+cd /home/home/Videos/
+sleep 1s
+echo
 lsblk -e7
 echo 
 read -p "Enter usb mount point (eg: /home/home/usb): " usb_mounted_at
