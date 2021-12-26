@@ -392,20 +392,29 @@ class Kids_Vids:
 			return None
 
 	def move_a_video_to_its_folder(self,row):
-		# row.video_name = /home/home/Videos/echo_echo_echo_full_episode_l_earth_to_luna.mkv
-		# directory_name = /home/home/Videos/Earth To Luna/
+		outer_video_full_path = row.video_name
+		inner_video_full_path = f"{directory_name}{actual_video_name}"
 		directory_name = f"{self.videos_dir_path}{row.channel}/"
-		actual_video_name = row.video_name.split('/')[-1]
+		actual_video_name = outer_video_full_path.split('/')[-1]
+		# outer_video_full_path = /home/home/Videos/echo_echo_echo_full_episode_l_earth_to_luna.mkv
+		# inner_video_full_path = /home/home/Videos/Earth To Luna/echo_echo_echo_full_episode_l_earth_to_luna.mkv
+		# directory_name        = /home/home/Videos/Earth To Luna/
+		# actual_video_name     = echo_echo_echo_full_episode_l_earth_to_luna.mkv
 		if not os.path.exists(directory_name):
 			os.mkdir(directory_name)
 			print(f"\n>>>> Directory <{directory_name}> created.\n")
 		try:
-			if os.path.exists(f"{directory_name}{actual_video_name}"):
-				#print(colored(f"\n! The Video '{row.video_name}' already exisits in '{directory_name}'", 'red'))
-				outer_video = list(os.popen(f"du -s '{row.video_name}'"))[0].strip().split("\t")[0]
-				inner_video = list(os.popen(f"du -s '{directory_name}{actual_video_name}'"))[0].strip().split("\t")[0]
-				self.to_remove.append([f"{directory_name}{actual_video_name}", row.video_name, outer_video, inner_video])
-			shutil.move(row.video_name, directory_name)
+			if os.path.exists(inner_video_full_path):
+				#print(colored(f"\n! The Video '{outer_video_full_path}' already exisits in '{directory_name}'", 'red'))
+				outer_video_size = list(os.popen(f"du -s '{outer_video_full_path}'"))[0].strip().split("\t")[0]
+				inner_video_size = list(os.popen(f"du -s '{inner_video_full_path}'"))[0].strip().split("\t")[0]
+				if outer_video_size <= inner_video_size:
+					os.remove(outer_video_full_path)
+					return 
+				else:
+					os.remove(inner_video_full_path)
+
+			shutil.move(outer_video_full_path, directory_name)
 			self.d[directory_name.strip(self.videos_dir_path)] = self.d.get(directory_name.strip(self.videos_dir_path), 0) + 1
 			self.files_moved += 1
 		except Exception as e:
@@ -489,19 +498,6 @@ def move_videos_to_their_folders(kids_vids_obj):
 	df = df
 	kids_vids_obj.to_remove = []
 	df.apply(kids_vids_obj.move_a_video_to_its_folder, axis=1)
-
-	if kids_vids_obj.to_remove:
-		for i_ in kids_vids_obj.to_remove:
-			x , video_name, outer_video, inner_video = i_
-			*directory_name, actual_video_name = x.split("/")
-			directory_name = '/'.join(directory_name)
-			print(directory_name, video_name, outer_video, inner_video, actual_video_name)
-			print()
-	# if outer_video <= inner_video:
-		# os.remove(row.video_name)
-		# return
-	# else:
-		# os.remove(f"{directory_name}{actual_video_name}")
 
 	print("\n\n")
 	print("files_moved:     ", kids_vids_obj.files_moved)
