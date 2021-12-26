@@ -495,7 +495,7 @@ def move_videos_to_their_folders(kids_vids_obj):
 			x , video_name, outer_video, inner_video = i_
 			*directory_name, actual_video_name = x.split("/")
 			directory_name = '/'.join(directory_name)
-			print(directory_name, vid_name, outer_video, inner_video, actual_video_name)
+			print(directory_name, video_name, outer_video, inner_video, actual_video_name)
 			print()
 	# if outer_video <= inner_video:
 		# os.remove(row.video_name)
