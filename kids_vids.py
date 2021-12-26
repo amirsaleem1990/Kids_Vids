@@ -393,9 +393,9 @@ class Kids_Vids:
 
 	def move_a_video_to_its_folder(self,row):
 		outer_video_full_path = row.video_name
-		inner_video_full_path = f"{directory_name}{actual_video_name}"
 		directory_name = f"{self.videos_dir_path}{row.channel}/"
 		actual_video_name = outer_video_full_path.split('/')[-1]
+		inner_video_full_path = f"{directory_name}{actual_video_name}"
 		# outer_video_full_path = /home/home/Videos/echo_echo_echo_full_episode_l_earth_to_luna.mkv
 		# inner_video_full_path = /home/home/Videos/Earth To Luna/echo_echo_echo_full_episode_l_earth_to_luna.mkv
 		# directory_name        = /home/home/Videos/Earth To Luna/
