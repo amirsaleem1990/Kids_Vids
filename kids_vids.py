@@ -402,14 +402,9 @@ class Kids_Vids:
 		try:
 			if os.path.exists(f"{directory_name}{actual_video_name}"):
 				#print(colored(f"\n! The Video '{row.video_name}' already exisits in '{directory_name}'", 'red'))
-				not_in_its_folder_size = list(os.popen(f"du -s '{row.video_name}'"))[0].strip().split("\t")[0]
-				in_its_folder_size = list(os.popen(f"du -s '{directory_name}{actual_video_name}'"))[0].strip().split("\t")[0]
-				self.to_remove.append([f"{directory_name}{actual_video_name}", row.video_name, not_in_its_folder_size, in_its_folder_size])
-				# if not_in_its_folder_size <= in_its_folder_size:
-					# os.remove(row.video_name)
-				return
-				# else:
-					# os.remove(f"{directory_name}{actual_video_name}")
+				outer_video = list(os.popen(f"du -s '{row.video_name}'"))[0].strip().split("\t")[0]
+				inner_video = list(os.popen(f"du -s '{directory_name}{actual_video_name}'"))[0].strip().split("\t")[0]
+				self.to_remove.append([f"{directory_name}{actual_video_name}", row.video_name, outer_video, inner_video])
 			shutil.move(row.video_name, directory_name)
 			self.d[directory_name.strip(self.videos_dir_path)] = self.d.get(directory_name.strip(self.videos_dir_path), 0) + 1
 			self.files_moved += 1
@@ -494,6 +489,19 @@ def move_videos_to_their_folders(kids_vids_obj):
 	df = df
 	kids_vids_obj.to_remove = []
 	df.apply(kids_vids_obj.move_a_video_to_its_folder, axis=1)
+
+	if kids_vids_obj.to_remove:
+		for i_ in kids_vids_obj.to_remove:
+			x , video_name, outer_video, inner_video = i_
+			*directory_name, actual_video_name = x.split("/")
+			directory_name = '/'.join(directory_name)
+			print(directory_name, vid_name, outer_video, inner_video, actual_video_name)
+			print()
+	# if outer_video <= inner_video:
+		# os.remove(row.video_name)
+		# return
+	# else:
+		# os.remove(f"{directory_name}{actual_video_name}")
 
 	print("\n\n")
 	print("files_moved:     ", kids_vids_obj.files_moved)
