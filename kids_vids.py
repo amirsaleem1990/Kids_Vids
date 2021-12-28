@@ -4,9 +4,10 @@ import os
 import sys
 import time
 import json 
+import shutil
 import pickle 
 import getpass
-import shutil
+import requests
 import traceback 
 import itertools
 import youtube_dl
@@ -20,6 +21,8 @@ from selenium import webdriver
 from datetime import timedelta
 from multiprocessing import Pool  
 from selenium.webdriver.firefox.options import Options
+from get_soup_object_using_selenium import get_soup_object_using_selenium
+
 
 class Kids_Vids:
 
@@ -260,58 +263,59 @@ class Kids_Vids:
 
 	def get_channels(self):
 		print("\n\n>> get_channels method is called.")
-		channels = [
-			('robocar',                               "https://www.youtube.com/c/robocarpoli/videos"),
-			('VladandNiki',                           "https://www.youtube.com/c/VladandNiki/videos"),
-			('ChuchuTv',                              "https://www.youtube.com/c/ChuChuTVBedtimeStories/videos"),
-			('scishowkids',                           'https://www.youtube.com/c/scishowkids/videos'), 
-			('PeekabooKids',                          'https://www.youtube.com/c/PeekabooKids/videos'),
-			('MorphleTV',                             'https://www.youtube.com/c/MorphleTV/videos'),
-			('Blippi',                                'https://www.youtube.com/c/Blippi/videos'),
-			('CraftsforKids',                         'https://www.youtube.com/c/CraftsforKids/videos'),
-			('ClarendonLearning',                     'https://www.youtube.com/c/ClarendonLearning/videos'),
-			('FreeSchool',                            'https://www.youtube.com/c/FreeSchool/videos'),
-			('KidsLearningTube',                      'https://www.youtube.com/c/KidsLearningTube/videos'),
-			('NUMBEROCKLLC',                          'https://www.youtube.com/c/NUMBEROCKLLC/videos'),
-			('natgeokids',                            'https://www.youtube.com/natgeokidsplaylists/videos'),
-			('TheDadLab',                             'https://www.youtube.com/c/TheDadLab/videos'),
-			('5MinuteCraftsPLAY',                     'https://www.youtube.com/c/5MinuteCraftsPLAY/videos'),
-			('KidsMadaniChannel',                     'https://www.youtube.com/c/KidsMadaniChannel/videos'),
-			('OmarHanaIslamicSongsforKids',           'https://www.youtube.com/c/OmarHanaIslamicSongsforKids/videos'),
-			('officialalphablocks',                   'https://www.youtube.com/c/officialalphablocks/videos'),
-			('Numberblocks',                          'https://www.youtube.com/c/Numberblocks/videos'),
-			('PreschoolPrepCompany',                  'https://www.youtube.com/c/PreschoolPrepCompany/videos'),
-			('UCbxK6jzYms1iMkU9Kwvl0sA',              'https://www.youtube.com/channel/UCbxK6jzYms1iMkU9Kwvl0sA/videos'),
-			('MissMollyLearning',                     'https://www.youtube.com/c/MissMollyLearning/videos'),
-			('allthingsanimaltv',                     'https://www.youtube.com/c/allthingsanimaltv/videos'),
-			('LearnWithZakaria',                      'https://www.youtube.com/c/LearnWithZakaria/videos'),
-			('EarthToLuna',                           'https://www.youtube.com/c/EarthToLuna/videos'),
-			('MysteryDoug',                           'https://www.youtube.com/c/MysteryDoug/videos'),
-			('HappyLearningTVKids',                   'https://www.youtube.com/c/HappyLearningTVKids/videos'),
-			('PeepWGBH',                              'https://www.youtube.com/user/PeepWGBH/videos'),
-			('ComeOutsideTV',                         'https://www.youtube.com/user/ComeOutsideTV/videos'),
-			('UCPttFyZAvTlWAQzgRU4duJA',              'https://www.youtube.com/channel/UCPttFyZAvTlWAQzgRU4duJA/videos'),
-			('OfficialBerenstainBears',               'https://www.youtube.com/c/OfficialBerenstainBears/videos'),
-			('SmileandLearnEnglish1',                 'https://www.youtube.com/c/SmileandLearnEnglish1/videos'),
-			('UC4p_YSvJlJpEhAh5PMyhkiQ',              'https://www.youtube.com/channel/UC4p_YSvJlJpEhAh5PMyhkiQ/videos'),
-			('LearningTimeFun',                       'https://www.youtube.com/c/LearningTimeFun/videos'),
-			('Toddlerfunlearning',                    'https://www.youtube.com/c/Toddlerfunlearning/videos'),
-            ('Luqmay',                                'https://www.youtube.com/c/Luqmay/videos'), 
-            ('KAZschool',                             'https://www.youtube.com/c/KAZschool/videos'), 
-            ('DUAKidsEnglish',                        'https://www.youtube.com/c/DUAKidsEnglish/videos'), 
-            ('TheMiniMuslims',                        'https://www.youtube.com/c/TheMiniMuslims/videos'), 
-            ('SafarPublications',                     'https://www.youtube.com/c/SafarPublications/videos'), 
-            ('IslamicKidsVideos',                     'https://www.youtube.com/c/IslamicKidsVideos/videos'), 
-            ('IQRACARTOONNETWORK',                    'https://www.youtube.com/c/IQRACARTOONNETWORK/videos'), 
-            ('UrduIslamicKidsVideos',                 'https://www.youtube.com/c/UrduIslamicKidsVideos/videos'), 
-            ('TheMuslimsCartoonSeries',               'https://www.youtube.com/c/TheMuslimsCartoonSeries/videos'), 
-            ('EnglishMoralStoriesWithTedZoe',         'https://www.youtube.com/c/EnglishMoralStoriesWithTedZoe/videos'), 
-            ('UCCwB8hOCCRFENjEUP_U7FoQ',              'https://www.youtube.com/channel/UCCwB8hOCCRFENjEUP_U7FoQ/videos'), 
-            ('UC3n8KIvfsdomdMjQBcmgiAA',              'https://www.youtube.com/channel/UC3n8KIvfsdomdMjQBcmgiAA/videos'), 
-            ('EnglishProphetStoriesQuranStories',     'https://www.youtube.com/c/EnglishProphetStoriesQuranStories/videos'), 
-            ('BillionSurpriseToys_NurseryRhymes',     'https://www.youtube.com/c/BillionSurpriseToys_NurseryRhymes/videos'), 
-            ('HindiStoriesoftheProphetsQuranStories', 'https://www.youtube.com/c/HindiStoriesoftheProphetsQuranStories/videos')
-		]
+		channels = pickle.load(open("channels.pkl", 'rb'))
+		# channels = [
+		# 	('robocar',                               "https://www.youtube.com/c/robocarpoli/videos"),
+		# 	('VladandNiki',                           "https://www.youtube.com/c/VladandNiki/videos"),
+		# 	('ChuchuTv',                              "https://www.youtube.com/c/ChuChuTVBedtimeStories/videos"),
+		# 	('scishowkids',                           'https://www.youtube.com/c/scishowkids/videos'), 
+		# 	('PeekabooKids',                          'https://www.youtube.com/c/PeekabooKids/videos'),
+		# 	('MorphleTV',                             'https://www.youtube.com/c/MorphleTV/videos'),
+		# 	('Blippi',                                'https://www.youtube.com/c/Blippi/videos'),
+		# 	('CraftsforKids',                         'https://www.youtube.com/c/CraftsforKids/videos'),
+		# 	('ClarendonLearning',                     'https://www.youtube.com/c/ClarendonLearning/videos'),
+		# 	('FreeSchool',                            'https://www.youtube.com/c/FreeSchool/videos'),
+		# 	('KidsLearningTube',                      'https://www.youtube.com/c/KidsLearningTube/videos'),
+		# 	('NUMBEROCKLLC',                          'https://www.youtube.com/c/NUMBEROCKLLC/videos'),
+		# 	('natgeokids',                            'https://www.youtube.com/natgeokidsplaylists/videos'),
+		# 	('TheDadLab',                             'https://www.youtube.com/c/TheDadLab/videos'),
+		# 	('5MinuteCraftsPLAY',                     'https://www.youtube.com/c/5MinuteCraftsPLAY/videos'),
+		# 	('KidsMadaniChannel',                     'https://www.youtube.com/c/KidsMadaniChannel/videos'),
+		# 	('OmarHanaIslamicSongsforKids',           'https://www.youtube.com/c/OmarHanaIslamicSongsforKids/videos'),
+		# 	('officialalphablocks',                   'https://www.youtube.com/c/officialalphablocks/videos'),
+		# 	('Numberblocks',                          'https://www.youtube.com/c/Numberblocks/videos'),
+		# 	('PreschoolPrepCompany',                  'https://www.youtube.com/c/PreschoolPrepCompany/videos'),
+		# 	('UCbxK6jzYms1iMkU9Kwvl0sA',              'https://www.youtube.com/channel/UCbxK6jzYms1iMkU9Kwvl0sA/videos'),
+		# 	('MissMollyLearning',                     'https://www.youtube.com/c/MissMollyLearning/videos'),
+		# 	('allthingsanimaltv',                     'https://www.youtube.com/c/allthingsanimaltv/videos'),
+		# 	('LearnWithZakaria',                      'https://www.youtube.com/c/LearnWithZakaria/videos'),
+		# 	('EarthToLuna',                           'https://www.youtube.com/c/EarthToLuna/videos'),
+		# 	('MysteryDoug',                           'https://www.youtube.com/c/MysteryDoug/videos'),
+		# 	('HappyLearningTVKids',                   'https://www.youtube.com/c/HappyLearningTVKids/videos'),
+		# 	('PeepWGBH',                              'https://www.youtube.com/user/PeepWGBH/videos'),
+		# 	('ComeOutsideTV',                         'https://www.youtube.com/user/ComeOutsideTV/videos'),
+		# 	('UCPttFyZAvTlWAQzgRU4duJA',              'https://www.youtube.com/channel/UCPttFyZAvTlWAQzgRU4duJA/videos'),
+		# 	('OfficialBerenstainBears',               'https://www.youtube.com/c/OfficialBerenstainBears/videos'),
+		# 	('SmileandLearnEnglish1',                 'https://www.youtube.com/c/SmileandLearnEnglish1/videos'),
+		# 	('UC4p_YSvJlJpEhAh5PMyhkiQ',              'https://www.youtube.com/channel/UC4p_YSvJlJpEhAh5PMyhkiQ/videos'),
+		# 	('LearningTimeFun',                       'https://www.youtube.com/c/LearningTimeFun/videos'),
+		# 	('Toddlerfunlearning',                    'https://www.youtube.com/c/Toddlerfunlearning/videos'),
+  #           ('Luqmay',                                'https://www.youtube.com/c/Luqmay/videos'), 
+  #           ('KAZschool',                             'https://www.youtube.com/c/KAZschool/videos'), 
+  #           ('DUAKidsEnglish',                        'https://www.youtube.com/c/DUAKidsEnglish/videos'), 
+  #           ('TheMiniMuslims',                        'https://www.youtube.com/c/TheMiniMuslims/videos'), 
+  #           ('SafarPublications',                     'https://www.youtube.com/c/SafarPublications/videos'), 
+  #           ('IslamicKidsVideos',                     'https://www.youtube.com/c/IslamicKidsVideos/videos'), 
+  #           ('IQRACARTOONNETWORK',                    'https://www.youtube.com/c/IQRACARTOONNETWORK/videos'), 
+  #           ('UrduIslamicKidsVideos',                 'https://www.youtube.com/c/UrduIslamicKidsVideos/videos'), 
+  #           ('TheMuslimsCartoonSeries',               'https://www.youtube.com/c/TheMuslimsCartoonSeries/videos'), 
+  #           ('EnglishMoralStoriesWithTedZoe',         'https://www.youtube.com/c/EnglishMoralStoriesWithTedZoe/videos'), 
+  #           ('UCCwB8hOCCRFENjEUP_U7FoQ',              'https://www.youtube.com/channel/UCCwB8hOCCRFENjEUP_U7FoQ/videos'), 
+  #           ('UC3n8KIvfsdomdMjQBcmgiAA',              'https://www.youtube.com/channel/UC3n8KIvfsdomdMjQBcmgiAA/videos'), 
+  #           ('EnglishProphetStoriesQuranStories',     'https://www.youtube.com/c/EnglishProphetStoriesQuranStories/videos'), 
+  #           ('BillionSurpriseToys_NurseryRhymes',     'https://www.youtube.com/c/BillionSurpriseToys_NurseryRhymes/videos'), 
+  #           ('HindiStoriesoftheProphetsQuranStories', 'https://www.youtube.com/c/HindiStoriesoftheProphetsQuranStories/videos')
+		# ]
 		channels_mapping = json.load(open(f"{self.base_path}channels_mapping.txt", "r"))
 
 		channels_to_exclude = self.to_be_exclude['channel']
@@ -513,9 +517,50 @@ def move_videos_to_their_folders(kids_vids_obj):
 
 	print()
 
+def get_channel_name_by_url(url):
+	x = get_soup_object_using_selenium(url)
+	return x[1].find("div", {"id" : "text-container"}).text.strip()
+
+def Add_channels():
+
+	channels_mapping = json.load(open("channels_mapping.txt", 'r'))
+	channels = pickle.load(open("channels.pkl", 'rb'))
+	urls_in_channels = [i[1] for i in channels]
+	new_channels = open("new_channels", 'r').read().splitlines()
+	new_channels = [i for i in new_channels if i and (not i.startswith("#"))]
+
+	if not new_channels:
+		print("\n\nThere is no url (or urls with #)\nExiting.......\n\n")
+		exit()
+
+	d = {}
+	for url in new_channels:
+		if url in urls_in_channels:
+			print(f"\nThe url {url} is already exists in channels.pkl, skipping........")
+			continue
+		key = url.split("/")[4]
+		channel_name = get_channel_name_by_url(url)
+		d[key] =(channel_name, url)
+	if not d:
+		print("\n\nNo new information to be added to 'channels_mapping.txt' and  'channels.pkl'\nExiting.....\n")
+		exit()
+
+	changings_qty = 0
+
+	for key,value in d.items():
+		channel_name, url = value
+		inp = input(f"""\n\nGoing to add:\n'{key}':'{channel_name}'' to channels_mapping.txt\n{key, url} to  channels.pkl\nAre you agree? [y|n]: """)
+		# inp = input(f"\nGiving this <{url}> we add this {key}:{channel_name} as a new entry in the 'to channels_mapping.txt'. Are you agree? [y|n] ")
+		if inp == 'y':
+			changings_qty += 1
+			channels_mapping[key] = channel_name
+			channels.append( (key, url) )
+
+	if changings_qty:
+		json.dump(channels_mapping, open("channels_mapping.txt", 'w'))
+		pickle.dump(channels, open("channels.pkl", 'wb'))
 
 if __name__ == "__main__":
-	
 	
 	print("""
 Select you option:
@@ -523,7 +568,8 @@ Select you option:
 	2- Download new info
 	3- Download new videos AND new info
 	4- Move videos to their folders
-	5- Show distribution of present videos in the disk""")
+	5- Show distribution of present videos in the disk
+	6- Add channels""")
 
 	user_inp = input().strip()
 	if not  user_inp.isnumeric():
@@ -543,5 +589,6 @@ Select you option:
 
 	if user_inp == '5':
 		kids_vids_obj.distribution_of_the_videos_in_the_disk()
-
+	if user_inp == '6':
+		Add_channels()
 	
