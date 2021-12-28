@@ -486,8 +486,7 @@ def move_videos_to_their_folders(kids_vids_obj):
 		  .rename(columns={"index" : "url"})
 		  .loc[:, ['channel', 'video_name']]
 	)
-	print(df.to_string())
-	return
+
 	df.video_name = df.video_name.apply(kids_vids_obj.get_actual_video_name)
 	kids_vids_obj.files_not_moved = df.video_name.isna().sum()
 	df = df.dropna()
