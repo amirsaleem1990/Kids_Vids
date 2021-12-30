@@ -27,6 +27,7 @@ from get_soup_object_using_selenium import get_soup_object_using_selenium
 class Kids_Vids:
 
 	def __init__(self, mapping_file_name, error_file_name="Error.pkl"):
+		self.user_urls = False
 		self.to_skip = []
 		self.get_urls_to_download_recursive_n = 0
 		self.mapping_n = 0
@@ -37,8 +38,9 @@ class Kids_Vids:
 		self.mapping = pickle.load(open(f"{self.base_path}{mapping_file_name}", 'rb'))
 	
 		if mapping_file_name == 'mapping.pkl':
+			print("\n\nCreating a backup of <{mapping_file_name}> as <mapping_BACKUP.pkl>\n")
 			shutil.copy(f"{self.base_path}{mapping_file_name}", f"{self.base_path}mapping_BACKUP.pkl")
-			self.original_mapping = self.mapping
+			self.original_mapping = self.mapping.copy()
 		else:
 			self.original_mapping = pickle.load(open(f"{self.base_path}mapping.pkl", 'rb'))
 
@@ -54,6 +56,8 @@ class Kids_Vids:
 		print()
 
 	def mapping_save(self, fee_kulli_haal=False):
+		if self.user_urls:
+			return
 		self.mapping_n += 1
 		if fee_kulli_haal or (self.mapping_n % 10 == 0):
 			pickle.dump( self.mapping, open(f"{self.base_path}mapping.pkl", 'wb') )
@@ -101,7 +105,8 @@ class Kids_Vids:
 			k for k,v in self.mapping.items() if (not v['downloaded']) \
 				and (not v['channel'] in channels_to_exclude) \
 				and (self.duration_sec(v['duration']) > 180) \
-				and (self.duration_sec(v['duration']) < 7200)
+				and (self.duration_sec(v['duration']) < 7200)\
+				and (not os.path.exists(f"{self.videos_dir_path}{v['video_name']}"))
 			]
 
 		to_download = []
@@ -125,7 +130,8 @@ class Kids_Vids:
 				p.map(self.download_a_video, to_download)
 			else:
 				print(colored("\n\nNo videos to be download\n", 'red'))
-				raise Exception("No_video_to_be_downloaded")
+				# raise Exception("No_video_to_be_downloaded")
+				exit()
 		except:
 			error__ = str(traceback.format_exc())
 			print("\n"*6)
@@ -203,14 +209,18 @@ class Kids_Vids:
 
 	def get_info(self, to_download):
 		print("\n\n>> get_info method is called.")
+		if self.user_urls:
+			self.mapping = {}
 		for u in to_download:
-			if u in self.mapping:
+			if (u in self.mapping) or (u in self.original_mapping):
 				continue
 			try:
 				s = time.time()
-				ydl = youtube_dl.YoutubeDL({'outtmpl': '%(id)s.%(ext)s'})
-				with ydl:
-					x = ydl.extract_info(u, download=False) # We just want to extract the info
+				x = (
+						youtube_dl
+						.YoutubeDL({'outtmpl': '%(id)s.%(ext)s', 'noplaylist' : True})
+						.extract_info(u, download=False) # We just want to extract the info
+					)
 				if x:
 					duration = x['duration']
 					if int(duration) == 0:
@@ -228,16 +238,15 @@ class Kids_Vids:
 						thumbnail_url = thumbnail_url.split(".jpg")[0] + ".jpg"
 					thumbnail_name = thumbnail_url.strip().replace('/', '_')
 
-					self.mapping[u] = {"channel" : x.get("channel"), 
-								  "upload_date" : x.get('upload_date'), 
-								  "duration" : duration, 
-								  "video_name" : video_name,
-								  "thumbnail_url" : thumbnail_url,
+					self.mapping[u] = {"channel"   : x.get("channel"), 
+								  "upload_date"    : x.get('upload_date'), 
+								  "duration"       : duration, 
+								  "video_name"     : video_name,
+								  "thumbnail_url"  : thumbnail_url,
 								  "thumbnail_name" : thumbnail_name,
 								  'downloaded' : False
 								  }
 					self.mapping_save()
-								  
 				print(f'.............................{u}, Sec consumed: {time.time() - s}')
 				time.sleep(2)
 			except Exception as e:
@@ -246,7 +255,6 @@ class Kids_Vids:
 				print(colored(e, 'red'))
 				print()
 				# self.errors[u] = ["download_jsons fail",str(e), str(datetime.now())]
-
 
 	def preparetion_for_downloading_new_videos_info(self):
 		print("\n\n>> preparetion_for_downloading_new_videos_info method is called.")
@@ -300,21 +308,21 @@ class Kids_Vids:
 		# 	('UC4p_YSvJlJpEhAh5PMyhkiQ',              'https://www.youtube.com/channel/UC4p_YSvJlJpEhAh5PMyhkiQ/videos'),
 		# 	('LearningTimeFun',                       'https://www.youtube.com/c/LearningTimeFun/videos'),
 		# 	('Toddlerfunlearning',                    'https://www.youtube.com/c/Toddlerfunlearning/videos'),
-  #           ('Luqmay',                                'https://www.youtube.com/c/Luqmay/videos'), 
-  #           ('KAZschool',                             'https://www.youtube.com/c/KAZschool/videos'), 
-  #           ('DUAKidsEnglish',                        'https://www.youtube.com/c/DUAKidsEnglish/videos'), 
-  #           ('TheMiniMuslims',                        'https://www.youtube.com/c/TheMiniMuslims/videos'), 
-  #           ('SafarPublications',                     'https://www.youtube.com/c/SafarPublications/videos'), 
-  #           ('IslamicKidsVideos',                     'https://www.youtube.com/c/IslamicKidsVideos/videos'), 
-  #           ('IQRACARTOONNETWORK',                    'https://www.youtube.com/c/IQRACARTOONNETWORK/videos'), 
-  #           ('UrduIslamicKidsVideos',                 'https://www.youtube.com/c/UrduIslamicKidsVideos/videos'), 
-  #           ('TheMuslimsCartoonSeries',               'https://www.youtube.com/c/TheMuslimsCartoonSeries/videos'), 
-  #           ('EnglishMoralStoriesWithTedZoe',         'https://www.youtube.com/c/EnglishMoralStoriesWithTedZoe/videos'), 
-  #           ('UCCwB8hOCCRFENjEUP_U7FoQ',              'https://www.youtube.com/channel/UCCwB8hOCCRFENjEUP_U7FoQ/videos'), 
-  #           ('UC3n8KIvfsdomdMjQBcmgiAA',              'https://www.youtube.com/channel/UC3n8KIvfsdomdMjQBcmgiAA/videos'), 
-  #           ('EnglishProphetStoriesQuranStories',     'https://www.youtube.com/c/EnglishProphetStoriesQuranStories/videos'), 
-  #           ('BillionSurpriseToys_NurseryRhymes',     'https://www.youtube.com/c/BillionSurpriseToys_NurseryRhymes/videos'), 
-  #           ('HindiStoriesoftheProphetsQuranStories', 'https://www.youtube.com/c/HindiStoriesoftheProphetsQuranStories/videos')
+		# 	('Luqmay',                                'https://www.youtube.com/c/Luqmay/videos'), 
+		# 	('KAZschool',                             'https://www.youtube.com/c/KAZschool/videos'), 
+		# 	('DUAKidsEnglish',                        'https://www.youtube.com/c/DUAKidsEnglish/videos'), 
+		# 	('TheMiniMuslims',                        'https://www.youtube.com/c/TheMiniMuslims/videos'), 
+		# 	('SafarPublications',                     'https://www.youtube.com/c/SafarPublications/videos'), 
+		# 	('IslamicKidsVideos',                     'https://www.youtube.com/c/IslamicKidsVideos/videos'), 
+		# 	('IQRACARTOONNETWORK',                    'https://www.youtube.com/c/IQRACARTOONNETWORK/videos'), 
+		# 	('UrduIslamicKidsVideos',                 'https://www.youtube.com/c/UrduIslamicKidsVideos/videos'), 
+		# 	('TheMuslimsCartoonSeries',               'https://www.youtube.com/c/TheMuslimsCartoonSeries/videos'), 
+		# 	('EnglishMoralStoriesWithTedZoe',         'https://www.youtube.com/c/EnglishMoralStoriesWithTedZoe/videos'), 
+		# 	('UCCwB8hOCCRFENjEUP_U7FoQ',              'https://www.youtube.com/channel/UCCwB8hOCCRFENjEUP_U7FoQ/videos'), 
+		# 	('UC3n8KIvfsdomdMjQBcmgiAA',              'https://www.youtube.com/channel/UC3n8KIvfsdomdMjQBcmgiAA/videos'), 
+		# 	('EnglishProphetStoriesQuranStories',     'https://www.youtube.com/c/EnglishProphetStoriesQuranStories/videos'), 
+		# 	('BillionSurpriseToys_NurseryRhymes',     'https://www.youtube.com/c/BillionSurpriseToys_NurseryRhymes/videos'), 
+		# 	('HindiStoriesoftheProphetsQuranStories', 'https://www.youtube.com/c/HindiStoriesoftheProphetsQuranStories/videos')
 		# ]
 		channels_mapping = json.load(open(f"{self.base_path}channels_mapping.txt", "r"))
 
@@ -360,7 +368,14 @@ class Kids_Vids:
 	def main_function_of_getting_new_videos_info(self):
 		print("\n\n>> main_function_of_getting_new_videos_info method is called.")
 		is_error = False
-		to_download = self.prepare_to_download_list()
+		if self.user_urls:
+			to_download = open( input("Enter urls file name: "), 'r' ).read().splitlines()
+			to_download = [i for i in to_download if i and (not i.startswith("#"))]
+			if not to_download:
+				raise Exception ("There is no urls to be downloaded\nAborting ...\n\n")
+				exit()
+		else:
+			to_download = self.prepare_to_download_list()
 		# to_download = pickle.load(open("/home/amir/github/Kids_Vids/to_download.pkl", 'rb'))
 		try:
 			self.get_info(to_download)
@@ -370,6 +385,7 @@ class Kids_Vids:
 
 		# pickle.dump(self.mapping, open(f"{self.base_path}mapping.pkl", 'wb'))
 		self.mapping_save(fee_kulli_haal=True)
+
 		if is_error:
 			raise Exception(str(error__))
 		# print(f"\n\n ---------------------------- mapping saved as {self.base_path}mapping.pkl\n\n")
@@ -448,7 +464,7 @@ class Kids_Vids:
 		df = (pd
 			  .DataFrame(lst)
 			  .rename(columns={0:"Name", 1:"Size", 2:"Count"}
-			  	)
+				)
 			  )
 		df['MB']=df.Size.apply(to_mb)
 		print(
@@ -462,7 +478,7 @@ class Kids_Vids:
 
 	# END of the class 'Kids_Vids'
 
-def Only_download_new_videos_OR_Download_new_videos_and_new_info(kids_vids_obj):
+def download_new_videos(kids_vids_obj):
 	try:
 		kids_vids_obj.downlload_in_multithreding()
 	except KeyboardInterrupt:
@@ -569,26 +585,38 @@ Select you option:
 	3- Download new videos AND new info
 	4- Move videos to their folders
 	5- Show distribution of present videos in the disk
-	6- Add channels""")
+	6- Add channels
+	7- Download user provided urls""")
 
 	user_inp = input().strip()
-	if not  user_inp.isnumeric():
+	if not user_inp.isnumeric():
 		raise Exception ("Wrong input")
 	
 	kids_vids_obj = Kids_Vids(mapping_file_name = 'mapping.pkl')
-	
-	if user_inp in ['2', '3']:
 
+	if user_inp == '1':
+		download_new_videos(kids_vids_obj)
+	
+	elif user_inp == '2':
 		kids_vids_obj.main_function_of_getting_new_videos_info()
-
-	if user_inp in ['1', '3']:
-		Only_download_new_videos_OR_Download_new_videos_and_new_info(kids_vids_obj)
-
-	if user_inp == '4':
-		move_videos_to_their_folders(kids_vids_obj)
-
-	if user_inp == '5':
-		kids_vids_obj.distribution_of_the_videos_in_the_disk()
-	if user_inp == '6':
-		Add_channels()
 	
+	elif user_inp == '3':
+		kids_vids_obj.main_function_of_getting_new_videos_info()
+		download_new_videos(kids_vids_obj)
+	
+	elif user_inp == '4':
+		move_videos_to_their_folders(kids_vids_obj)
+	
+	elif user_inp == '5':
+		kids_vids_obj.distribution_of_the_videos_in_the_disk()
+	
+	elif user_inp == '6':
+		Add_channels()	
+	
+	elif user_inp == '7':
+		kids_vids_obj.user_urls = True
+		kids_vids_obj.main_function_of_getting_new_videos_info()
+		pickle.dump(
+			kids_vids_obj.mapping, open(f"{kids_vids_obj.base_path}mapping_from_user_urls.pkl", 'wb')
+			)
+		download_new_videos(kids_vids_obj)
