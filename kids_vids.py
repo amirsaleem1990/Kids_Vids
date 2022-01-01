@@ -23,7 +23,8 @@ from datetime import timedelta
 from multiprocessing import Pool  
 from moviepy.editor import VideoFileClip
 from selenium.webdriver.firefox.options import Options
-from get_soup_object_using_selenium import get_soup_object_using_selenium
+if getpass.getuser() == 'amir':
+	from get_soup_object_using_selenium import get_soup_object_using_selenium
 
 
 class Kids_Vids:
