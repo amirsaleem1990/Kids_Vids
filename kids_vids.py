@@ -13,6 +13,7 @@ import itertools
 import youtube_dl
 import subprocess 
 import pandas as pd
+from functools import reduce
 import multiprocessing.dummy 
 from datetime import datetime  
 from bs4 import BeautifulSoup
@@ -20,6 +21,7 @@ from termcolor import colored
 from selenium import webdriver
 from datetime import timedelta
 from multiprocessing import Pool  
+from moviepy.editor import VideoFileClip
 from selenium.webdriver.firefox.options import Options
 from get_soup_object_using_selenium import get_soup_object_using_selenium
 
@@ -42,6 +44,9 @@ class Kids_Vids:
 			shutil.copy(f"{self.base_path}{mapping_file_name}", f"{self.base_path}mapping_BACKUP.pkl")
 			self.original_mapping = self.mapping.copy()
 		else:
+			if input("\nYou are using {mapping_file_name}, Are you need to proceed? [yes|no] ") != 'yes':
+				print("\nAborting....")
+				exit()
 			self.original_mapping = pickle.load(open(f"{self.base_path}mapping.pkl", 'rb'))
 
 		if error_file_name == "Error.pkl":
@@ -74,6 +79,7 @@ class Kids_Vids:
 			subprocess.check_call(['youtube-dl', '--no-playlist', url, '-o', full_video_name])
 			self.mapping[url]['downloaded'] = True
 			print(colored(f"\n>>> The value 'True' is assigned to 'downloaded' for the {url}\n", 'green'))
+			os.system("/amir_bin/extentions_count /home/home/Videos/")
 			self.mapping_save()
 		except Exception as e:
 			print(e)
@@ -576,6 +582,313 @@ def Add_channels():
 		json.dump(channels_mapping, open("channels_mapping.txt", 'w'))
 		pickle.dump(channels, open("channels.pkl", 'wb'))
 
+
+def add_urls_to_mapping_pkl():
+	mapping_2 = {}
+	def get_info(to_download):
+		for u in to_download:
+			# agar url ka data pehly fetch kya hwa h to dubara fetch nahi karo
+			# if u in mapping:
+				# continue
+			try:
+				s = time.time()
+				ydl = youtube_dl.YoutubeDL({'outtmpl': '%(id)s.%(ext)s', 'noplaylist' : True})
+				with ydl:
+					x = ydl.extract_info(u, download=False) # We just want to extract the info
+				if x:
+					duration = x['duration']
+					if int(duration) == 0:
+						continue
+					duration = str(timedelta(seconds=int(duration)))
+					if duration.split(":")[0] == "0":
+						duration = "0" + duration
+
+					n_ = ''.join([i if i in "abcdefghijklmnopqrstuvwxyzاأبتثجحخدذرزسشصضطظعغفقكلمنوهيى" else "_" for i in x.get("title").lower()])
+					video_name = f"{re.sub('_+', '_', n_).strip('_')}.{x['ext']}"
+
+					thumbnail_url = x.get("thumbnail")
+					if ".jpg" in thumbnail_url:
+						thumbnail_url = thumbnail_url.split(".jpg")[0] + ".jpg"
+					thumbnail_name = thumbnail_url.strip().replace('/', '_')
+
+					mapping_2[u] = {"channel" : x.get("channel"), 
+								  "upload_date" : x.get('upload_date'), 
+								  "duration" : duration, 
+								  "video_name" : video_name,
+								  "thumbnail_url" : thumbnail_url,
+								  "thumbnail_name" : thumbnail_name,
+								  'downloaded' : False
+								  }
+								  
+				print(f'.............................{u}, Sec consumed: {time.time() - s}')
+				time.sleep(2)
+			except Exception as e:
+				print('---------------------------')
+				print(e)
+				print()
+				errors[u] = ["download_jsons fail",e, str(datetime.now())]
+
+
+	mapping = pickle.load(open("mapping.pkl", 'rb'))
+	urls_file_name = input("Please type Urls file name: ")
+	if not os.path.exists(f"/home/{getpass.getuser()}/github/Kids_Vids/{urls_file_name}"):
+		raise Exception(f"The file /home/{getpass.getuser()}/github/Kids_Vids/{urls_file_name} is not exists")
+		exit()
+
+	to_download = [i for i in open (urls_file_name, 'r').read().splitlines() if i and (not i.startswith("#"))]
+
+	if not to_download:
+		raise Exception("There is no url in 'to_download' variable")
+
+	errors = dict()
+
+	new_mapping_name = "mapping2.pkl"
+
+	try:
+		get_info(to_download)
+	except:
+		pickle.dump(mapping_2, open(f"/home/{getpass.getuser()}/github/Kids_Vids/{new_mapping_name}", 'wb'))
+		raise Exception(str(traceback.format_exc()))
+
+	pickle.dump(mapping_2, open(f"/home/{getpass.getuser()}/github/Kids_Vids/{new_mapping_name}", 'wb'))
+	print(f"\n\n ---------------------------- mapping saved as /home/{getpass.getuser()}/github/Kids_Vids/{new_mapping_name}\n\n")
+
+	if errors:
+		pickle.dump(errors, open(f"/home/{getpass.getuser()}/github/Kids_Vids/Error_TEMP.pkl", 'wb'))
+		print(f"""Errors saved as:
+	/home/{getpass.getuser()}/github/Kids_Vids/Error_TEMP.pkl
+	""")
+
+	os.system(f"yes 'yes' | python3 /home/{getpass.getuser()}/github/Kids_Vids/Download.py {new_mapping_name}")
+
+
+	if errors:
+		print(f"\n\n{'*'*15}ERRORS{'*'*15}")
+		print(errors, sep="\n")
+
+
+def remove_old_videos():
+	if input("This option will keep latest 15 videos for each channel, and remove all others. Do you need to proceed? [yes|no] ") != "yes":
+		exit()
+
+	def get_actual_video_name(vid_name):
+		v = vid_name.strip(".mp4").strip("webm").strip(".mkv")
+		for extention in ['.mkv', '.mp4', 'webm']:
+			if os.path.exists(f"/home/home/Videos/{v}{extention}"):
+				return  v + extention
+		else:
+			return None
+
+	x = pickle.load(open(f"/home/{getpass.getuser()}/github/Kids_Vids/mapping.pkl", 'rb'))
+	df = pd.DataFrame.from_dict(x, orient='index')
+	df = df[df.downloaded]
+	df.upload_date = pd.to_datetime(df.upload_date)
+
+	to_remove = df[
+		~ df.index.isin(
+			df.reset_index().rename(columns={"index" : "url"}).groupby("channel").apply(lambda x:x.sort_values("upload_date", ascending=False).iloc[:15]).reset_index(drop=True).set_index('url').sort_values("upload_date", ascending=False).index.to_list()
+			)
+		].index.to_list()
+	q = []
+	for i in to_remove:
+		s = get_actual_video_name(x[i]['video_name'])
+		if not s is None:
+			q.append(i)
+	to_remove = q
+
+	vids_to_delete = []
+	Count_dict = {}
+	Size_dict = {}
+	for url in to_remove:
+		vid = f"/home/home/Videos/{x[url]['video_name']}"
+		channel = x[url]['channel']
+		if os.path.exists(vid):
+			Count_dict[ x[url]['channel'] ] = Count_dict.get(channel, -1) + 1
+			# os.remove(vid)
+			size = os.stat(vid).st_size # in bytes
+			size /= 1024*1024*1024# in GB
+			Size_dict[channel] = Size_dict.get(channel, 0) + size
+			vids_to_delete.append((vid, channel, size))
+	x = sorted(Count_dict.items(), key=lambda x:x[1], reverse=True)
+	if not x:
+		print("\n\nNo videos to remove\nAborting ........\n")
+		sys.exit()
+	print(f"\n\n\n{'*'*10} Videos (for delete) count by channel {'*'*10}")
+	print("Index\tCount\tSize\tChannel")
+	for e, i in enumerate(x):
+	    print(f"{e}\t{i[1]}\t{round(Size_dict[i[0]])}\t{i[0]}")
+
+	input_ = input('''
+	Are you sure to DELETE ALL of these channels: 
+		- yes 
+		- no 
+		- Enter index[es] to exclude, (delimated by comma <,>) 
+
+		''').replace(" ", "")
+	if input_ == "yes":
+		for e, i in enumerate(x):
+			channel = i[0]
+			print(f"Deleting {i[1]} videos from <{channel}> channel")
+			...
+	elif input_ == "no":
+		sys.exit()
+	elif True:
+		if ',' in input_:
+			to_exlude_index = [int(i.strip()) for i in input_.split(",")]
+		else:
+			to_exlude_index  = [int(input_.strip())]
+		final_to_delete_channels = [i[0] for e, i in enumerate(x) if not e in to_exlude_index]
+
+		before=int(list(os.popen("du -sh -BM  /home/home/Videos/ | cut -dM -f1"))[0].strip())
+		x = pickle.load(open(f"/home/{getpass.getuser()}/github/Kids_Vids/mapping.pkl", 'rb'))
+		for i in to_remove:
+			if x[i]['channel'] in final_to_delete_channels:
+				vid_actual_name = get_actual_video_name(x[i]['video_name'])
+				if vid_actual_name is None:
+					continue
+				print(f">> Deleting <{vid_actual_name}> from channel <{x[i]['channel']}>")
+				os.remove(f"/home/home/Videos/{vid_actual_name}")
+		after=int(list(os.popen("du -sh -BM  /home/home/Videos/ | cut -dM -f1"))[0].strip())
+		print(f"\n\nFreed {before-after} MB | {(before-after)/1024} GB")
+
+
+def remove_all_Videos_for_given_channel():
+	x = pickle.load(open("mapping.pkl", 'rb'))
+	print("Total length of mapping.pkl:", len(x))
+	downloaded = {k:v for k,v in x.items() if v['downloaded']}
+	print("Downloaded videos count    :", len(downloaded))
+
+	videos_in_disk = os.listdir("/home/home/Videos")
+	print("Videos in disk             :", len(videos_in_disk))
+
+
+	x1 = {k:v for k,v in x.items() if v['video_name'] in videos_in_disk}
+
+	# Adding info
+	for k,v in x1.items():
+		x1[k]['size_MB'] = os.stat(f"/home/home/Videos/{v['video_name']}").st_size/1024/1024
+
+	print("\n")
+	d = {}
+	for k,v in x1.items():
+		d[v['channel']] = d.get(v['channel'], 0) + v['size_MB']
+
+	# pickle.dump(d, open("d", 'wb'))
+	#d = pickle.load(open("d", 'rb'))
+
+	def get_durations(tup):
+		k,v = tup
+		try:
+			a = VideoFileClip(f"/home/home/Videos/{v['video_name']}").duration
+		except:
+			a = 0
+		x1[k]['duration'] = a
+	pool = Pool()   # Create a multiprocessing Pool
+	pool.map(get_durations, list(x1.items()))
+
+	# pickle.dump(x1, open("x1", 'wb'))
+	# x1 = pickle.load(open("x1", 'rb'))
+
+	duration = {}
+	for k,v in x1.items():
+		qm = reduce(lambda x, y: x*60+y, [int(i) for i in (v['duration'].replace(':',',')).split(',')])
+		duration[v['channel']] = duration.get(v['channel'], 0) + qm
+	for k,v in duration.items():
+		duration[k] = str(timedelta(seconds=v))
+
+	#pickle.dump(duration, open("duration", 'wb'))
+	#duration = pickle.load(open("duration", 'rb'))
+
+	d = dict(sorted(d.items(), key=lambda x: x[1]))
+	for k,v in d.items():
+		print(f"{int(v)}\t{k}")
+
+
+	x2 = [v['channel'] for k,v in x1.items()]
+	x3 = sorted([(x2.count(i), i) for i in set(x2)])
+
+	lst = []
+	for k,v in x3:
+		lst.append(
+			(k, round(d[v]), v, duration[v])
+			)
+	lst = sorted(lst, key=lambda x:x[1], reverse=True)
+	open('res', 'w').write("Videos|Size_GB|Duration|Channel\n------|-------|--------|-------\n")
+	for i in lst:
+		open("res", 'a').write(f"{i[0]}|{round(i[1]/1024, 1)}|{i[3]}|{i[2]}\n")
+	os.system("cat res | column -t -s\|")
+
+	def deleted_videos_for_specific_channels(channel_name):
+		# x = pickle.load(open("mapping.pkl", 'rb'))
+		# x = {k:v  for k,v in x.items() if v['channel'] == channel_name}
+		# videos_in_disk = os.listdir('/home/home/Videos')
+		# for k,v in x.items():
+		# 	if v['video_name'] in videos_in_disk:
+		# 		x[k]['duration'] = VideoFileClip(f"/home/home/Videos/{v['video_name']}").duration
+		for i in lst:
+			if i[2].strip() == channel_name.strip():
+				break
+		else:
+			print("Wrong channel name\nAborting ........ \n")
+			sys.exit()
+		print(f"\n--------------------------------- {channel_name} ---------------------------------\n")
+		print(*[v['video_name'] for k,v in x.items() if v['channel'] == channel_name], sep="\n")
+		user_input = input_ = input(f"\nAre you really need to DELETE ALL Videos for .......\nchannel       : {channel_name}\nVideos in disk: {i[0]}\nSize in GB    : {round(i[1]/1024, 1)}\nTotal duration: {i[3]}\n[y|n]: ")
+		if user_input == "y":
+			for i in range(2):
+				if input("Are you sure TO DELTE all these videos?\n[y|n]: ") != "y":
+					break
+			else:
+				for k,v in x.items():
+					if v['channel'] == channel_name:
+						print(f">>> Deleting {v['video_name']}")
+						vid = f"/home/home/Videos/{v['video_name']}"
+						if os.path.exists(vid):
+							os.remove(vid)
+							time.sleep(1)
+
+		# print(
+		# 	"Entries in mapping.pkl:", 
+		# 	len(x)
+		# 	)
+		# print(
+		# 	"Files in ~/Videos     :", 
+		# 	sum([v['video_name'] in videos_in_disk for k,v in x.items()])
+		# 	)
+		# print(
+		# 	"Total size in GB      :", 
+		# 	round(sum([os.stat(f"/home/home/Videos/{v['video_name']}").st_size/1024/1024 for k,v in x.items() if v['video_name'] in videos_in_disk])/1024, 1)
+		# 	)
+		# print(
+		# 	"Total duration        :", 
+		# 	str(timedelta(
+		# 		seconds=sum([v['duration'] for k,v in x.items() if v['video_name'] in videos_in_disk])
+		# 		))
+		# 	)
+
+	while True:
+		f = input("\nEnter channel name [or press ENTER]: ")
+		if f:
+			deleted_videos_for_specific_channels(f)
+		else:
+			break
+
+def get_incompleted_vid_dict():
+	def func(video_name):
+		file_ = f"/home/{getpass.getuser()}/github/Kids_Vids/mapping.pkl"
+		x = pickle.load(open(file_, 'rb'))
+		for k,v in x.items():
+			if v['video_name'] == video_name:
+				v['downloaded'] = False
+				break
+		pickle.dump(x, open(file_, 'wb'))
+
+	try:
+		func(video_name=sys.argv[1])
+	except:
+		pass
+
+
 if __name__ == "__main__":
 	
 	print("""
@@ -586,12 +899,17 @@ Select you option:
 	4- Move videos to their folders
 	5- Show distribution of present videos in the disk
 	6- Add channels
-	7- Download user provided urls""")
+	7- Download user provided urls
+	8- Add urls to mapping.pkl
+	9- Remove old videos
+	10- Remove all Videos for given channel/s
+	11- Get incompleted vid dict""")
 
 	user_inp = input().strip()
 	if not user_inp.isnumeric():
 		raise Exception ("Wrong input")
 	
+	# kids_vids_obj = Kids_Vids()
 	kids_vids_obj = Kids_Vids(mapping_file_name = 'mapping_from_user_urls.pkl')
 
 	if user_inp == '1':
@@ -620,3 +938,17 @@ Select you option:
 			kids_vids_obj.mapping, open(f"{kids_vids_obj.base_path}mapping_from_user_urls.pkl", 'wb')
 			)
 		download_new_videos(kids_vids_obj)
+
+	elif user_inp == '8':
+		add_urls_to_mapping_pkl()
+
+	elif user_inp == "9":
+		remove_old_videos()
+
+	elif user_inp == '10':
+		remove_all_Videos_for_given_channel()
+
+	if user_inp == '11':
+		get_incompleted_vid_dict()
+
+
