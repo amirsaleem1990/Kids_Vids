@@ -26,7 +26,7 @@ from get_soup_object_using_selenium import get_soup_object_using_selenium
 
 class Kids_Vids:
 
-	def __init__(self, mapping_file_name, error_file_name="Error.pkl"):
+	def __init__(self, mapping_file_name='mapping.pkl', error_file_name="Error.pkl"):
 		self.user_urls = False
 		self.to_skip = []
 		self.get_urls_to_download_recursive_n = 0
@@ -580,9 +580,9 @@ if __name__ == "__main__":
 	
 	print("""
 Select you option:
-	1- Download new videos
-	2- Download new info
-	3- Download new videos AND new info
+	1- Download videos
+	2- Download info
+	3- Download info AND videos 
 	4- Move videos to their folders
 	5- Show distribution of present videos in the disk
 	6- Add channels
@@ -592,7 +592,7 @@ Select you option:
 	if not user_inp.isnumeric():
 		raise Exception ("Wrong input")
 	
-	kids_vids_obj = Kids_Vids(mapping_file_name = 'mapping.pkl')
+	kids_vids_obj = Kids_Vids(mapping_file_name = 'mapping_from_user_urls.pkl')
 
 	if user_inp == '1':
 		download_new_videos(kids_vids_obj)
