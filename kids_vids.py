@@ -45,7 +45,7 @@ class Kids_Vids:
 			shutil.copy(f"{self.base_path}{mapping_file_name}", f"{self.base_path}mapping_BACKUP.pkl")
 			self.original_mapping = self.mapping.copy()
 		else:
-			if input("\nYou are using {mapping_file_name}, Are you need to proceed? [yes|no] ") != 'yes':
+			if input(f"\nYou are using {mapping_file_name}, Are you need to proceed? [yes|no] ") != 'yes':
 				print("\nAborting....")
 				exit()
 			self.original_mapping = pickle.load(open(f"{self.base_path}mapping.pkl", 'rb'))
