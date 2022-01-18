@@ -909,8 +909,8 @@ Select you option:
 	if not user_inp.isnumeric():
 		raise Exception ("Wrong input")
 	
-	# kids_vids_obj = Kids_Vids()
-	kids_vids_obj = Kids_Vids(mapping_file_name = 'mapping_from_user_urls.pkl')
+	kids_vids_obj = Kids_Vids()
+	# kids_vids_obj = Kids_Vids(mapping_file_name = 'mapping_from_user_urls.pkl')
 
 	if user_inp == '1':
 		download_new_videos(kids_vids_obj)
