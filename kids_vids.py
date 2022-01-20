@@ -37,8 +37,12 @@ class Kids_Vids:
 		self.videos_dir_path = "/home/home/Videos/"
 
 		self.to_be_exclude = json.load(open(f"{self.base_path}to_be_exclude.json", "r"))
-		self.mapping = pickle.load(open(f"{self.base_path}{mapping_file_name}", 'rb'))
-	
+		try:
+			self.mapping = pickle.load(open(f"{self.base_path}{mapping_file_name}", 'rb'))
+		except EOFError:
+			shutil.copy(f"{self.base_path}mapping_BACKUP.pkl", f"{self.base_path}{mapping_file_name}")
+			time.sleep(2)
+			self.mapping = pickle.load(open(f"{self.base_path}{mapping_file_name}", 'rb'))
 		if mapping_file_name == 'mapping.pkl':
 			print("\n\nCreating a backup of <{mapping_file_name}> as <mapping_BACKUP.pkl>\n")
 			shutil.copy(f"{self.base_path}{mapping_file_name}", f"{self.base_path}mapping_BACKUP.pkl")
