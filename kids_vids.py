@@ -122,23 +122,23 @@ class Kids_Vids:
 		output = []
 		for k,v in self.mapping.items():
 			if v['downloaded']:
-				print(f"\n|||>>>{k} : downloaded == True")
+				# print(f"\n|||>>>{k} : downloaded == True")
 				output.append("downloaded == True")
 				continue
 			elif v['channel'] in channels_to_exclude:
-				print(f"\n|||>>>{k} : in channels_to_exclude")
+				# print(f"\n|||>>>{k} : in channels_to_exclude")
 				output.append("in channels_to_exclude")
 				continue
 			elif self.duration_sec(v['duration']) < 180:
-				print(f"\n|||>>>{k} : duration is less than 180 seconds")
+				# print(f"\n|||>>>{k} : duration is less than 180 seconds")
 				output.append("duration is less than 180 seconds")
 				continue
 			elif self.duration_sec(v['duration']) > 7200:
-				print(f"\n|||>>>{k} : duration is greater than 7200 seconds")
+				# print(f"\n|||>>>{k} : duration is greater than 7200 seconds")
 				output.append("duration is greater than 7200 seconds")
 				continue
 			elif os.path.exists(f"{self.videos_dir_path}{v['video_name']}"):
-				print(f"\n|||>>>{k} : video name is exists")
+				# print(f"\n|||>>>{k} : video name is exists")
 				output.append("video name is exists")
 				continue
 			else:
