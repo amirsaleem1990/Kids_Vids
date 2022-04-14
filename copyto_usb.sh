@@ -9,6 +9,10 @@ echo
 read -p "Enter dev (eg: /dev/sdc): " dev_
 echo 
 
+for file in $(cat last_copied_files); do
+	touch "$file"
+done
+
 rm -f last_copied_files.txt
 
 IFS=$'\n'
