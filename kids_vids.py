@@ -1,3 +1,4 @@
+#!/media/sdb2/github/Kids_Vids/Virtual_env/bin/python3
 import re
 import os 
 import sys
