@@ -81,7 +81,7 @@ class Kids_Vids:
 			thumbnail_full_name = f"{self.base_path}thumbs/{v['thumbnail_name']}"
 			if not os.path.exists(thumbnail_full_name):
 				subprocess.check_call(['curl', v['thumbnail_url'], '-o', thumbnail_full_name])
-			subprocess.check_call(['youtube-dl', '--no-playlist', url, '-o', full_video_name])
+			subprocess.check_call(['youtube-dl', '--no-playlist', url, '-R', '50', '-o', full_video_name])
 			self.mapping[url]['downloaded'] = True
 			print(colored(f"\n>>> The value 'True' is assigned to 'downloaded' for the {url}\n", 'green'))
 			os.system("/amir_bin/extentions_count /home/home/Videos/")
