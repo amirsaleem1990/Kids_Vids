@@ -494,7 +494,7 @@ class Kids_Vids:
 		def bash_func(folder):
 			x = f"/home/home/Videos/{folder}"
 			size = list(os.popen(f"du -sh '{x}'"))[0].split("\t")[0].strip()
-			count = list(os.popen(f"ls '{x}'/ | wc -l"))[0].strip()
+			count = list(os.popen(f'ls "{x}" | wc -l'))[0].strip()
 			return(folder, size, count)
 		folders = [i for i in os.listdir(self.videos_dir_path) if not "." in i]
 		lst = []
