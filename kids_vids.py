@@ -1,4 +1,4 @@
-#!/media/sdb2/github/Kids_Vids/Virtual_env/bin/python3
+#!/media/sdb2/github/Kids_Vids/Virtual_env/bin/ipython3
 import re
 import os 
 import sys
@@ -81,13 +81,14 @@ class Kids_Vids:
 			thumbnail_full_name = f"{self.base_path}thumbs/{v['thumbnail_name']}"
 			if not os.path.exists(thumbnail_full_name):
 				subprocess.check_call(['curl', v['thumbnail_url'], '-o', thumbnail_full_name])
-			subprocess.check_call(['youtube-dl', '--no-playlist', url, '-R', '50', '-o', full_video_name])
+			subprocess.check_call(['youtube-dl', '--no-playlist', url, '-R', '100', '-o', full_video_name])
 			self.mapping[url]['downloaded'] = True
 			print(colored(f"\n>>> The value 'True' is assigned to 'downloaded' for the {url}\n", 'green'))
 			os.system("/amir_bin/extentions_count /home/home/Videos/")
 			self.mapping_save()
 		except Exception as e:
-			print(e)
+			print("\n\n\n\n",e, "\n>>>>>>>>>>\tTry again .......\n")
+			self.download_a_video(url)
 			# self.errors[url] = ["download_videos fail",e, str(datetime.now())]
 
 	def duration_sec(self, x):
@@ -497,14 +498,63 @@ class Kids_Vids:
 			count = list(os.popen(f'ls "{x}" | wc -l'))[0].strip()
 			return(folder, size, count)
 		folders = [i for i in os.listdir(self.videos_dir_path) if not "." in i]
+		if not folders:
+			saved_vids_names = list(
+					map(
+						str.strip,
+						os.popen(""" find /home/home/Videos/ -iname "*mp4" -o -iname "*mkv" -o -iname "*webm" """)
+					)
+			)
+
+			df = pd.Series(saved_vids_names, name="full_name").to_frame()
+
+			df['size_bytes'] = df.full_name.apply(lambda x:os.path.getsize(x))
+			df = df[df.size_bytes.gt(0)]
+
+			df['video_name'] = df.full_name.str.split("/").str[-1]
+
+			mapping = pd.DataFrame.from_dict(pickle.load(open("mapping.pkl", 'rb')), orient="index")
+
+			# def get_actual_video_name(vid_name):
+			# 	v = vid_name.strip(".mp4").strip("webm").strip(".mkv")
+			# 	for extention in ['.mkv', '.mp4', 'webm']:
+			# 		if os.path.exists(f"/home/home/Videos/{v}{extention}"):
+			# 			return  v + extention
+			# 	else:
+			# 		return None
+			# mapping.video_name = mapping.video_name.apply(get_actual_video_name)
+			# ye apply karny k bad galat results aa rahy hen, pata nahi q. 24-apr-2022
+
+			df = df.merge(mapping[['channel', 'video_name']], on="video_name", how="left")
+
+			from IPython.display import display
+			df = (
+				df
+				.assign(channel=df.channel.fillna("NaN"))
+				.filter(["channel", "size_bytes"])
+				.groupby("channel")
+				.size_bytes
+				.agg(["count", "sum"])
+				.assign(
+					MB=lambda x:(x['sum']/1024/1024).astype(int),
+					GB=lambda x:(x['MB']/1024).astype(int)
+				)
+				.drop("sum", axis=1)
+				.sort_values("count", ascending=False)
+			)
+			df.loc["Total"] = df.sum().to_list()
+			display(df)
+			return 
 		lst = []
 		for folder in folders:
 			lst.append(bash_func(folder))
+
 		df = (pd
 			  .DataFrame(lst)
 			  .rename(columns={0:"Name", 1:"Size", 2:"Count"}
 				)
 			  )
+
 		df['MB']=df.Size.apply(to_mb)
 		print(
 			df
@@ -597,7 +647,8 @@ def Add_channels():
 		channel_name = get_channel_name_by_url(url)
 		d[key] =(channel_name, url)
 	if not d:
-		print("\n\nNo new information to be added to 'channels_mapping.txt' and  'channels.pkl'\nExiting.....\n")
+		print("\n\nNo new information to be added to 'channels_mapping.txt' and  'channels.pkl'\nAdd your new url(s) to 'new_channels' file\nExiting.....\n")
+
 		exit()
 
 	changings_qty = 0
@@ -749,7 +800,7 @@ def remove_old_videos():
 	print(f"\n\n\n{'*'*10} Videos (for delete) count by channel {'*'*10}")
 	print("Index\tCount\tSize\tChannel")
 	for e, i in enumerate(x):
-	    print(f"{e}\t{i[1]}\t{round(Size_dict[i[0]])}\t{i[0]}")
+		print(f"{e}\t{i[1]}\t{round(Size_dict[i[0]])}\t{i[0]}")
 
 	input_ = input('''
 	Are you sure to DELETE ALL of these channels: 
@@ -907,6 +958,8 @@ def remove_all_Videos_for_given_channel():
 			break
 
 def get_incompleted_vid_dict():
+	print("\n\n\nSorry\n\n\n")
+	sys.exit(1)
 	def func(video_name):
 		file_ = f"/home/{getpass.getuser()}/github/Kids_Vids/mapping.pkl"
 		x = pickle.load(open(file_, 'rb'))
