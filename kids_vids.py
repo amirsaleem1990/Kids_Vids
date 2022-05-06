@@ -171,7 +171,8 @@ class Kids_Vids:
 			else:
 				print(colored("\n\nNo videos to be download\n", 'red'))
 				# raise Exception("No_video_to_be_downloaded")
-				exit()
+				sys.exit(0)
+				# exit()
 		except:
 			error__ = str(traceback.format_exc())
 			print("\n"*6)
@@ -211,6 +212,7 @@ class Kids_Vids:
 		urls = ['https://www.youtube.com'+i for i in extrected_urls if i.startswith("/watch?")]
 		urls_2 = [i for i in urls if not i in self.mapping]
 		urls_3 = list(set(urls_2))
+		print(f"\n{len(urls)} urls extrected from {channel_url}\n{len(urls_2)} of them exists in mapping.pkl file\n{len(urls_3)} to be downloaded\n")
 		if urls and (not urls_2):
 			self.all_extracted_urls_exists_in_mapping_dict = True
 		return urls_3
@@ -974,6 +976,58 @@ def get_incompleted_vid_dict():
 	except:
 		pass
 
+def change_video_names_according_to_saved_names_in_mapping_file():
+	ans = input("This function require that the 'mapping' should NOT being used from another session. Is this condition setisfied? [yes|no]")
+	if ans != "yes":
+	    import sys
+	    sys.exit()
+	vids_in_dir = list(os.popen("""IFS=$'\n'; for i in $(find /home/home/Videos/ -type f | grep -iE 'mp4|mkv|webm'); do basename "$i" ;done"""))
+	vids_in_dir = list(map(str.strip, vids_in_dir))
+
+
+	mapping = pickle.load(open("mapping.pkl", 'rb'))
+	df = pd.DataFrame.from_dict(mapping, orient="index").rename_axis("url").reset_index()
+
+	print(f"There are {len(set(vids_in_dir).difference(df.video_name))} files that are in /home/home/Videos/ but not in mapping.pkl")
+
+	x = pd.Series(list(set(df.video_name).difference(vids_in_dir)))
+	x2 = x[x.str.count("\.").eq(1)].reset_index(drop=True)
+	lst = []
+	for i in x2:
+	    i_0, i_1 = i.split(".")
+	    for extention in [".mp4", ".mkv", ".webm", ".MP4", ".MKV", ".WEBM"]:
+	        if (i_0 + extention) in vids_in_dir:
+	            lst.append(("."+i_1, extention, i_0))
+	            
+	x = (
+		pd
+		.DataFrame(lst, columns=["saved", "actual", "name"])
+		.assign(
+	        actual_name=lambda x:x.name + x.actual, 
+	        saved_name=lambda x:x.name + x.saved
+	    )
+		.drop(["saved", "actual", "name"], axis=1)
+	    .drop_duplicates(subset=["saved_name"], keep=False)
+	)
+	new_video_name = df.video_name.replace(x.set_index("saved_name").actual_name.to_dict())
+	if new_video_name.eq(df.video_name).all():
+		print("We can not correct any name\nExiting.........\n")
+		import sys
+		sys.exit()
+		# exit()
+	print(f"We can correct {df.video_name.ne(new_video_name).sum()} of them.")
+	df.video_name = new_video_name
+
+	# Assing 'True' to 'downloaded' column to the changed rows. # to-do # amir
+
+	d = df.set_index('url').T.to_dict()
+
+	inp = input("\nAre you ready to replace mapping.pkl file? [yes|no] ")
+	if inp != "yes":
+		print("\nAborting......\n")
+		sys.exit()
+	pickle.dump(d, open("mapping.pkl", 'wb'))
+
 
 if __name__ == "__main__":
 	
@@ -989,7 +1043,8 @@ Select you option:
 	8- Add urls to mapping.pkl
 	9- Remove old videos
 	10- Remove all Videos for given channel/s
-	11- Get incompleted vid dict""")
+	11- Get incompleted vid dict
+	12- Correct video names in mapping.pkl file""")
 
 	user_inp = input().strip()
 	if not user_inp.isnumeric():
@@ -1036,5 +1091,7 @@ Select you option:
 
 	if user_inp == '11':
 		get_incompleted_vid_dict()
+	if user_inp == "12":
+		change_video_names_according_to_saved_names_in_mapping_file()
 
 
