@@ -41,11 +41,11 @@ def func_(vid, img, channel, upload_date):
 		"vid_name" : vid_name,
 		"channel" : channel,
 		"msg" : msg,
-		"extention" :  '.mp4' if vid.endswith(".mp4") else '.mkv' if vid.endswith(".mkv") else '.webm'
+		"extention" : '.mp4' if vid.endswith(".mp4") else '.mkv' if vid.endswith(".mkv") else '.webm'
 		}
 
 def duration_sec(x):
-    h,m,s = x.split(":")
+    h, m, s = x.split(":")
     h = int(h) if not h.startswith("0") else int(h[1])
     m = int(m) if not m.startswith("0") else int(m[1])
     s = int(s) if not s.startswith("0") else int(s[1])
@@ -58,7 +58,7 @@ def select_channels(request):
 
 	x = dict(request.POST)
 
-	selected_channels = [k.strip() for k,v in x.items() if v == ['on']]
+	selected_channels = [k.strip() for k, v in x.items() if v == ['on']]
 	print("selected channels:")
 
 	if not selected_channels:
@@ -66,7 +66,9 @@ def select_channels(request):
 	try:
 		x = pickle.load(open(f"/home/{getpass.getuser()}/github/Kids_Vids/mapping.pkl", 'rb'))
 		x = replace_wrong_videos_names_with_correct_one(x)
-		x = dict(sorted(x.items(), key=lambda x: (datetime.now() - datetime.strptime(x[1]['upload_date'], "%Y%m%d")).days))
+		x = dict(sorted(
+				x.items(), key=lambda x: (datetime.now() - datetime.strptime(x[1]['upload_date'], "%Y%m%d")).days
+			))
 
 		df = pd.DataFrame.from_dict(x, orient='index')
 		df = df[(df.channel.isin(selected_channels))]
