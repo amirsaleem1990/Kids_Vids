@@ -1,4 +1,4 @@
-#!/media/sdb2/github/Kids_Vids/Virtual_env/bin/ipython3
+#!/media/sda2/github/Kids_Vids/Virtual_env/bin/ipython3
 import re
 import os 
 import sys
