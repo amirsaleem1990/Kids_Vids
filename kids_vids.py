@@ -464,6 +464,7 @@ class Kids_Vids:
 			df['video_name'] = df.full_name.str.split("/").str[-1]
 
 			mapping = pd.DataFrame.from_dict(pickle.load(open("mapping.pkl", 'rb')), orient="index")
+			mapping = mapping.drop_duplicates(subset=["channel", "duration", "video_name"])
 
 			# def get_actual_video_name(vid_name):
 			# 	v = vid_name.strip(".mp4").strip("webm").strip(".mkv")
@@ -475,7 +476,7 @@ class Kids_Vids:
 			# mapping.video_name = mapping.video_name.apply(get_actual_video_name)
 			# ye apply karny k bad galat results aa rahy hen, pata nahi q. 24-apr-2022
 
-			df = df.merge(mapping[['channel', 'video_name']], on="video_name", how="left")
+			df = df.merge(mapping[['channel', 'video_name']], on="video_name", how="left").drop_duplicates()
 
 			from IPython.display import display
 			df = (
@@ -959,10 +960,12 @@ def change_video_names_according_to_saved_names_in_mapping_file():
 	)
 	new_video_name = df.video_name.replace(x.set_index("saved_name").actual_name.to_dict())
 	if new_video_name.eq(df.video_name).all():
-		print("We can not correct any name\nExiting.........\n")
-		import sys
-		sys.exit()
-		# exit()
+		print("\nWe can not correct any name\n")
+		# print("\nExiting.........\n")
+		# import sys
+		# sys.exit()
+		# # exit()
+		return
 	print(f"We can correct {df.video_name.ne(new_video_name).sum()} of them.")
 	df.video_name = new_video_name
 
@@ -1015,6 +1018,7 @@ Select you option:
 		move_videos_to_their_folders(kids_vids_obj)
 	
 	elif user_inp == '5':
+		change_video_names_according_to_saved_names_in_mapping_file()
 		kids_vids_obj.distribution_of_the_videos_in_the_disk()
 	
 	elif user_inp == '6':
