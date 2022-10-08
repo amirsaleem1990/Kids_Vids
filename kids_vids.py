@@ -1,3 +1,4 @@
+#!/home/amir/github/Kids_Vids/Virtual_env/bin/python3
 import re
 import os 
 import sys
@@ -80,13 +81,14 @@ class Kids_Vids:
 			thumbnail_full_name = f"{self.base_path}thumbs/{v['thumbnail_name']}"
 			if not os.path.exists(thumbnail_full_name):
 				subprocess.check_call(['curl', v['thumbnail_url'], '-o', thumbnail_full_name])
-			subprocess.check_call(['youtube-dl', '--no-playlist', url, '-o', full_video_name])
+			subprocess.check_call(['youtube-dl', '--no-playlist', url, '-R', '100', '-o', full_video_name])
 			self.mapping[url]['downloaded'] = True
 			print(colored(f"\n>>> The value 'True' is assigned to 'downloaded' for the {url}\n", 'green'))
 			os.system("/amir_bin/extentions_count /home/home/Videos/")
 			self.mapping_save()
 		except Exception as e:
-			print(e)
+			print("\n\n\n\n",e, "\n>>>>>>>>>>\tTry again .......\n")
+			self.download_a_video(url)
 			# self.errors[url] = ["download_videos fail",e, str(datetime.now())]
 
 	def duration_sec(self, x):
@@ -111,13 +113,41 @@ class Kids_Vids:
 		print("\n\n>> filter_videos_to_download method is called.")
 		
 		channels_to_exclude = self.to_be_exclude['channel']
-		to_lst = [
-			k for k,v in self.mapping.items() if (not v['downloaded']) \
-				and (not v['channel'] in channels_to_exclude) \
-				and (self.duration_sec(v['duration']) > 180) \
-				and (self.duration_sec(v['duration']) < 7200)\
-				and (not os.path.exists(f"{self.videos_dir_path}{v['video_name']}"))
-			]
+		# to_lst = [
+		# 	k for k,v in self.mapping.items() if (not v['downloaded']) \
+		# 		and (not v['channel'] in channels_to_exclude) \
+		# 		and (self.duration_sec(v['duration']) > 180) \
+		# 		and (self.duration_sec(v['duration']) < 7200)\
+		# 		and (not os.path.exists(f"{self.videos_dir_path}{v['video_name']}"))
+		# 	]
+		to_lst = []
+		output = []
+		for k,v in self.mapping.items():
+			if v['downloaded']:
+				# print(f"\n|||>>>{k} : downloaded == True")
+				output.append("downloaded == True")
+				continue
+			elif v['channel'] in channels_to_exclude:
+				# print(f"\n|||>>>{k} : in channels_to_exclude")
+				output.append("in channels_to_exclude")
+				continue
+			elif self.duration_sec(v['duration']) < 180:
+				# print(f"\n|||>>>{k} : duration is less than 180 seconds")
+				output.append("duration is less than 180 seconds")
+				continue
+			elif self.duration_sec(v['duration']) > 7200:
+				# print(f"\n|||>>>{k} : duration is greater than 7200 seconds")
+				output.append("duration is greater than 7200 seconds")
+				continue
+			elif os.path.exists(f"{self.videos_dir_path}{v['video_name']}"):
+				# print(f"\n|||>>>{k} : video name is exists")
+				output.append("video name is exists")
+				continue
+			else:
+				to_lst.append(k)
+
+		for i in set(output):
+			print(f"{i}: {output.count(i)}")
 
 		to_download = []
 		for url in to_lst:
@@ -141,7 +171,8 @@ class Kids_Vids:
 			else:
 				print(colored("\n\nNo videos to be download\n", 'red'))
 				# raise Exception("No_video_to_be_downloaded")
-				exit()
+				sys.exit(0)
+				# exit()
 		except:
 			error__ = str(traceback.format_exc())
 			print("\n"*6)
@@ -181,6 +212,7 @@ class Kids_Vids:
 		urls = ['https://www.youtube.com'+i for i in extrected_urls if i.startswith("/watch?")]
 		urls_2 = [i for i in urls if not i in self.mapping]
 		urls_3 = list(set(urls_2))
+		print(f"\n{len(urls)} urls extrected from {channel_url}\n{len(urls_2)} of them exists in mapping.pkl file\n{len(urls_3)} to be downloaded\n")
 		if urls and (not urls_2):
 			self.all_extracted_urls_exists_in_mapping_dict = True
 		return urls_3
@@ -282,58 +314,6 @@ class Kids_Vids:
 	def get_channels(self):
 		print("\n\n>> get_channels method is called.")
 		channels = pickle.load(open("channels.pkl", 'rb'))
-		# channels = [
-		# 	('robocar',                               "https://www.youtube.com/c/robocarpoli/videos"),
-		# 	('VladandNiki',                           "https://www.youtube.com/c/VladandNiki/videos"),
-		# 	('ChuchuTv',                              "https://www.youtube.com/c/ChuChuTVBedtimeStories/videos"),
-		# 	('scishowkids',                           'https://www.youtube.com/c/scishowkids/videos'), 
-		# 	('PeekabooKids',                          'https://www.youtube.com/c/PeekabooKids/videos'),
-		# 	('MorphleTV',                             'https://www.youtube.com/c/MorphleTV/videos'),
-		# 	('Blippi',                                'https://www.youtube.com/c/Blippi/videos'),
-		# 	('CraftsforKids',                         'https://www.youtube.com/c/CraftsforKids/videos'),
-		# 	('ClarendonLearning',                     'https://www.youtube.com/c/ClarendonLearning/videos'),
-		# 	('FreeSchool',                            'https://www.youtube.com/c/FreeSchool/videos'),
-		# 	('KidsLearningTube',                      'https://www.youtube.com/c/KidsLearningTube/videos'),
-		# 	('NUMBEROCKLLC',                          'https://www.youtube.com/c/NUMBEROCKLLC/videos'),
-		# 	('natgeokids',                            'https://www.youtube.com/natgeokidsplaylists/videos'),
-		# 	('TheDadLab',                             'https://www.youtube.com/c/TheDadLab/videos'),
-		# 	('5MinuteCraftsPLAY',                     'https://www.youtube.com/c/5MinuteCraftsPLAY/videos'),
-		# 	('KidsMadaniChannel',                     'https://www.youtube.com/c/KidsMadaniChannel/videos'),
-		# 	('OmarHanaIslamicSongsforKids',           'https://www.youtube.com/c/OmarHanaIslamicSongsforKids/videos'),
-		# 	('officialalphablocks',                   'https://www.youtube.com/c/officialalphablocks/videos'),
-		# 	('Numberblocks',                          'https://www.youtube.com/c/Numberblocks/videos'),
-		# 	('PreschoolPrepCompany',                  'https://www.youtube.com/c/PreschoolPrepCompany/videos'),
-		# 	('UCbxK6jzYms1iMkU9Kwvl0sA',              'https://www.youtube.com/channel/UCbxK6jzYms1iMkU9Kwvl0sA/videos'),
-		# 	('MissMollyLearning',                     'https://www.youtube.com/c/MissMollyLearning/videos'),
-		# 	('allthingsanimaltv',                     'https://www.youtube.com/c/allthingsanimaltv/videos'),
-		# 	('LearnWithZakaria',                      'https://www.youtube.com/c/LearnWithZakaria/videos'),
-		# 	('EarthToLuna',                           'https://www.youtube.com/c/EarthToLuna/videos'),
-		# 	('MysteryDoug',                           'https://www.youtube.com/c/MysteryDoug/videos'),
-		# 	('HappyLearningTVKids',                   'https://www.youtube.com/c/HappyLearningTVKids/videos'),
-		# 	('PeepWGBH',                              'https://www.youtube.com/user/PeepWGBH/videos'),
-		# 	('ComeOutsideTV',                         'https://www.youtube.com/user/ComeOutsideTV/videos'),
-		# 	('UCPttFyZAvTlWAQzgRU4duJA',              'https://www.youtube.com/channel/UCPttFyZAvTlWAQzgRU4duJA/videos'),
-		# 	('OfficialBerenstainBears',               'https://www.youtube.com/c/OfficialBerenstainBears/videos'),
-		# 	('SmileandLearnEnglish1',                 'https://www.youtube.com/c/SmileandLearnEnglish1/videos'),
-		# 	('UC4p_YSvJlJpEhAh5PMyhkiQ',              'https://www.youtube.com/channel/UC4p_YSvJlJpEhAh5PMyhkiQ/videos'),
-		# 	('LearningTimeFun',                       'https://www.youtube.com/c/LearningTimeFun/videos'),
-		# 	('Toddlerfunlearning',                    'https://www.youtube.com/c/Toddlerfunlearning/videos'),
-		# 	('Luqmay',                                'https://www.youtube.com/c/Luqmay/videos'), 
-		# 	('KAZschool',                             'https://www.youtube.com/c/KAZschool/videos'), 
-		# 	('DUAKidsEnglish',                        'https://www.youtube.com/c/DUAKidsEnglish/videos'), 
-		# 	('TheMiniMuslims',                        'https://www.youtube.com/c/TheMiniMuslims/videos'), 
-		# 	('SafarPublications',                     'https://www.youtube.com/c/SafarPublications/videos'), 
-		# 	('IslamicKidsVideos',                     'https://www.youtube.com/c/IslamicKidsVideos/videos'), 
-		# 	('IQRACARTOONNETWORK',                    'https://www.youtube.com/c/IQRACARTOONNETWORK/videos'), 
-		# 	('UrduIslamicKidsVideos',                 'https://www.youtube.com/c/UrduIslamicKidsVideos/videos'), 
-		# 	('TheMuslimsCartoonSeries',               'https://www.youtube.com/c/TheMuslimsCartoonSeries/videos'), 
-		# 	('EnglishMoralStoriesWithTedZoe',         'https://www.youtube.com/c/EnglishMoralStoriesWithTedZoe/videos'), 
-		# 	('UCCwB8hOCCRFENjEUP_U7FoQ',              'https://www.youtube.com/channel/UCCwB8hOCCRFENjEUP_U7FoQ/videos'), 
-		# 	('UC3n8KIvfsdomdMjQBcmgiAA',              'https://www.youtube.com/channel/UC3n8KIvfsdomdMjQBcmgiAA/videos'), 
-		# 	('EnglishProphetStoriesQuranStories',     'https://www.youtube.com/c/EnglishProphetStoriesQuranStories/videos'), 
-		# 	('BillionSurpriseToys_NurseryRhymes',     'https://www.youtube.com/c/BillionSurpriseToys_NurseryRhymes/videos'), 
-		# 	('HindiStoriesoftheProphetsQuranStories', 'https://www.youtube.com/c/HindiStoriesoftheProphetsQuranStories/videos')
-		# ]
 		channels_mapping = json.load(open(f"{self.base_path}channels_mapping.txt", "r"))
 
 		channels_to_exclude = self.to_be_exclude['channel']
@@ -465,17 +445,67 @@ class Kids_Vids:
 		def bash_func(folder):
 			x = f"/home/home/Videos/{folder}"
 			size = list(os.popen(f"du -sh '{x}'"))[0].split("\t")[0].strip()
-			count = list(os.popen(f"ls '{x}'/ | wc -l"))[0].strip()
+			count = list(os.popen(f'ls "{x}" | wc -l'))[0].strip()
 			return(folder, size, count)
 		folders = [i for i in os.listdir(self.videos_dir_path) if not "." in i]
+		if not folders:
+			saved_vids_names = list(
+					map(
+						str.strip,
+						os.popen(""" find /home/home/Videos/ -iname "*mp4" -o -iname "*mkv" -o -iname "*webm" """)
+					)
+			)
+
+			df = pd.Series(saved_vids_names, name="full_name").to_frame()
+
+			df['size_bytes'] = df.full_name.apply(lambda x:os.path.getsize(x))
+			df = df[df.size_bytes.gt(0)]
+
+			df['video_name'] = df.full_name.str.split("/").str[-1]
+
+			mapping = pd.DataFrame.from_dict(pickle.load(open("mapping.pkl", 'rb')), orient="index")
+			mapping = mapping.drop_duplicates(subset=["channel", "duration", "video_name"])
+
+			# def get_actual_video_name(vid_name):
+			# 	v = vid_name.strip(".mp4").strip("webm").strip(".mkv")
+			# 	for extention in ['.mkv', '.mp4', 'webm']:
+			# 		if os.path.exists(f"/home/home/Videos/{v}{extention}"):
+			# 			return  v + extention
+			# 	else:
+			# 		return None
+			# mapping.video_name = mapping.video_name.apply(get_actual_video_name)
+			# ye apply karny k bad galat results aa rahy hen, pata nahi q. 24-apr-2022
+
+			df = df.merge(mapping[['channel', 'video_name']], on="video_name", how="left").drop_duplicates()
+
+			from IPython.display import display
+			df = (
+				df
+				.assign(channel=df.channel.fillna("NaN"))
+				.filter(["channel", "size_bytes"])
+				.groupby("channel")
+				.size_bytes
+				.agg(["count", "sum"])
+				.assign(
+					MB=lambda x:(x['sum']/1024/1024).astype(int),
+					GB=lambda x:(x['MB']/1024).astype(int)
+				)
+				.drop("sum", axis=1)
+				.sort_values("count", ascending=False)
+			)
+			df.loc["Total"] = df.sum().to_list()
+			display(df)
+			return 
 		lst = []
 		for folder in folders:
 			lst.append(bash_func(folder))
+
 		df = (pd
 			  .DataFrame(lst)
 			  .rename(columns={0:"Name", 1:"Size", 2:"Count"}
 				)
 			  )
+
 		df['MB']=df.Size.apply(to_mb)
 		print(
 			df
@@ -568,7 +598,8 @@ def Add_channels():
 		channel_name = get_channel_name_by_url(url)
 		d[key] =(channel_name, url)
 	if not d:
-		print("\n\nNo new information to be added to 'channels_mapping.txt' and  'channels.pkl'\nExiting.....\n")
+		print("\n\nNo new information to be added to 'channels_mapping.txt' and  'channels.pkl'\nAdd your new url(s) to 'new_channels' file\nExiting.....\n")
+
 		exit()
 
 	changings_qty = 0
@@ -720,7 +751,7 @@ def remove_old_videos():
 	print(f"\n\n\n{'*'*10} Videos (for delete) count by channel {'*'*10}")
 	print("Index\tCount\tSize\tChannel")
 	for e, i in enumerate(x):
-	    print(f"{e}\t{i[1]}\t{round(Size_dict[i[0]])}\t{i[0]}")
+		print(f"{e}\t{i[1]}\t{round(Size_dict[i[0]])}\t{i[0]}")
 
 	input_ = input('''
 	Are you sure to DELETE ALL of these channels: 
@@ -878,6 +909,8 @@ def remove_all_Videos_for_given_channel():
 			break
 
 def get_incompleted_vid_dict():
+	print("\n\n\nSorry\n\n\n")
+	sys.exit(1)
 	def func(video_name):
 		file_ = f"/home/{getpass.getuser()}/github/Kids_Vids/mapping.pkl"
 		x = pickle.load(open(file_, 'rb'))
@@ -891,6 +924,60 @@ def get_incompleted_vid_dict():
 		func(video_name=sys.argv[1])
 	except:
 		pass
+
+def change_video_names_according_to_saved_names_in_mapping_file():
+	ans = input("This function require that the 'mapping' should NOT being used from another session. Is this condition setisfied? [yes|no]")
+	if ans != "yes":
+	    import sys
+	    sys.exit()
+	vids_in_dir = list(os.popen("""IFS=$'\n'; for i in $(find /home/home/Videos/ -type f | grep -iE 'mp4|mkv|webm'); do basename "$i" ;done"""))
+	vids_in_dir = list(map(str.strip, vids_in_dir))
+
+
+	mapping = pickle.load(open("mapping.pkl", 'rb'))
+	df = pd.DataFrame.from_dict(mapping, orient="index").rename_axis("url").reset_index()
+
+	print(f"There are {len(set(vids_in_dir).difference(df.video_name))} files that are in /home/home/Videos/ but not in mapping.pkl")
+
+	x = pd.Series(list(set(df.video_name).difference(vids_in_dir)))
+	x2 = x[x.str.count("\.").eq(1)].reset_index(drop=True)
+	lst = []
+	for i in x2:
+	    i_0, i_1 = i.split(".")
+	    for extention in [".mp4", ".mkv", ".webm", ".MP4", ".MKV", ".WEBM"]:
+	        if (i_0 + extention) in vids_in_dir:
+	            lst.append(("."+i_1, extention, i_0))
+	            
+	x = (
+		pd
+		.DataFrame(lst, columns=["saved", "actual", "name"])
+		.assign(
+	        actual_name=lambda x:x.name + x.actual, 
+	        saved_name=lambda x:x.name + x.saved
+	    )
+		.drop(["saved", "actual", "name"], axis=1)
+	    .drop_duplicates(subset=["saved_name"], keep=False)
+	)
+	new_video_name = df.video_name.replace(x.set_index("saved_name").actual_name.to_dict())
+	if new_video_name.eq(df.video_name).all():
+		print("\nWe can not correct any name\n")
+		# print("\nExiting.........\n")
+		# import sys
+		# sys.exit()
+		# # exit()
+		return
+	print(f"We can correct {df.video_name.ne(new_video_name).sum()} of them.")
+	df.video_name = new_video_name
+
+	# Assing 'True' to 'downloaded' column to the changed rows. # to-do # amir
+
+	d = df.set_index('url').T.to_dict()
+
+	inp = input("\nAre you ready to replace mapping.pkl file? [yes|no] ")
+	if inp != "yes":
+		print("\nAborting......\n")
+		sys.exit()
+	pickle.dump(d, open("mapping.pkl", 'wb'))
 
 
 if __name__ == "__main__":
@@ -907,7 +994,8 @@ Select you option:
 	8- Add urls to mapping.pkl
 	9- Remove old videos
 	10- Remove all Videos for given channel/s
-	11- Get incompleted vid dict""")
+	11- Get incompleted vid dict
+	12- Correct video names in mapping.pkl file""")
 
 	user_inp = input().strip()
 	if not user_inp.isnumeric():
@@ -930,6 +1018,7 @@ Select you option:
 		move_videos_to_their_folders(kids_vids_obj)
 	
 	elif user_inp == '5':
+		change_video_names_according_to_saved_names_in_mapping_file()
 		kids_vids_obj.distribution_of_the_videos_in_the_disk()
 	
 	elif user_inp == '6':
@@ -954,5 +1043,7 @@ Select you option:
 
 	if user_inp == '11':
 		get_incompleted_vid_dict()
+	if user_inp == "12":
+		change_video_names_according_to_saved_names_in_mapping_file()
 
 

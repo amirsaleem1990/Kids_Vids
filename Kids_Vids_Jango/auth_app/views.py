@@ -54,9 +54,22 @@ def auth_check(request):
 		# return render(request, 'dashboard.html')
 
 		sys.path += [f'/home/{getpass.getuser()}/github/Kids_Vids']
-		from get_current_channels import get_channels
+		
+		# from get_current_channels import get_channels
+		def get_channels():
+			print("\n\n>> get_channels method is called.")
 
+			channels = pickle.load(open("/home/amir/github/Kids_Vids/channels.pkl", 'rb'))
+			channels_mapping = json.load(open("/home/amir/github/Kids_Vids/channels_mapping.txt", "r"))
+			to_be_exclude = json.load(open("/home/amir/github/Kids_Vids/to_be_exclude.json", "r"))
+
+			channels_to_exclude = to_be_exclude['channel']
+			if channels_to_exclude:
+				l = [k  for k,v in channels_mapping.items() if v in channels_to_exclude]
+				channels = [c for c in channels if not c[0] in l]
+			return channels
 		channels = get_channels()
+
 		channels_mapping = json.load(open(f"/home/{getpass.getuser()}/github/Kids_Vids/channels_mapping.txt", "r"))
 		list_of_channels = [channels_mapping[i[0]] for i in channels]
 
