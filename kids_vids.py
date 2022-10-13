@@ -981,6 +981,9 @@ def change_video_names_according_to_saved_names_in_mapping_file():
 
 
 if __name__ == "__main__":
+
+	kids_vids_obj = Kids_Vids()
+	# kids_vids_obj = Kids_Vids(mapping_file_name = 'mapping_from_user_urls.pkl')
 	
 	print("""
 Select you option:
@@ -997,32 +1000,38 @@ Select you option:
 	11- Get incompleted vid dict
 	12- Correct video names in mapping.pkl file""")
 
+	
 	user_inp = input().strip()
-	if not user_inp.isnumeric():
-		raise Exception ("Wrong input")
-	
-	kids_vids_obj = Kids_Vids()
-	# kids_vids_obj = Kids_Vids(mapping_file_name = 'mapping_from_user_urls.pkl')
+	assert user_inp.isnumeric(), "\nWrong input"
 
-	if user_inp == '1':
-		download_new_videos(kids_vids_obj)
+	actions_dict = {
+		"2" : kids_vids_obj.main_function_of_getting_new_videos_info,
+		"6" : Add_channels,
+		"8" : add_urls_to_mapping_pkl,
+		"9" : remove_old_videos,
+		"10" : remove_all_Videos_for_given_channel,
+		"11" : get_incompleted_vid_dict,
+		"12" : change_video_names_according_to_saved_names_in_mapping_file
+	}
 	
-	elif user_inp == '2':
-		kids_vids_obj.main_function_of_getting_new_videos_info()
+
+	if user_inp in actions_dict:
+		actions_dict[user_inp]()
+	
+	if user_inp == '1':
+		download_new_videos(kids_vids_obj),
+	
+	elif user_inp == "4": 
+		move_videos_to_their_folders(kids_vids_obj),
 	
 	elif user_inp == '3':
 		kids_vids_obj.main_function_of_getting_new_videos_info()
 		download_new_videos(kids_vids_obj)
-	
-	elif user_inp == '4':
-		move_videos_to_their_folders(kids_vids_obj)
-	
+		
 	elif user_inp == '5':
 		change_video_names_according_to_saved_names_in_mapping_file()
 		kids_vids_obj.distribution_of_the_videos_in_the_disk()
 	
-	elif user_inp == '6':
-		Add_channels()	
 	
 	elif user_inp == '7':
 		kids_vids_obj.user_urls = True
@@ -1032,18 +1041,6 @@ Select you option:
 			)
 		download_new_videos(kids_vids_obj)
 
-	elif user_inp == '8':
-		add_urls_to_mapping_pkl()
-
-	elif user_inp == "9":
-		remove_old_videos()
-
-	elif user_inp == '10':
-		remove_all_Videos_for_given_channel()
-
-	if user_inp == '11':
-		get_incompleted_vid_dict()
-	if user_inp == "12":
-		change_video_names_according_to_saved_names_in_mapping_file()
-
+	else:
+		raise Exception("\nWront input")
 
