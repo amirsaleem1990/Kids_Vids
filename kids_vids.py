@@ -928,8 +928,8 @@ def get_incompleted_vid_dict():
 def change_video_names_according_to_saved_names_in_mapping_file():
 	ans = input("This function require that the 'mapping' should NOT being used from another session. Is this condition setisfied? [yes|no]")
 	if ans != "yes":
-	    import sys
-	    sys.exit()
+		import sys
+		sys.exit()
 	vids_in_dir = list(os.popen("""IFS=$'\n'; for i in $(find /home/home/Videos/ -type f | grep -iE 'mp4|mkv|webm'); do basename "$i" ;done"""))
 	vids_in_dir = list(map(str.strip, vids_in_dir))
 
@@ -943,20 +943,20 @@ def change_video_names_according_to_saved_names_in_mapping_file():
 	x2 = x[x.str.count("\.").eq(1)].reset_index(drop=True)
 	lst = []
 	for i in x2:
-	    i_0, i_1 = i.split(".")
-	    for extention in [".mp4", ".mkv", ".webm", ".MP4", ".MKV", ".WEBM"]:
-	        if (i_0 + extention) in vids_in_dir:
-	            lst.append(("."+i_1, extention, i_0))
-	            
+		i_0, i_1 = i.split(".")
+		for extention in [".mp4", ".mkv", ".webm", ".MP4", ".MKV", ".WEBM"]:
+			if (i_0 + extention) in vids_in_dir:
+				lst.append(("."+i_1, extention, i_0))
+				
 	x = (
 		pd
 		.DataFrame(lst, columns=["saved", "actual", "name"])
 		.assign(
-	        actual_name=lambda x:x.name + x.actual, 
-	        saved_name=lambda x:x.name + x.saved
-	    )
+			actual_name=lambda x:x.name + x.actual, 
+			saved_name=lambda x:x.name + x.saved
+		)
 		.drop(["saved", "actual", "name"], axis=1)
-	    .drop_duplicates(subset=["saved_name"], keep=False)
+		.drop_duplicates(subset=["saved_name"], keep=False)
 	)
 	new_video_name = df.video_name.replace(x.set_index("saved_name").actual_name.to_dict())
 	if new_video_name.eq(df.video_name).all():
@@ -979,6 +979,19 @@ def change_video_names_according_to_saved_names_in_mapping_file():
 		sys.exit()
 	pickle.dump(d, open("mapping.pkl", 'wb'))
 
+def create_empty_downloaded_files():
+	import pickle
+	x = pickle.load(open("mapping.pkl", 'rb'))
+	files_count_before = os.listdir("/home/home/Videos/")
+	for i in [i['video_name'] for i in list(x.values()) if i['downloaded']]:
+		file_name = f"/home/home/Videos/{i}"
+		if not os.path.exists(file_name):
+			try:
+				open(file_name, 'w').write("")
+			except:
+				pass
+	files_count_after = os.listdir("/home/home/Videos/")
+	print(f"\n\n{files_count_after - files_count_before} files created\n\n")
 
 if __name__ == "__main__":
 
@@ -990,7 +1003,7 @@ Select you option:
 	1- Download videos
 	2- Download info
 	3- Download info AND videos 
-	4- Move videos to their folders
+	4- Move videos to thcreate_empty_downloaded_fileseir folders
 	5- Show distribution of present videos in the disk
 	6- Add channels
 	7- Download user provided urls
@@ -998,11 +1011,12 @@ Select you option:
 	9- Remove old videos
 	10- Remove all Videos for given channel/s
 	11- Get incompleted vid dict
-	12- Correct video names in mapping.pkl file""")
+	12- Correct video names in mapping.pkl file
+	13- Create empty previosly downloaded files""")
 
 	
 	user_inp = input().strip()
-	assert user_inp.isnumeric(), "\nWrong input"
+	assert user_inp.isnumeric(), "Wrong input"
 
 	actions_dict = {
 		"2" : kids_vids_obj.main_function_of_getting_new_videos_info,
@@ -1011,36 +1025,38 @@ Select you option:
 		"9" : remove_old_videos,
 		"10" : remove_all_Videos_for_given_channel,
 		"11" : get_incompleted_vid_dict,
-		"12" : change_video_names_according_to_saved_names_in_mapping_file
+		"12" : change_video_names_according_to_saved_names_in_mapping_file,	
+		"13" : create_empty_downloaded_files
 	}
 	
-
 	if user_inp in actions_dict:
 		actions_dict[user_inp]()
 	
-	if user_inp == '1':
-		download_new_videos(kids_vids_obj),
-	
-	elif user_inp == "4": 
-		move_videos_to_their_folders(kids_vids_obj),
-	
-	elif user_inp == '3':
-		kids_vids_obj.main_function_of_getting_new_videos_info()
-		download_new_videos(kids_vids_obj)
-		
-	elif user_inp == '5':
-		change_video_names_according_to_saved_names_in_mapping_file()
-		kids_vids_obj.distribution_of_the_videos_in_the_disk()
-	
-	
-	elif user_inp == '7':
-		kids_vids_obj.user_urls = True
-		kids_vids_obj.main_function_of_getting_new_videos_info()
-		pickle.dump(
-			kids_vids_obj.mapping, open(f"{kids_vids_obj.base_path}mapping_from_user_urls.pkl", 'wb')
-			)
-		download_new_videos(kids_vids_obj)
-
 	else:
-		raise Exception("\nWront input")
+
+		if user_inp == '1':
+			download_new_videos(kids_vids_obj),
+		
+		elif user_inp == "4": 
+			move_videos_to_their_folders(kids_vids_obj),
+		
+		elif user_inp == '3':
+			kids_vids_obj.main_function_of_getting_new_videos_info()
+			download_new_videos(kids_vids_obj)
+			
+		elif user_inp == '5':
+			change_video_names_according_to_saved_names_in_mapping_file()
+			kids_vids_obj.distribution_of_the_videos_in_the_disk()
+		
+		
+		elif user_inp == '7':
+			kids_vids_obj.user_urls = True
+			kids_vids_obj.main_function_of_getting_new_videos_info()
+			pickle.dump(
+				kids_vids_obj.mapping, open(f"{kids_vids_obj.base_path}mapping_from_user_urls.pkl", 'wb')
+				)
+			download_new_videos(kids_vids_obj)
+
+		else:
+			raise Exception("Wront input")
 
