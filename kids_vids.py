@@ -982,7 +982,7 @@ def change_video_names_according_to_saved_names_in_mapping_file():
 def create_empty_downloaded_files():
 	import pickle
 	x = pickle.load(open("mapping.pkl", 'rb'))
-	files_count_before = os.listdir("/home/home/Videos/")
+	files_count_before = len(os.listdir("/home/home/Videos/"))
 	for i in [i['video_name'] for i in list(x.values()) if i['downloaded']]:
 		file_name = f"/home/home/Videos/{i}"
 		if not os.path.exists(file_name):
@@ -990,7 +990,7 @@ def create_empty_downloaded_files():
 				open(file_name, 'w').write("")
 			except:
 				pass
-	files_count_after = os.listdir("/home/home/Videos/")
+	files_count_after = len(os.listdir("/home/home/Videos/"))
 	print(f"\n\n{files_count_after - files_count_before} files created\n\n")
 
 if __name__ == "__main__":
