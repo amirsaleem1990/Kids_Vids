@@ -64,6 +64,8 @@ class Kids_Vids:
 		print(f"mapping:, {mapping_file_name}")
 		print(f"Errors :, {error_file_name}")
 		print()
+		
+		change_video_names_according_to_saved_names_in_mapping_file()
 
 	def mapping_save(self, fee_kulli_haal=False):
 		if self.user_urls:
@@ -993,6 +995,39 @@ def create_empty_downloaded_files():
 	files_count_after = len(os.listdir("/home/home/Videos/"))
 	print(f"\n\n{files_count_after - files_count_before} files created\n\n")
 
+def download_short_videos_again():
+	get_actual_video_duration = lambda vid_path: list(os.popen(f"""ffmpeg -i {vid_path}  2>&1 | grep Duration | cut -d " " -f 4 | sed s/,// """))[0].strip()
+	get_size_in_MB = lambda vid_path : float(list(os.popen(f"du -s -BM {vid_path}"))[0].strip().split("M")[0])
+	def convert_time_into_seconds(duration):
+		if "." in duration:
+			duration = duration.split(".")[0]
+		h,m,s = list(map(
+			lambda x: int(x[1]) if x.startswith("0") else int(x),
+			duration.split(":")
+		))
+		return h*60*60 + m*60 + s
+
+	n = 0
+	x = pickle.load(open("mapping.pkl", 'rb'))
+	for k,v in x.items():
+		vid_path = f"/home/home/Videos/{v['video_name']}"
+		if os.path.exists(vid_path):
+			if get_size_in_MB(vid_path) > 0:
+				actual_duration = convert_time_into_seconds(
+						get_actual_video_duration(vid_path)
+				)
+				duration_from_youtube_info = convert_time_into_seconds(
+						v['duration']
+				)
+				
+				if actual_duration/duration_from_youtube_info < 0.9:
+					if v['downloaded']:
+						x[k]['downloaded'] = False
+						n += 1
+	if n > 0:
+		pickle.dump(x, open("mapping.pkl", 'wb'))
+	print(f"\n\nThere was {n} videos that ware not fully downloaded, we changed thier proparty 'downloaded' to 'False'")
+		
 if __name__ == "__main__":
 
 	kids_vids_obj = Kids_Vids()
@@ -1003,7 +1038,7 @@ Select you option:
 	1- Download videos
 	2- Download info
 	3- Download info AND videos 
-	4- Move videos to thcreate_empty_downloaded_fileseir folders
+	4- Move videos to their folders
 	5- Show distribution of present videos in the disk
 	6- Add channels
 	7- Download user provided urls
@@ -1012,7 +1047,9 @@ Select you option:
 	10- Remove all Videos for given channel/s
 	11- Get incompleted vid dict
 	12- Correct video names in mapping.pkl file
-	13- Create empty previosly downloaded files""")
+	13- Create empty previosly downloaded files
+	14- Mark short videos as NOT_DOWNLOADED_YET
+	""")
 
 	
 	user_inp = input().strip()
@@ -1026,7 +1063,8 @@ Select you option:
 		"10" : remove_all_Videos_for_given_channel,
 		"11" : get_incompleted_vid_dict,
 		"12" : change_video_names_according_to_saved_names_in_mapping_file,	
-		"13" : create_empty_downloaded_files
+		"13" : create_empty_downloaded_files,
+		"14" : download_short_videos_again
 	}
 	
 	if user_inp in actions_dict:
