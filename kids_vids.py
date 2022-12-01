@@ -928,10 +928,10 @@ def get_incompleted_vid_dict():
 		pass
 
 def change_video_names_according_to_saved_names_in_mapping_file():
-	ans = input("This function require that the 'mapping' should NOT being used from another session. Is this condition setisfied? [yes|no]")
-	if ans != "yes":
-		import sys
-		sys.exit()
+	# ans = input("This function require that the 'mapping' should NOT being used from another session. Is this condition setisfied? [yes|no]")
+	# if ans != "yes":
+	# 	import sys
+	# 	sys.exit()
 	vids_in_dir = list(os.popen("""IFS=$'\n'; for i in $(find /home/home/Videos/ -type f | grep -iE 'mp4|mkv|webm'); do basename "$i" ;done"""))
 	vids_in_dir = list(map(str.strip, vids_in_dir))
 
@@ -1007,26 +1007,35 @@ def download_short_videos_again():
 		))
 		return h*60*60 + m*60 + s
 
+	def get_existing_videos_in_local():
+		func = lambda x: x.strip().split("\t")
+		df = pd.DataFrame(list(map(func, list(os.popen("du -s -BM /home/home/Videos/*")))), columns=["Size", "video_path"])
+		df.Size = df.Size.str.replace("M", "").astype(float)
+		return df[df.Size > 0].video_path.str.replace("/home/home/Videos/", "").str.strip()
+
 	n = 0
 	x = pickle.load(open("mapping.pkl", 'rb'))
+
+	existing_videos_in_local = get_existing_videos_in_local()
 	for k,v in x.items():
+		if not v['video_name'] in existing_videos_in_local:
+			continue
 		vid_path = f"/home/home/Videos/{v['video_name']}"
-		if os.path.exists(vid_path):
-			if get_size_in_MB(vid_path) > 0:
-				actual_duration = convert_time_into_seconds(
-						get_actual_video_duration(vid_path)
-				)
-				duration_from_youtube_info = convert_time_into_seconds(
-						v['duration']
-				)
-				
-				if actual_duration/duration_from_youtube_info < 0.9:
-					if v['downloaded']:
-						x[k]['downloaded'] = False
-						n += 1
+		if get_size_in_MB(vid_path) > 0:
+			actual_duration = convert_time_into_seconds(
+					get_actual_video_duration(vid_path)
+			)
+			duration_from_youtube_info = convert_time_into_seconds(
+					v['duration']
+			)
+			
+			if actual_duration/duration_from_youtube_info < 0.9:
+				if v['downloaded']:
+					x[k]['downloaded'] = False
+					n += 1
 	if n > 0:
 		pickle.dump(x, open("mapping.pkl", 'wb'))
-	print(f"\n\nThere was {n} videos that ware not fully downloaded, we changed thier proparty 'downloaded' to 'False'")
+		print(f"\n\nThere was {n} videos that ware not fully downloaded, we changed thier proparty 'downloaded' to 'False'\n\n")
 		
 if __name__ == "__main__":
 
