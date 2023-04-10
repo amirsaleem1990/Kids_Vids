@@ -83,7 +83,7 @@ class Kids_Vids:
 			thumbnail_full_name = f"{self.base_path}thumbs/{v['thumbnail_name']}"
 			if not os.path.exists(thumbnail_full_name):
 				subprocess.check_call(['curl', v['thumbnail_url'], '-o', thumbnail_full_name])
-			subprocess.check_call(['youtube-dl', '--no-playlist', url, '-R', '100', '-o', full_video_name])
+			subprocess.check_call(['youtube-dl', '--no-playlist', url, '-R', '200', '-o', full_video_name])
 			self.mapping[url]['downloaded'] = True
 			print(colored(f"\n>>> The value 'True' is assigned to 'downloaded' for the {url}\n", 'green'))
 			os.system("/amir_bin/extentions_count /home/home/Videos/")
@@ -1095,6 +1095,7 @@ Select you option:
 			
 		elif user_inp == '5':
 			change_video_names_according_to_saved_names_in_mapping_file()
+			kids_vids_obj = Kids_Vids()
 			kids_vids_obj.distribution_of_the_videos_in_the_disk()
 		
 		
