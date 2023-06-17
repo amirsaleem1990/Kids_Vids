@@ -30,6 +30,8 @@ if getpass.getuser() == 'amir':
 class Kids_Vids:
 
 	def __init__(self, mapping_file_name='mapping.pkl', error_file_name="Error.pkl"):
+		self.resume = False
+		self.retry_qty = {}
 		self.user_urls = False
 		self.to_skip = []
 		self.get_urls_to_download_recursive_n = 0
@@ -64,6 +66,12 @@ class Kids_Vids:
 		print(f"mapping:, {mapping_file_name}")
 		print(f"Errors :, {error_file_name}")
 		print()
+		
+		change_video_names_according_to_saved_names_in_mapping_file()
+		_mapping_ = pickle.load(open(f"{self.base_path}{mapping_file_name}", 'rb'))
+		if _mapping_ != self.mapping:
+			print("\nContenct of the 'mapping.pkl' have been changed\nReloading .....")
+			self.original_mapping = self.mapping = _mapping_
 
 	def mapping_save(self, fee_kulli_haal=False):
 		if self.user_urls:
@@ -74,21 +82,38 @@ class Kids_Vids:
 			print(colored(f"\n\n{str(datetime.now()).split()[1].split('.')[0]}: mapping is saved as {self.base_path}mapping.pkl\n", 'green'))
 	
 	def download_a_video(self, url):
-
+		print("\n\n>> download_a_video method is called.")
+		if url in open("private_video.txt", 'r').read().splitlines():
+			print(f"\nThe url '{url}' in the private_video.txt so we are going to skip it....\n")
+			return
 		try:
 			v = self.mapping[url]
 			full_video_name = f"{self.videos_dir_path}{v['video_name']}"
+			# if sum([i.endswith(".part") for i in os.listdir(self.videos_dir_path) if v['video_name'].replace(".mp4", "").replace(".mkv", "").replace(".webm", "") in i]):
+				# ...
+			# else:
+			if os.path.exists(full_video_name):
+				print(f"\n>>> The video '{full_video_name}' is already exist\n")
+				return
 			thumbnail_full_name = f"{self.base_path}thumbs/{v['thumbnail_name']}"
 			if not os.path.exists(thumbnail_full_name):
 				subprocess.check_call(['curl', v['thumbnail_url'], '-o', thumbnail_full_name])
-			subprocess.check_call(['youtube-dl', '--no-playlist', url, '-R', '100', '-o', full_video_name])
+			# subprocess.check_call(['youtube-dl', '--no-playlist', url, '-R', '200', '-o', full_video_name])
+			command = f'youtube-dl --no-playlist {url} -R 200 -o {full_video_name}'
+			os.system(command)
 			self.mapping[url]['downloaded'] = True
 			print(colored(f"\n>>> The value 'True' is assigned to 'downloaded' for the {url}\n", 'green'))
 			os.system("/amir_bin/extentions_count /home/home/Videos/")
 			self.mapping_save()
 		except Exception as e:
 			print("\n\n\n\n",e, "\n>>>>>>>>>>\tTry again .......\n")
-			self.download_a_video(url)
+			if 'ERROR: Private video' in "\n".join(list(os.popen(f"youtube-dl '{url}' 2>&1"))):
+				open("private_video.txt", 'a').write(url + "\n")
+				return
+			self.retry_qty[url] = self.retry_qty.get(url, 0) + 1
+			if self.retry_qty[url] < 3:
+				time.sleep(60)
+				self.download_a_video(url)
 			# self.errors[url] = ["download_videos fail",e, str(datetime.now())]
 
 	def duration_sec(self, x):
@@ -156,11 +181,34 @@ class Kids_Vids:
 				to_download.append(url)
 		return to_download
 
+	def check_if_unfinished_videos_exist(self, to_download):
+		print("\n>> check_if_unfinished_videos_exist method is called.")
+
+		_vids_to_download = [
+			self.mapping[url]['video_name'] 
+			for url in to_download
+		]
+		_vids_names_exist = os.listdir(self.videos_dir_path)
+		_part_names =  list(filter(lambda x: x.endswith(".part"), _vids_names_exist))
+
+
+		if _part_names:
+			to_download.clear()
+			for i in _part_names:
+				i = i.split(".")[0]
+				for url, info_dict in self.mapping.items():
+					if i in info_dict['video_name']:
+						to_download.append(url)
+
+		return to_download
+
 	def downlload_in_multithreding(self):
 		print("\n\n>> downlload_in_multithreding method is called.")
 		size_before = int(list(os.popen(f"du -sh -BM  {self.videos_dir_path}"))[0].strip().split("\t")[0].strip("M"))
 
 		to_download = self.filter_videos_to_download()
+		if self.resume:
+			to_download = self.check_if_unfinished_videos_exist(to_download)
 
 		is_error = False
 		try:
@@ -168,6 +216,8 @@ class Kids_Vids:
 				p = multiprocessing.dummy.Pool()
 				print(colored(f"\n--------------------------------------------------- {len(to_download)} videos to be downloaded ..........\n\n", 'green'))
 				p.map(self.download_a_video, to_download)
+				# ??????????????????????????????????????????????????????? Stuck here
+				print("?????????????????????????????????????????????????????????????????????????????????")
 			else:
 				print(colored("\n\nNo videos to be download\n", 'red'))
 				# raise Exception("No_video_to_be_downloaded")
@@ -431,6 +481,9 @@ class Kids_Vids:
 			print(e)
 			self.files_error += 1
 
+	def remove_double_extention(self, vid_name):
+		return vid_name.replace(".mkv.mkv", ".mkv").replace(".mkv.mkv", ".mkv").replace(".mp4.mp4", ".mp4").replace(".webm.webm", ".webm")
+
 	def distribution_of_the_videos_in_the_disk(self):
 
 		def to_mb(size):
@@ -456,6 +509,49 @@ class Kids_Vids:
 					)
 			)
 
+			mapping_dict = pickle.load(open("mapping.pkl", 'rb'))
+			vids_names_in_mapping = [v['video_name'] for k,v in mapping_dict.items()]
+
+			for saved_vid_name in saved_vids_names:
+				saved_vid_name_striped = saved_vid_name.strip(self.videos_dir_path)
+				saved_vid_name_modified = self.remove_double_extention(saved_vid_name)
+				if saved_vid_name_modified == saved_vid_name:
+					continue
+				saved_vid_name_modified_striped = saved_vid_name_modified.strip(self.videos_dir_path)
+				if saved_vid_name_modified_striped in vids_names_in_mapping:
+					os.rename(saved_vid_name, saved_vid_name_modified)
+				else:
+					possible_matchings_from_mapping = [i for i in vids_names_in_mapping if saved_vid_name_modified_striped in i]
+					if not possible_matchings_from_mapping:
+						print(f">>> No pissible matching from mapping dict\t'{saved_vid_name_striped}'")
+						continue
+					from fuzzywuzzy import fuzz
+					scores_list = [(r, fuzz.ratio(saved_vid_name_modified_striped, r)) for r in possible_matchings_from_mapping]
+
+					# The vide name in `best` is from `vids_names_in_mapping`
+					best = sorted(scores_list, key=lambda x: x[1])[0]
+					if (best[1] > 95):
+						# if (abs(1-(len(best[0])/len(saved_vid_name_modified_striped))) <= 0.07):
+						# 	continue
+						from_ = saved_vid_name
+						to_ = self.videos_dir_path + best[0]
+						os.rename(from_, to_)
+						print(from_)
+						print(to_)
+						print()
+					else:
+						print(f">>> Score is below 95\t'{saved_vid_name_striped}'")
+
+
+			saved_vids_names = list(
+					map(
+						str.strip,
+						os.popen(""" find /home/home/Videos/ -iname "*mp4" -o -iname "*mkv" -o -iname "*webm" """)
+					)
+			)
+
+
+
 			df = pd.Series(saved_vids_names, name="full_name").to_frame()
 
 			df['size_bytes'] = df.full_name.apply(lambda x:os.path.getsize(x))
@@ -466,6 +562,7 @@ class Kids_Vids:
 			mapping = pd.DataFrame.from_dict(pickle.load(open("mapping.pkl", 'rb')), orient="index")
 			mapping = mapping.drop_duplicates(subset=["channel", "duration", "video_name"])
 
+			# vids_names_that_are_not_in_mapping = list(set(df.video_name).difference(mapping.video_name))
 			# def get_actual_video_name(vid_name):
 			# 	v = vid_name.strip(".mp4").strip("webm").strip(".mkv")
 			# 	for extention in ['.mkv', '.mp4', 'webm']:
@@ -926,10 +1023,10 @@ def get_incompleted_vid_dict():
 		pass
 
 def change_video_names_according_to_saved_names_in_mapping_file():
-	ans = input("This function require that the 'mapping' should NOT being used from another session. Is this condition setisfied? [yes|no]")
-	if ans != "yes":
-	    import sys
-	    sys.exit()
+	# ans = input("This function require that the 'mapping' should NOT being used from another session. Is this condition setisfied? [yes|no]")
+	# if ans != "yes":
+	# 	import sys
+	# 	sys.exit()
 	vids_in_dir = list(os.popen("""IFS=$'\n'; for i in $(find /home/home/Videos/ -type f | grep -iE 'mp4|mkv|webm'); do basename "$i" ;done"""))
 	vids_in_dir = list(map(str.strip, vids_in_dir))
 
@@ -943,20 +1040,20 @@ def change_video_names_according_to_saved_names_in_mapping_file():
 	x2 = x[x.str.count("\.").eq(1)].reset_index(drop=True)
 	lst = []
 	for i in x2:
-	    i_0, i_1 = i.split(".")
-	    for extention in [".mp4", ".mkv", ".webm", ".MP4", ".MKV", ".WEBM"]:
-	        if (i_0 + extention) in vids_in_dir:
-	            lst.append(("."+i_1, extention, i_0))
-	            
+		i_0, i_1 = i.split(".")
+		for extention in [".mp4", ".mkv", ".webm", ".MP4", ".MKV", ".WEBM"]:
+			if (i_0 + extention) in vids_in_dir:
+				lst.append(("."+i_1, extention, i_0))
+				
 	x = (
 		pd
 		.DataFrame(lst, columns=["saved", "actual", "name"])
 		.assign(
-	        actual_name=lambda x:x.name + x.actual, 
-	        saved_name=lambda x:x.name + x.saved
-	    )
+			actual_name=lambda x:x.name + x.actual, 
+			saved_name=lambda x:x.name + x.saved
+		)
 		.drop(["saved", "actual", "name"], axis=1)
-	    .drop_duplicates(subset=["saved_name"], keep=False)
+		.drop_duplicates(subset=["saved_name"], keep=False)
 	)
 	new_video_name = df.video_name.replace(x.set_index("saved_name").actual_name.to_dict())
 	if new_video_name.eq(df.video_name).all():
@@ -979,8 +1076,76 @@ def change_video_names_according_to_saved_names_in_mapping_file():
 		sys.exit()
 	pickle.dump(d, open("mapping.pkl", 'wb'))
 
+def create_empty_downloaded_files():
+	import pickle
+	x = pickle.load(open("mapping.pkl", 'rb'))
+	files_count_before = len(os.listdir("/home/home/Videos/"))
+	for i in [i['video_name'] for i in list(x.values()) if i['downloaded']]:
+		file_name = f"/home/home/Videos/{i}"
+		if not os.path.exists(file_name):
+			try:
+				open(file_name, 'w').write("")
+			except:
+				pass
+	files_count_after = len(os.listdir("/home/home/Videos/"))
+	print(f"\n\n{files_count_after - files_count_before} files created\n\n")
+
+def download_short_videos_again():
+	get_actual_video_duration = lambda vid_path: list(os.popen(f"""ffmpeg -i {vid_path}  2>&1 | grep Duration | cut -d " " -f 4 | sed s/,// """))[0].strip()
+	get_size_in_MB = lambda vid_path : float(list(os.popen(f"du -s -BM {vid_path}"))[0].strip().split("M")[0])
+	def convert_time_into_seconds(duration):
+		if "." in duration:
+			duration = duration.split(".")[0]
+		h,m,s = list(map(
+			lambda x: int(x[1]) if x.startswith("0") else int(x),
+			duration.split(":")
+		))
+		return h*60*60 + m*60 + s
+
+	def get_existing_videos_in_local():
+		func = lambda x: x.strip().split("\t")
+		df = pd.DataFrame(list(map(func, list(os.popen("du -s -BM /home/home/Videos/*")))), columns=["Size", "video_path"])
+		df.Size = df.Size.str.replace("M", "").astype(float)
+		return df[df.Size > 0].video_path.str.replace("/home/home/Videos/", "").str.strip()
+
+	n = 0
+	x = pickle.load(open("mapping.pkl", 'rb'))
+
+	existing_videos_in_local = get_existing_videos_in_local()
+	for k,v in x.items():
+		if not v['video_name'] in existing_videos_in_local:
+			continue
+		vid_path = f"/home/home/Videos/{v['video_name']}"
+		if get_size_in_MB(vid_path) > 0:
+			actual_duration = convert_time_into_seconds(
+					get_actual_video_duration(vid_path)
+			)
+			duration_from_youtube_info = convert_time_into_seconds(
+					v['duration']
+			)
+			
+			if actual_duration/duration_from_youtube_info < 0.9:
+				if v['downloaded']:
+					x[k]['downloaded'] = False
+					n += 1
+	if n > 0:
+		pickle.dump(x, open("mapping.pkl", 'wb'))
+		print(f"\n\nThere was {n} videos that ware not fully downloaded, we changed thier proparty 'downloaded' to 'False'\n\n")
+		
+def part_files_size():
+	lst = []
+	for i in list(filter(lambda x: x.endswith(".part"), os.listdir("/home/home/Videos/"))):
+		mb = round(os.path.getsize(f"/home/home/Videos/{i}")/1024/1024)
+		lst.append((i, mb))
+	x = sorted(lst, key=lambda x: x[1], reverse=True)
+	for i in x:
+		print(i[1], i[0])
+	print(sum([i[1] for i in x]), "====TOTAL====\n")
 
 if __name__ == "__main__":
+
+	kids_vids_obj = Kids_Vids()
+	# kids_vids_obj = Kids_Vids(mapping_file_name = 'mapping_from_user_urls.pkl')
 	
 	print("""
 Select you option:
@@ -995,55 +1160,62 @@ Select you option:
 	9- Remove old videos
 	10- Remove all Videos for given channel/s
 	11- Get incompleted vid dict
-	12- Correct video names in mapping.pkl file""")
+	12- Correct video names in mapping.pkl file
+	13- Create empty previosly downloaded files
+	14- Mark short videos as NOT_DOWNLOADED_YET
+	""")
 
+	
 	user_inp = input().strip()
-	if not user_inp.isnumeric():
-		raise Exception ("Wrong input")
-	
-	kids_vids_obj = Kids_Vids()
-	# kids_vids_obj = Kids_Vids(mapping_file_name = 'mapping_from_user_urls.pkl')
+	assert user_inp.isnumeric(), "Wrong input"
 
-	if user_inp == '1':
-		download_new_videos(kids_vids_obj)
+	actions_dict = {
+		"2" : kids_vids_obj.main_function_of_getting_new_videos_info,
+		"6" : Add_channels,
+		"8" : add_urls_to_mapping_pkl,
+		"9" : remove_old_videos,
+		"10" : remove_all_Videos_for_given_channel,
+		"11" : get_incompleted_vid_dict,
+		"12" : change_video_names_according_to_saved_names_in_mapping_file,	
+		"13" : create_empty_downloaded_files,
+		"14" : download_short_videos_again
+	}
 	
-	elif user_inp == '2':
-		kids_vids_obj.main_function_of_getting_new_videos_info()
+	if user_inp in actions_dict:
+		actions_dict[user_inp]()
 	
-	elif user_inp == '3':
-		kids_vids_obj.main_function_of_getting_new_videos_info()
-		download_new_videos(kids_vids_obj)
-	
-	elif user_inp == '4':
-		move_videos_to_their_folders(kids_vids_obj)
-	
-	elif user_inp == '5':
-		change_video_names_according_to_saved_names_in_mapping_file()
-		kids_vids_obj.distribution_of_the_videos_in_the_disk()
-	
-	elif user_inp == '6':
-		Add_channels()	
-	
-	elif user_inp == '7':
-		kids_vids_obj.user_urls = True
-		kids_vids_obj.main_function_of_getting_new_videos_info()
-		pickle.dump(
-			kids_vids_obj.mapping, open(f"{kids_vids_obj.base_path}mapping_from_user_urls.pkl", 'wb')
-			)
-		download_new_videos(kids_vids_obj)
+	else:
 
-	elif user_inp == '8':
-		add_urls_to_mapping_pkl()
+		if user_inp == '1':
+			if list(filter(lambda x: x.endswith(".part"), os.listdir("/home/home/Videos"))):
+				part_files_size()
+				kids_vids_obj.resume = input("Do you want to resume? [yes|no] ") == "yes"
+			download_new_videos(kids_vids_obj)
+		
+		elif user_inp == "4": 
+			move_videos_to_their_folders(kids_vids_obj)
+		
+		elif user_inp == '3':
+			if list(filter(lambda x: x.endswith(".part"), os.listdir("/home/home/Videos"))):
+				part_files_size()
+				kids_vids_obj.resume = input("Do you want to resume? [yes|no] ") == "yes"
+			kids_vids_obj.main_function_of_getting_new_videos_info()
+			download_new_videos(kids_vids_obj)
+			
+		elif user_inp == '5':
+			change_video_names_according_to_saved_names_in_mapping_file()
+			kids_vids_obj = Kids_Vids()
+			kids_vids_obj.distribution_of_the_videos_in_the_disk()
+		
+		
+		elif user_inp == '7':
+			kids_vids_obj.user_urls = True
+			kids_vids_obj.main_function_of_getting_new_videos_info()
+			pickle.dump(
+				kids_vids_obj.mapping, open(f"{kids_vids_obj.base_path}mapping_from_user_urls.pkl", 'wb')
+				)
+			download_new_videos(kids_vids_obj)
 
-	elif user_inp == "9":
-		remove_old_videos()
-
-	elif user_inp == '10':
-		remove_all_Videos_for_given_channel()
-
-	if user_inp == '11':
-		get_incompleted_vid_dict()
-	if user_inp == "12":
-		change_video_names_according_to_saved_names_in_mapping_file()
-
+		else:
+			raise Exception("Wront input")
 
