@@ -92,7 +92,7 @@ class Kids_Vids:
 			# if sum([i.endswith(".part") for i in os.listdir(self.videos_dir_path) if v['video_name'].replace(".mp4", "").replace(".mkv", "").replace(".webm", "") in i]):
 				# ...
 			# else:
-			if os.path.exists(full_video_name):
+			if os.path.exists(full_video_name) and (os.path.getsize(full_video_name) == 0):
 				print(f"\n>>> The video '{full_video_name}' is already exist\n")
 				return
 			thumbnail_full_name = f"{self.base_path}thumbs/{v['thumbnail_name']}"
