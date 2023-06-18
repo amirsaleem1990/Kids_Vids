@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<style>
+			* {box-sizing: border-box;}
+			.column {float: left;width: 20.00%; padding: 0px;}
+			/* Clearfix (clear floats) */
+			.row::after {content: "";clear: both;display: table;}
+		</style>
+	</head>
+	<body>
+		<center>Kids_Vids</center>
+		<br>
+		<div class="row">
+			{% for d in data %}
+				<div class="column">
+					<figure class="D3Oi9">
+						<video width="320" height="240" controls poster={% static d.img %} src={% static d.vid %}></video>
+						<!-- <video width="320" height="240" controls  poster={% static d.img %}>
+						<source src={% static d.vid %} type="video/mp4"></video> -->
+						<!-- <video width="320" height="240" controls  poster={% static d.img %}>
+						<source src={% static d.vid %} type="video/webm"></video> -->
+						<span class="QuG1o"><br>{{d.vid_name}}<br><b>{{d.channel}}<br></b>{{d.msg}}</span>
+					</figure>
+				</div>
+			{% endfor %}
+		</div>
+	</body>
+</html>

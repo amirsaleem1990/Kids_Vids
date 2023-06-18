@@ -59,8 +59,9 @@ def select_channels(request):
 	x = dict(request.POST)
 
 	selected_channels = [k.strip() for k, v in x.items() if v == ['on']]
-	print("selected channels:")
-
+	print("\nselected channels:")
+	print(*selected_channels, sep="\n")
+	print()
 	if not selected_channels:
 		return render(request, 'Error.html', {"error" : "No channel is selected!!!!!!"})
 	try:
@@ -80,7 +81,9 @@ def select_channels(request):
 		to_ = None
 		if len(df) > 200:
 			to_ = 15
-		x = (df.assign(upload_date=df.upload_date.astype(str).str.replace("-", ""))
+			print("\n>>> Since there are a lot of vedios, we are going to keep only most recent 15 videos for each selected channel.")
+		x = (
+				df.assign(upload_date=df.upload_date.astype(str).str.replace("-", ""))
 			   .reset_index()
 			   .rename(columns={"index" : "url"})
 			   .groupby("channel")
@@ -100,7 +103,11 @@ def select_channels(request):
 					upload_date = v['upload_date']
 					)
 			 	)
+		len_data_before=len(data)
 		data = [i for i in data if i]
+		len_data_after=len(data)
+		if len_data_before > len_data_after:
+			print(f"\n>>> Droped {len_data_before-len_data_after} videos.")
 	except Exception as e:
 		open(f"/home/{getpass.getuser()}/github/Kids_Vids/EX.txt", 'w').write(str(e))
 		return render(request, 'Error.html', {"error" : e})

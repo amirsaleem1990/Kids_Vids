@@ -1,0 +1,12 @@
+{% block content %} 
+    <form action="select_channels/" method='post' id="my_form">
+        {% csrf_token %}
+        {% for i in channels_clean_names_and_urls_count %}
+            <div>
+                <input type="checkbox" id="{{i.0}}" name="{{i.0}}">
+                <label for="{{i.0}}">{{i.0}} | {{i.1}}</label>
+            </div>
+        {% endfor %}        
+        <input type="submit" value="Submit">
+    </form>
+{% endblock %}
