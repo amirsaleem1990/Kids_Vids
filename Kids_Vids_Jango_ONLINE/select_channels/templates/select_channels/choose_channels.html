@@ -1,12 +1,72 @@
 {% block content %} 
     <form action="select_channels/" method='post' id="my_form">
         {% csrf_token %}
+        <br>
+            <input type="checkbox" name="select-all" id="select-all" style="width: 40px; height: 40px; margin-bottom: 20px;" Checked />
+            <label for="select-all">Select/Deselct All</label>
+        <br>
         {% for i in channels_clean_names_and_urls_count %}
             <div>
-                <input type="checkbox" id="{{i.0}}" name="{{i.0}}">
+                <input type="checkbox" id="{{i.0}}" name="{{i.0}}" class="efg" Checked>
                 <label for="{{i.0}}">{{i.0}} | {{i.1}}</label>
             </div>
-        {% endfor %}        
-        <input type="submit" value="Submit">
+        {% endfor %}
+        <div style="width: 100%; float: left; padding-top: 20px; margin: 20px 0; border-top: 1px solid #cecece;">
+            <input id="check" type="submit" name="sub_efg" value="Submit" class="center-block">
+        </div>
     </form>
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script>
+        $('.efg').click(function(){
+        var getClass = $(this).attr('class');
+        var flag = 0;
+        let count = 0
+        let checkedCount = 0
+        $('input[class="efg"]').each(function(){
+            count++;
+        });
+        $('input[class="efg"]').each(function(){
+            if($(this).is(':checked')) {
+                flag = 1;
+                checkedCount ++
+                console.log($(this).is(':checked'))
+        }
+        });
+        if(flag) {
+            $('input[name="sub_efg"]').removeAttr('disabled');
+        } else {
+            $('input[name="sub_efg"]').attr('disabled', true);
+            alert("You have to select at least one model.");
+        }
+        if (!$(this).is(':checked')) {
+            document.getElementById('select-all').checked = false;
+        }
+        if (checkedCount === count) {
+            document.getElementById('select-all').checked = true
+        }
+        }); 
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <script>
+    // Listen for click on toggle checkbox
+    $('#select-all').click(function(event) {
+        if(this.checked) {
+            // Iterate each checkbox
+            $(':checkbox').each(function() {
+                this.checked = true;                        
+            });
+            $('input[name="sub_efg"]').removeAttr('disabled');
+        } else {
+            event.currentTarget.checked = false;
+            $('input[name="sub_efg"]').attr('disabled', true);
+            alert("You have to select at least one model.");
+            $(':checkbox').each(function() {
+                this.checked = false;                       
+            });
+        }
+    }); 
+    </script>
 {% endblock %}
