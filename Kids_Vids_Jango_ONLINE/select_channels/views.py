@@ -1,6 +1,7 @@
 from django.shortcuts import render
 import time
 from django.http.response import HttpResponse
+import multiprocessing
 import getpass
 import json
 import shutil
@@ -22,7 +23,7 @@ def select_channels(request):
 	print()
 	if not selected_channels:
 		return render(request, 'Error.html', {"error" : "No channel is selected!!!!!!"})
-	# try:
+
 	channels_mapping = json.load(open("channels_mapping.json", 'r'))
 	channels_mapping_rev = {v:k for k,v in channels_mapping.items()}
 	channels_dict = pickle.load(open("channels_dict.pkl", 'rb'))
@@ -40,21 +41,15 @@ def select_channels(request):
 	vids_info = {}
 	for i in all_urls:
 		channel_name, urls = i
+		pool = multiprocessing.Pool()   # Create a multiprocessing Pool
 		for url in urls:
-			vids_info[url] = utils.get_video_info(url)
-			file_name = "url_info_" + url.replace("/", "_") + ".pkl"
-			if not os.path.exists(file_name):
-				print(f"\n>>> Writing '{file_name}' to the disk.")
-				pickle.dump(vids_info[url], open(file_name, 'wb'))
-				time.sleep(1)
-			else:
-				print(f"\n>>> The file '{file_name}' is already exist.")
-				
-	# except Exception as e:
-	# 	return HttpResponse(e)
+			# pool.apply_async(utils.get_and_save_video_info, args=(url, vids_info))
+			utils.get_and_save_video_info(url, vids_info)
+	contenct = []
+	for k,v in vids_info.items():
+		if v is None:
+			continue
+		contenct.append(v)
+		contenct[-1]["video_url"] = k.replace("watch?v=", "embed/")
 
-		# raise Exception(e)
-		# open(f"/home/{getpass.getuser()}/github/Kids_Vids/EX.txt", 'w').write(str(e))
-		# return render(request, 'Error.html', {"error" : e})
-	# return render(request, 'dashboard.html', {'data' : all_urls})
-	return HttpResponse("HI")
+	return render(request, 'dashboard.html', {'vids_info' : contenct})
