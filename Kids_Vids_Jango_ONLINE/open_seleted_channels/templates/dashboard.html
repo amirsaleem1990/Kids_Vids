@@ -12,15 +12,22 @@
 		<center>Kids_Vids</center>
 		<br>
 		<div class="row">
-			{% for d in data %}
+			{% for info in vids_info %}
+				<!-- 
+				upload_date
+				duration
+				-->
 				<div class="column">
 					<figure class="D3Oi9">
-						<video width="320" height="240" controls poster={% static d.img %} src={% static d.vid %}></video>
-						<!-- <video width="320" height="240" controls  poster={% static d.img %}>
-						<source src={% static d.vid %} type="video/mp4"></video> -->
-						<!-- <video width="320" height="240" controls  poster={% static d.img %}>
-						<source src={% static d.vid %} type="video/webm"></video> -->
-						<span class="QuG1o"><br>{{d.vid_name}}<br><b>{{d.channel}}<br></b>{{d.msg}}</span>
+						<div class="video-box">
+							<iframe 
+								width="320" 
+								height="240" 
+								src={{ info.video_url }} 
+								frameborder="0" 
+								allowfullscreen>
+							</iframe>
+						</div>
 					</figure>
 				</div>
 			{% endfor %}
