@@ -21,8 +21,7 @@ def duration_sec(x):
 
 
 def check_if_channel_file_exist(channel_name):
-    filtered_files_names = list(filter(lambda f: f.endswith(".pkl") and "--" in f, os.listdir()))
-    for f in filtered_files_names:
+    for f in os.listdir("vids_info/"):
         if channel_name == f.split("--")[0]:
             return (True, int(f.split("--")[1].replace(".pkl", "")))
     return (False,False)
@@ -32,13 +31,13 @@ def get_urls(channel_name, channel_url):
     exist, saving_time = check_if_channel_file_exist(channel_name)
     if not exist or (time.time() - saving_time) > 86400:
         urls = get_videos_urls_from_channel_url(channel_url)
-        pickle.dump(urls, open(f"{channel_name}--{int(time.time())}.pkl", 'wb'))
+        pickle.dump(urls, open(f"vids_info/{channel_name}--{int(time.time())}.pkl", 'wb'))
         if not exist:
             print(f"\n>>> Urls for '{channel_name}' doesn't exist, so we scraped them, and saved them for future use\n")
         else:
             print(f"\n>>> Urls for '{channel_name}' exist, but it's more than 24 hours old, so we scraped the new one, and saved them for future use\n")
     else:
-        current_channel_files = list(filter(lambda x: x.startswith(f"{channel_name}--"), os.listdir()))
+        current_channel_files = list(filter(lambda x: x.startswith(f"{channel_name}--"), os.listdir("vids_info/")))
         if len(current_channel_files) == 1:
             urls = pickle.load(open(current_channel_files[0], 'rb'))
             print(f"\n>>> Urls for '{channel_name}' are existing\n")
@@ -56,19 +55,25 @@ def get_urls(channel_name, channel_url):
         # get_urls(channel_name, channel_url)
     return urls
 
-def get_video_info(url):
+def get_video_info(url, file_name):
 
     urls_info = pickle.load(open('urls_info.pkl', 'rb'))
 
     if url in urls_info:
         return urls_info[url]
+    if os.path.exists(file_name):
+        return pickle.load(open(file_name, 'rb'))
 
     else: # No need for this `else`, but it's easear to understand the flow
-        x = (
-                youtube_dl
-                .YoutubeDL({'outtmpl': '%(id)s.%(ext)s', 'noplaylist' : True})
-                .extract_info(url, download=False) # We just want to extract the info
-            )
+        try:
+            x = (
+                    youtube_dl
+                    .YoutubeDL({'outtmpl': '%(id)s.%(ext)s', 'noplaylist' : True})
+                    .extract_info(url, download=False) # We just want to extract the info
+                )
+        except:
+            print(f">>> Failed to fetch information about '{url}'")
+            return
         if x:
             duration = x['duration']
             if int(duration) == 0:
@@ -97,3 +102,15 @@ def get_video_info(url):
 
             return dict_
 
+
+def get_and_save_video_info(url, vids_info):
+    try:
+        file_name = "urls_info/url_info_" + url.replace("/", "_") + ".pkl"
+        vids_info[url] = get_video_info(url, file_name)
+        if not os.path.exists(file_name):
+            print(f"\n>>> Writing '{file_name}' to the disk.")
+            pickle.dump(vids_info[url], open(file_name, 'wb'))
+        else:
+            print(f"\n>>> The file '{file_name}' is already exist.")
+    except:
+        ...
